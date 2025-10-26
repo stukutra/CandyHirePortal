@@ -1,1 +1,197 @@
-/* You can add global styles to this file, and also import other style files */
+/* CandyHire Portal - Global Styles */
+@use 'bootstrap/scss/bootstrap';
+@use 'bootstrap-icons/font/bootstrap-icons.css';
+
+/* === FONTS === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
+
+/* === THEME VARIABLES === */
+:root {
+  /* Primary Colors */
+  --ch-pink: #F7C7D9;
+  --ch-pink-light: #FFE0E6;
+  --ch-candy: #E91E63;
+  --ch-candy-light: #FFE0E6;
+  --ch-mint: #CFEDE3;
+  --ch-mint-light: #E0F7EE;
+  --ch-mint-dark: #059669;
+  --ch-sky: #CFE7FF;
+  --ch-sky-light: #E0F0FF;
+  --ch-lilac: #D8CCF0;
+  --ch-lilac-light: #E8E0F7;
+  --ch-peach: #FFE0D4;
+
+  /* Neutral Colors */
+  --ch-ink: #5a5a6b;
+  --ch-ink-light: #8a8a9b;
+  --ch-bg: #FFF9FB;
+  --ch-surface: #FEF6F8;
+  --ch-paper: #FFFFFF;
+  --ch-border: #E5E0E6;
+  --ch-border-light: #F0EDF1;
+  --ch-white: #FFFFFF;
+
+  /* Candy Design Tokens */
+  --ch-radius: 1.5rem;
+  --ch-radius-sm: 1rem;
+  --ch-radius-lg: 2rem;
+  --ch-radius-xl: 2.5rem;
+
+  /* Marshmallow Shadows */
+  --ch-shadow: 0 8px 20px rgba(247, 199, 217, 0.15), 0 4px 8px rgba(216, 204, 240, 0.1);
+  --ch-shadow-sm: 0 4px 12px rgba(247, 199, 217, 0.12);
+  --ch-shadow-lg: 0 12px 32px rgba(247, 199, 217, 0.2), 0 6px 16px rgba(216, 204, 240, 0.15);
+  --ch-shadow-candy: 0 6px 16px rgba(255, 182, 220, 0.25), 0 2px 8px rgba(207, 237, 227, 0.15);
+
+  /* Transitions */
+  --ch-transition: all 0.2s ease-in-out;
+}
+
+/* === BASE STYLES === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: 'Bricolage Grotesque', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  background: linear-gradient(135deg, #FFF9FB 0%, #FEF6F8 50%, #FFF0F5 100%) !important;
+  background-attachment: fixed !important;
+  color: var(--ch-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  letter-spacing: 0.5px !important;
+}
+
+/* === TYPOGRAPHY === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Bricolage Grotesque', 'Poppins', sans-serif !important;
+  font-weight: 700 !important;
+  line-height: 1.3;
+  color: var(--ch-ink);
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px !important;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.125rem; }
+h5 { font-size: 1rem; }
+h6 { font-size: 0.875rem; }
+
+p {
+  margin-bottom: 1rem;
+  font-family: 'Bricolage Grotesque', sans-serif !important;
+  letter-spacing: 0.5px !important;
+}
+
+a {
+  color: var(--ch-ink);
+  text-decoration: none;
+  transition: var(--ch-transition);
+
+  &:hover {
+    color: var(--ch-pink);
+  }
+}
+
+/* === BUTTON STYLES === */
+.btn {
+  border-radius: var(--ch-radius-lg) !important;
+  font-weight: 600 !important;
+  padding: 0.75rem 1.5rem !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  border: none;
+  font-size: 0.9375rem;
+  font-family: 'Bricolage Grotesque', sans-serif !important;
+  letter-spacing: 0.5px !important;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(247, 199, 217, 0.3);
+  }
+}
+
+.btn-candy {
+  background: linear-gradient(135deg, var(--ch-pink) 0%, #ffc1e0 100%) !important;
+  color: #d91b5c !important;
+  box-shadow: 0 4px 12px rgba(247, 199, 217, 0.4) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #ffc1e0 0%, var(--ch-pink) 100%) !important;
+    color: #d91b5c !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(247, 199, 217, 0.5) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
+.btn-lg {
+  padding: 0.875rem 1.75rem !important;
+  font-size: 1rem !important;
+}
+
+/* === SCROLLBAR === */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: linear-gradient(135deg, var(--ch-pink-light) 0%, var(--ch-lilac-light) 100%);
+  border-radius: var(--ch-radius);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, var(--ch-pink) 0%, var(--ch-lilac) 100%);
+  border-radius: var(--ch-radius);
+  border: 2px solid var(--ch-white);
+
+  &:hover {
+    background: linear-gradient(135deg, var(--ch-lilac) 0%, var(--ch-pink) 100%);
+  }
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  body {
+    font-size: 0.875rem;
+  }
+
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+  h3 { font-size: 1.125rem; }
+}

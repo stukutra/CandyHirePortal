@@ -9,4 +9,5 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('CandyHirePortal');
+  protected readonly bubblesArray = Array.from({ length: 20 }, (_, i) => i + 1);
 }

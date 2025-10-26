@@ -1,0 +1,279 @@
+// Global Soap Bubbles Animation
+.candy-bubbles-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  background: linear-gradient(135deg,
+    rgba(255, 240, 245, 0.5) 0%,
+    rgba(254, 235, 245, 0.6) 25%,
+    rgba(252, 230, 243, 0.5) 50%,
+    rgba(255, 235, 250, 0.6) 75%,
+    rgba(255, 240, 248, 0.5) 100%);
+}
+
+// Floating bubbles
+.bubble {
+  position: fixed;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%,
+    rgba(255, 240, 245, 1) 0%,
+    rgba(255, 182, 193, 0.95) 15%,
+    rgba(255, 150, 170, 0.9) 30%,
+    rgba(255, 130, 160, 0.85) 50%,
+    rgba(230, 150, 200, 0.8) 70%,
+    rgba(200, 130, 180, 0.75) 90%,
+    rgba(180, 120, 170, 0.7) 100%);
+  box-shadow:
+    inset 0 0 50px rgba(255, 255, 255, 1),
+    inset -10px -10px 30px rgba(255, 100, 150, 0.6),
+    0 0 50px rgba(255, 150, 180, 0.8),
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 15px 40px rgba(200, 100, 150, 0.4);
+  border: 4px solid rgba(255, 200, 220, 0.9);
+  pointer-events: none;
+  z-index: 0;
+  animation: float-up linear infinite;
+  opacity: 0;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 8%;
+    left: 12%;
+    width: 45%;
+    height: 45%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 25% 25%,
+      rgba(255, 255, 255, 1) 0%,
+      rgba(255, 255, 255, 0.9) 25%,
+      rgba(255, 240, 245, 0.6) 50%,
+      rgba(255, 200, 220, 0.3) 70%,
+      transparent 85%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 18%;
+    right: 18%;
+    width: 30%;
+    height: 30%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%,
+      rgba(255, 240, 250, 1) 0%,
+      rgba(255, 220, 235, 0.7) 35%,
+      rgba(255, 180, 210, 0.4) 65%,
+      transparent 90%);
+  }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(-100px) translateX(var(--bubble-drift)) scale(1);
+    opacity: 0;
+  }
+}
+
+// Different bubble sizes and speeds - TINY, SMALL, MEDIUM, LARGE, GIANT
+// Tiny bubbles (40-60px)
+.bubble-1 {
+  width: 45px;
+  height: 45px;
+  left: 8%;
+  animation-duration: 10s;
+  animation-delay: 0s;
+  --bubble-drift: 30px;
+}
+
+.bubble-5 {
+  width: 52px;
+  height: 52px;
+  left: 68%;
+  animation-duration: 11s;
+  animation-delay: 3s;
+  --bubble-drift: -25px;
+}
+
+.bubble-10 {
+  width: 48px;
+  height: 48px;
+  left: 22%;
+  animation-duration: 9s;
+  animation-delay: 5s;
+  --bubble-drift: 35px;
+}
+
+.bubble-16 {
+  width: 55px;
+  height: 55px;
+  left: 88%;
+  animation-duration: 10.5s;
+  animation-delay: 7.5s;
+  --bubble-drift: -30px;
+}
+
+// Small bubbles (70-90px)
+.bubble-2 {
+  width: 75px;
+  height: 75px;
+  left: 18%;
+  animation-duration: 13s;
+  animation-delay: 1.5s;
+  --bubble-drift: -45px;
+}
+
+.bubble-6 {
+  width: 82px;
+  height: 82px;
+  left: 45%;
+  animation-duration: 14s;
+  animation-delay: 4s;
+  --bubble-drift: 50px;
+}
+
+.bubble-11 {
+  width: 78px;
+  height: 78px;
+  left: 75%;
+  animation-duration: 12s;
+  animation-delay: 6s;
+  --bubble-drift: -40px;
+}
+
+.bubble-17 {
+  width: 88px;
+  height: 88px;
+  left: 92%;
+  animation-duration: 13.5s;
+  animation-delay: 8s;
+  --bubble-drift: -55px;
+}
+
+// Medium bubbles (100-140px)
+.bubble-3 {
+  width: 110px;
+  height: 110px;
+  left: 35%;
+  animation-duration: 17s;
+  animation-delay: 2s;
+  --bubble-drift: 60px;
+}
+
+.bubble-7 {
+  width: 125px;
+  height: 125px;
+  left: 58%;
+  animation-duration: 18s;
+  animation-delay: 4.5s;
+  --bubble-drift: -65px;
+}
+
+.bubble-12 {
+  width: 115px;
+  height: 115px;
+  left: 12%;
+  animation-duration: 16s;
+  animation-delay: 6.5s;
+  --bubble-drift: 55px;
+}
+
+.bubble-18 {
+  width: 135px;
+  height: 135px;
+  left: 80%;
+  animation-duration: 19s;
+  animation-delay: 8.5s;
+  --bubble-drift: -70px;
+}
+
+// Large bubbles (150-200px)
+.bubble-4 {
+  width: 165px;
+  height: 165px;
+  left: 50%;
+  animation-duration: 22s;
+  animation-delay: 2.5s;
+  --bubble-drift: -80px;
+}
+
+.bubble-8 {
+  width: 185px;
+  height: 185px;
+  left: 25%;
+  animation-duration: 24s;
+  animation-delay: 5s;
+  --bubble-drift: 90px;
+}
+
+.bubble-13 {
+  width: 175px;
+  height: 175px;
+  left: 65%;
+  animation-duration: 21s;
+  animation-delay: 7s;
+  --bubble-drift: -85px;
+}
+
+.bubble-19 {
+  width: 195px;
+  height: 195px;
+  left: 5%;
+  animation-duration: 25s;
+  animation-delay: 9s;
+  --bubble-drift: 95px;
+}
+
+// Giant bubbles (210-245px)
+.bubble-9 {
+  width: 225px;
+  height: 225px;
+  left: 40%;
+  animation-duration: 27s;
+  animation-delay: 5.5s;
+  --bubble-drift: -100px;
+}
+
+.bubble-14 {
+  width: 235px;
+  height: 235px;
+  left: 70%;
+  animation-duration: 26s;
+  animation-delay: 7.5s;
+  --bubble-drift: 105px;
+}
+
+.bubble-15 {
+  width: 245px;
+  height: 245px;
+  left: 15%;
+  animation-duration: 28s;
+  animation-delay: 8.5s;
+  --bubble-drift: -110px;
+}
+
+.bubble-20 {
+  width: 240px;
+  height: 240px;
+  left: 55%;
+  animation-duration: 29s;
+  animation-delay: 9.5s;
+  --bubble-drift: -115px;
+}

@@ -64,6 +64,9 @@
         },
         "serve": {
           "builder": "@angular/build:dev-server",
+          "options": {
+            "port": 4201
+          },
           "configurations": {
             "production": {
               "buildTarget": "CandyHirePortal:build:production"
@@ -99,5 +102,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "a2a19f40-c490-4225-9836-8321d77a55cb"
   }
 }
