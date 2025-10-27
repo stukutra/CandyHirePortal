@@ -1,13 +1,7 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-interface EarlyAdopter {
-  companyName: string;
-  email: string;
-  role: string;
-  date: string;
-}
+import { EarlyAdopterService, EarlyAdopter } from '../../services/early-adopter';
 
 @Component({
   selector: 'app-early-adopter-program',
@@ -16,12 +10,7 @@ interface EarlyAdopter {
   styleUrl: './early-adopter-program.scss',
 })
 export class EarlyAdopterProgram implements OnInit, OnDestroy {
-  // Slot management
-  registeredCompanies = 7;
-  maxSlots = 20;
-
-  // Early adopters data
-  earlyAdopters: EarlyAdopter[] = [];
+  earlyAdopterService = inject(EarlyAdopterService);
 
   // Modal state
   showModal = false;
@@ -37,77 +26,12 @@ export class EarlyAdopterProgram implements OnInit, OnDestroy {
     privacyConsent: false
   };
 
-  // Simulation interval
-  private simulationInterval: any;
-
   ngOnInit(): void {
-    this.loadEarlyAdopters();
-    this.startSimulation();
+    // Service handles all initialization
   }
 
   ngOnDestroy(): void {
-    if (this.simulationInterval) {
-      clearInterval(this.simulationInterval);
-    }
-  }
-
-  /**
-   * Load early adopters from localStorage
-   */
-  loadEarlyAdopters(): void {
-    const stored = localStorage.getItem('candyhire_early_adopters');
-    if (stored) {
-      this.earlyAdopters = JSON.parse(stored);
-      this.registeredCompanies = 7 + this.earlyAdopters.length; // Base 7 + real registrations
-    }
-  }
-
-  /**
-   * Save early adopters to localStorage
-   */
-  saveEarlyAdopters(): void {
-    localStorage.setItem('candyhire_early_adopters', JSON.stringify(this.earlyAdopters));
-  }
-
-  /**
-   * Start simulation of new registrations (every 30 seconds, 20% chance)
-   */
-  startSimulation(): void {
-    this.simulationInterval = setInterval(() => {
-      if (this.registeredCompanies < this.maxSlots && Math.random() < 0.2) {
-        this.updateSlots(1);
-      }
-    }, 30000); // Every 30 seconds
-  }
-
-  /**
-   * Update slots counter
-   */
-  updateSlots(increment: number): void {
-    if (this.registeredCompanies + increment <= this.maxSlots) {
-      this.registeredCompanies += increment;
-    }
-  }
-
-  /**
-   * Get remaining slots
-   */
-  get remainingSlots(): number {
-    return this.maxSlots - this.registeredCompanies;
-  }
-
-  /**
-   * Get percentage of filled slots
-   */
-  get slotsPercentage(): number {
-    return (this.registeredCompanies / this.maxSlots) * 100;
-  }
-
-  /**
-   * Check if slots are almost full (>80%)
-   */
-  get isAlmostFull(): boolean {
-    return this.slotsPercentage > 80;
+    // Cleanup if needed
   }
 
   /**
@@ -186,7 +110,7 @@ export class EarlyAdopterProgram implements OnInit, OnDestroy {
       return;
     }
 
-    if (this.remainingSlots <= 0) {
+    if (this.earlyAdopterService.isFull()) {
       this.errorMessage = 'Siamo spiacenti, tutti gli slot sono esauriti!';
       return;
     }
@@ -196,20 +120,23 @@ export class EarlyAdopterProgram implements OnInit, OnDestroy {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    // Add new early adopter
+    // Add new early adopter via service
     const newAdopter: EarlyAdopter = {
       companyName: this.formData.companyName,
       email: this.formData.email,
       role: this.formData.role,
-      date: new Date().toISOString()
+      joinedDate: new Date().toISOString()
     };
 
-    this.earlyAdopters.push(newAdopter);
-    this.saveEarlyAdopters();
-    this.updateSlots(1);
+    const success = this.earlyAdopterService.addEarlyAdopter(newAdopter);
 
-    this.isSubmitting = false;
-    this.showSuccessMessage = true;
-    this.resetForm();
+    if (success) {
+      this.isSubmitting = false;
+      this.showSuccessMessage = true;
+      this.resetForm();
+    } else {
+      this.isSubmitting = false;
+      this.errorMessage = 'Errore durante l\'iscrizione. Riprova.';
+    }
   }
 }

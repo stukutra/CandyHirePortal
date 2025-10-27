@@ -11,15 +11,19 @@
     <div class="landing-content">
       <!-- Hero Section -->
       <div class="hero-section animate-fade-in mt-5">
-        <h1 class="hero-title">La piattaforma di recruiting più semplice per il tuo team HR</h1>
+        <h1 class="hero-title">Il software HR che trasforma il recruiting in un gioco da ragazzi</h1>
         <p class="hero-subtitle">
-          CandyHire è il software di recruiting che semplifica la selezione del personale.
           Gestisci candidati, pubblica annunci e pianifica colloqui in un unico posto.
+          Semplice, bello e finalmente umano.
         </p>
         <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-lg hero-cta">
           <i class="bi bi-rocket-takeoff-fill"></i>
           Unisciti alla Lista d'Attesa
         </button>
+        <p class="hero-social-proof">
+          <i class="bi bi-people-fill"></i>
+          Già <strong>{{ earlyAdopterService.registeredCompanies() }} HR Manager</strong> hanno richiesto l'accesso anticipato
+        </p>
       </div>
 
       <!-- Screenshots Carousel -->

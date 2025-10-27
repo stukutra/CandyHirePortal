@@ -173,6 +173,23 @@ a {
   }
 }
 
+.btn-candy-saturated {
+  background: linear-gradient(135deg, var(--ch-candy) 0%, #c2185b 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4) !important;
+
+  &:hover {
+    background: linear-gradient(135deg, #c2185b 0%, var(--ch-candy) 100%) !important;
+    color: white !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(233, 30, 99, 0.6) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
 .btn-outline-candy {
   background: transparent !important;
   color: var(--ch-candy) !important;
@@ -218,6 +235,51 @@ a {
   }
 }
 
+/* === FLOATING CTA BUTTON === */
+.floating-cta-button {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--ch-candy) 0%, #d81b60 100%);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 8px 24px rgba(233, 30, 99, 0.4);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  animation: pulse-float 2s ease-in-out infinite;
+
+  i {
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(233, 30, 99, 0.6);
+    background: linear-gradient(135deg, #d81b60 0%, var(--ch-candy) 100%);
+  }
+
+  &:active {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes pulse-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
   body {
@@ -227,4 +289,19 @@ a {
   h1 { font-size: 1.5rem; }
   h2 { font-size: 1.25rem; }
   h3 { font-size: 1.125rem; }
+
+  .floating-cta-button {
+    bottom: 1rem;
+    right: 1rem;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.9rem;
+
+    .floating-cta-text {
+      display: none;
+    }
+
+    i {
+      font-size: 1.5rem;
+    }
+  }
 }

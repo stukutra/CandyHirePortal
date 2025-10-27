@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { Footer } from './components/footer/footer';
-import { WhatsappButton } from './components/whatsapp-button/whatsapp-button';
 import { WaitlistModal } from './components/waitlist-modal/waitlist-modal';
 import { WaitlistModalService } from './services/waitlist-modal';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, Footer, WhatsappButton, WaitlistModal],
+  imports: [RouterOutlet, RouterLink, Footer, WaitlistModal],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

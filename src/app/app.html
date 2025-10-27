@@ -21,7 +21,11 @@
 
 <router-outlet />
 
-<app-whatsapp-button />
+<!-- Floating CTA Button -->
+<button type="button" (click)="openWaitlistModal()" class="floating-cta-button">
+  <i class="bi bi-rocket-takeoff-fill"></i>
+  <span class="floating-cta-text">Iscriviti ora - posti limitati</span>
+</button>
 
 <app-footer />
 

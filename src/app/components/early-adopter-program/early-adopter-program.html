@@ -30,9 +30,9 @@
           <div class="counter-text">
             <h3>Posti Disponibili Limitati</h3>
             <p class="counter-numbers">
-              <span class="current">{{ registeredCompanies }}</span>
+              <span class="current">{{ earlyAdopterService.registeredCompanies() }}</span>
               <span class="separator">/</span>
-              <span class="max">{{ maxSlots }}</span>
+              <span class="max">{{ earlyAdopterService.getMaxSlots() }}</span>
               <span class="label">aziende già iscritte</span>
             </p>
           </div>
@@ -40,14 +40,14 @@
 
         <!-- Progress Bar -->
         <div class="progress-container">
-          <div class="progress-bar" [style.width.%]="slotsPercentage"></div>
+          <div class="progress-bar" [style.width.%]="earlyAdopterService.slotsPercentage()"></div>
         </div>
 
-        <p class="remaining-text" [class.urgent]="isAlmostFull">
-          <i class="bi bi-exclamation-triangle-fill" *ngIf="isAlmostFull"></i>
-          <i class="bi bi-info-circle-fill" *ngIf="!isAlmostFull"></i>
-          {{ remainingSlots }} {{ remainingSlots === 1 ? 'posto rimasto' : 'posti rimasti' }}
-          <span *ngIf="isAlmostFull" class="urgent-label">- Affrettati!</span>
+        <p class="remaining-text" [class.urgent]="earlyAdopterService.isAlmostFull()">
+          <i class="bi bi-exclamation-triangle-fill" *ngIf="earlyAdopterService.isAlmostFull()"></i>
+          <i class="bi bi-info-circle-fill" *ngIf="!earlyAdopterService.isAlmostFull()"></i>
+          {{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'posto rimasto' : 'posti rimasti' }}
+          <span *ngIf="earlyAdopterService.isAlmostFull()" class="urgent-label">- Affrettati!</span>
         </p>
       </div>
     </div>

@@ -282,6 +282,7 @@
   color: var(--ch-candy);
   flex-shrink: 0;
   animation: bounce 2s infinite;
+  margin-top: 0.5rem;
 }
 
 .savings-text {
@@ -331,7 +332,15 @@
   font-weight: 800;
   color: var(--ch-ink);
   text-align: center;
+  margin-bottom: 0.75rem;
+}
+
+.next-subtitle {
+  font-size: 1rem;
+  color: var(--ch-ink-light);
+  text-align: center;
   margin-bottom: 2rem;
+  font-style: italic;
 }
 
 .timeline {
@@ -498,6 +507,10 @@
 
   .pricing-card {
     padding: 1.5rem 1.25rem;
+
+    &.standard {
+      display: none;
+    }
   }
 
   .card-price .price-amount {
@@ -523,5 +536,199 @@
   .guarantees {
     flex-direction: column;
     gap: 1.25rem;
+  }
+
+  .urgency-counter {
+    padding: 1.25rem;
+  }
+
+  .counter-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .counter-icon {
+    font-size: 2.5rem;
+  }
+
+  .companies-ticker {
+    margin-bottom: 2rem;
+  }
+
+  .ticker-label {
+    font-size: 0.9rem;
+  }
+
+  .emotional-message {
+    font-size: 1.125rem;
+    padding: 1.5rem;
+
+    p {
+      font-size: 1rem;
+    }
+  }
+}
+
+/* Urgency Counter */
+.urgency-counter {
+  background: linear-gradient(135deg, rgba(247, 199, 217, 0.15) 0%, rgba(233, 213, 255, 0.15) 100%);
+  border: 2px solid var(--ch-pink);
+  border-radius: var(--ch-radius-lg);
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+}
+
+.counter-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.counter-icon {
+  font-size: 3rem;
+  color: var(--ch-candy);
+  flex-shrink: 0;
+  animation: rotate 3s linear infinite;
+}
+
+.counter-info {
+  flex: 1;
+}
+
+.counter-text {
+  font-size: 1.125rem;
+  color: var(--ch-ink);
+  margin: 0 0 1rem 0;
+
+  strong {
+    color: var(--ch-candy);
+    font-size: 1.25rem;
+  }
+}
+
+.counter-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.counter-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ch-pink) 0%, var(--ch-candy) 100%);
+  border-radius: 5px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(247, 199, 217, 0.6);
+}
+
+.counter-slots {
+  font-size: 0.85rem;
+  color: #777;
+  font-weight: 500;
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Companies Ticker */
+.companies-ticker {
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+  background: var(--ch-surface);
+  border-radius: var(--ch-radius);
+  padding: 1rem 0;
+}
+
+.ticker-label {
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--ch-ink);
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  i {
+    color: var(--ch-mint-dark);
+    font-size: 1.125rem;
+  }
+}
+
+.ticker-track {
+  display: flex;
+  animation: ticker-scroll 30s linear infinite;
+  gap: 2rem;
+  padding: 0 1rem;
+}
+
+.ticker-item {
+  flex-shrink: 0;
+  background: var(--ch-white);
+  color: var(--ch-ink);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--ch-radius);
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid var(--ch-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  white-space: nowrap;
+}
+
+@keyframes ticker-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Emotional Message */
+.emotional-message {
+  text-align: center;
+  padding: 2rem;
+  margin-top: 3rem;
+  font-size: 1.35rem;
+  color: var(--ch-candy);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+
+  i {
+    font-size: 1.5rem;
+    color: var(--ch-pink);
+    animation: heartbeat 1.5s infinite;
+  }
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  strong {
+    background: linear-gradient(135deg, var(--ch-pink) 0%, var(--ch-candy) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.2);
+  }
+  50% {
+    transform: scale(1);
   }
 }

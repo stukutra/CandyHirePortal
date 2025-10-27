@@ -4,6 +4,27 @@
       Un unico piano completo, due opportunità di risparmio
     </p>
 
+    <!-- Urgency Counter -->
+    <div class="urgency-counter">
+      <div class="counter-content">
+        <div class="counter-icon">
+          <i class="bi bi-hourglass-split"></i>
+        </div>
+        <div class="counter-info">
+          <p class="counter-text">
+            <strong>Solo {{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong>
+            disponibili a prezzo Early Bird
+          </p>
+          <div class="counter-bar">
+            <div class="counter-progress" [style.width.%]="earlyAdopterService.slotsPercentage()"></div>
+          </div>
+          <p class="counter-slots">
+            {{ earlyAdopterService.registeredCompanies() }}/{{ earlyAdopterService.getMaxSlots() }} posti riservati
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="pricing-tiers">
       <!-- Early Bird Tier -->
       <div class="pricing-card early-bird">
@@ -215,19 +236,19 @@
     <div class="savings-banner">
       <div class="scarcity-badge">
         <i class="bi bi-hourglass-split"></i>
-        <span>Solo <strong>15 licenze</strong> disponibili a prezzo Early Bird</span>
+        <span>Solo <strong>{{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong> disponibili a prezzo Early Bird</span>
       </div>
       <div class="savings-content">
         <i class="bi bi-piggy-bank-fill savings-icon"></i>
         <div class="savings-text">
           <h4>Risparmia €500 iscrivendoti ora!</h4>
-          <p>Gli early adopters ottengono il prezzo speciale di €1.500/anno invece di €2.000</p>
+          <p>Gli early adopters ottengono il prezzo speciale di <strong>€1.500/anno invece di €2.000</strong></p>
           <p class="urgency-text">
             <i class="bi bi-exclamation-triangle-fill"></i>
             Offerta valida solo in fase pre-lancio, fino ad esaurimento posti
           </p>
         </div>
-        <button type="button" (click)="openWaitlist()" class="btn btn-candy btn-lg">
+        <button type="button" (click)="openWaitlist()" class="btn btn-candy-saturated btn-lg">
           <i class="bi bi-envelope-heart-fill me-2"></i>
           Approfitta dell'Offerta
         </button>
@@ -237,6 +258,7 @@
     <!-- Cosa succede dopo -->
     <div class="what-happens-next">
       <h3 class="next-title">Cosa succede dopo l'iscrizione?</h3>
+      <p class="next-subtitle">Ti seguiamo passo dopo passo, senza burocrazia e senza attese.</p>
       <div class="timeline">
         <div class="timeline-item">
           <div class="timeline-number">1</div>
@@ -276,5 +298,14 @@
         <i class="bi bi-headset-fill"></i>
         <span>Supporto tecnico incluso</span>
       </div>
+    </div>
+
+    <!-- Emotional Final Message -->
+    <div class="emotional-message">
+      <i class="bi bi-heart-fill"></i>
+      <p>
+        CandyHire è pensato per chi vuole rendere il recruiting <strong>finalmente semplice, bello e umano</strong>.
+      </p>
+      <i class="bi bi-heart-fill"></i>
     </div>
 </div>
