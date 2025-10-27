@@ -240,6 +240,7 @@
   border: 1px solid var(--ch-border);
   transition: all 0.3s ease;
   text-align: center;
+  position: relative;
 
   &:hover {
     transform: translateY(-4px);
@@ -266,6 +267,21 @@
 .feature-icon {
   font-size: 3rem;
   color: var(--ch-pink);
+}
+
+.feature-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, var(--ch-lilac) 0%, var(--ch-lilac-light) 100%);
+  color: #6b21a8;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--ch-radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(216, 204, 240, 0.3);
 }
 
 /* CTA Section */
