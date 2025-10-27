@@ -1,0 +1,105 @@
+/* Rotating Phrases Component */
+.rotating-phrases {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--ch-candy);
+  text-align: center;
+  padding: 0 1rem;
+  transition: opacity 0.5s ease-in-out;
+  height: 4rem; // Altezza fissa per evitare saltelli (circa 2-3 righe)
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+
+  &:not(.visible) {
+    opacity: 0;
+  }
+}
+
+.phrase-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.phrase-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 700px;
+}
+
+.phrase-text {
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--ch-candy);
+  display: block;
+}
+
+.phrase-author {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--ch-ink-light);
+  font-style: normal;
+  display: block;
+}
+
+/* Pulse animation per l'icona */
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .rotating-phrases {
+    font-size: 1rem;
+    padding: 0 1.5rem;
+    height: 5rem; // Più spazio per mobile (testimonianza + autore)
+  }
+
+  .phrase-icon {
+    font-size: 1.1rem;
+  }
+
+  .phrase-text {
+    font-size: 0.95rem;
+  }
+
+  .phrase-author {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .rotating-phrases {
+    font-size: 0.9rem;
+    gap: 0.375rem;
+    margin-bottom: 1rem;
+    height: 5.5rem; // Ancora più spazio per frasi lunghe su schermi piccoli
+  }
+
+  .phrase-icon {
+    font-size: 1rem;
+  }
+
+  .phrase-text {
+    font-size: 0.875rem;
+  }
+
+  .phrase-author {
+    font-size: 0.8rem;
+  }
+}

@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { ScreenshotsCarousel } from '../../components/screenshots-carousel/screenshots-carousel';
 import { Pricing } from '../../components/pricing/pricing';
+import { RotatingPhrases } from '../../components/rotating-phrases/rotating-phrases';
 import { WaitlistModalService } from '../../services/waitlist-modal';
 import { EarlyAdopterService } from '../../services/early-adopter';
 
 @Component({
   selector: 'app-home',
-  imports: [ScreenshotsCarousel, Pricing],
+  imports: [ScreenshotsCarousel, Pricing, RotatingPhrases],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
