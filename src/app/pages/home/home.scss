@@ -398,6 +398,19 @@
   color: var(--ch-pink);
 }
 
+.feature-mascot {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin: 0 auto;
+  display: block;
+  transition: transform 0.3s ease;
+
+  .feature-card:hover & {
+    transform: scale(1.1) rotate(5deg);
+  }
+}
+
 .feature-badge {
   position: absolute;
   top: 1rem;
