@@ -1,13 +1,24 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet, RouterLink } from '@angular/router';
 import { Footer } from './components/footer/footer';
 import { WhatsappButton } from './components/whatsapp-button/whatsapp-button';
+import { WaitlistModal } from './components/waitlist-modal/waitlist-modal';
+import { WaitlistModalService } from './services/waitlist-modal';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, Footer, WhatsappButton],
+  imports: [RouterOutlet, RouterLink, Footer, WhatsappButton, WaitlistModal],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
+  protected modalService = inject(WaitlistModalService);
+
+  openWaitlistModal(): void {
+    this.modalService.open();
+  }
+
+  closeWaitlistModal(): void {
+    this.modalService.close();
+  }
 }

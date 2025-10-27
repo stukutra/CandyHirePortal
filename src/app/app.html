@@ -7,13 +7,13 @@
       </a>
     </div>
     <div class="toolbar-actions">
-      <a href="http://localhost:4202/login" target="_blank" rel="noopener noreferrer" class="btn btn-outline-candy btn-sm">
+      <button type="button" (click)="openWaitlistModal()" class="btn btn-outline-candy btn-sm">
         <i class="bi bi-box-arrow-in-right me-2"></i>
         Login
-      </a>
-      <button class="btn btn-candy btn-sm">
+      </button>
+      <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-sm">
         <i class="bi bi-cart-fill me-2"></i>
-        Acquista
+        Acquista Early Access
       </button>
     </div>
   </div>
@@ -24,3 +24,8 @@
 <app-whatsapp-button />
 
 <app-footer />
+
+<!-- Waitlist Modal -->
+@if (modalService.showModal()) {
+  <app-waitlist-modal (closeModal)="closeWaitlistModal()" />
+}

@@ -16,10 +16,10 @@
           CandyHire è il software di recruiting che semplifica la selezione del personale.
           Gestisci candidati, pubblica annunci e pianifica colloqui in un unico posto.
         </p>
-        <a href="http://localhost:4201" target="_blank" class="btn btn-candy btn-lg hero-cta">
-          <i class="bi bi-play-circle-fill"></i>
-          Prova la Demo
-        </a>
+        <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-lg hero-cta">
+          <i class="bi bi-rocket-takeoff-fill"></i>
+          Unisciti alla Lista d'Attesa
+        </button>
       </div>
 
       <!-- Screenshots Carousel -->
@@ -68,24 +68,58 @@
         </div>
       </div>
 
+      <!-- Target Audience Section -->
+      <div class="target-section">
+        <h2 class="section-title">A chi è dedicato CandyHire?</h2>
+        <p class="section-subtitle">La soluzione perfetta per chi gestisce recruiting in modo strutturato</p>
+
+        <div class="target-grid">
+          <div class="target-card">
+            <div class="target-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+            <h3>HR Manager di PMI</h3>
+            <p>Gestisci il recruiting della tua azienda con uno strumento professionale e facile da usare</p>
+          </div>
+
+          <div class="target-card">
+            <div class="target-icon">
+              <i class="bi bi-building-fill"></i>
+            </div>
+            <h3>Agenzie di Recruiting</h3>
+            <p>Coordina più clienti e posizioni simultaneamente con pipeline dedicate e analytics avanzate</p>
+          </div>
+
+          <div class="target-card">
+            <div class="target-icon">
+              <i class="bi bi-rocket-takeoff-fill"></i>
+            </div>
+            <h3>Startup in crescita</h3>
+            <p>Hai più di 10 colloqui al mese? È il momento di professionalizzare il tuo processo di selezione</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pricing Section -->
+      <app-pricing />
+
       <!-- CTA Section -->
       <div class="cta-section animate-fade-in">
         <div class="cta-card">
-          <h2 class="cta-title">Inizia oggi la trasformazione digitale del tuo HR</h2>
-          <p class="cta-text">Unisciti alle aziende che hanno già scelto CandyHire</p>
+          <h2 class="cta-title">Il futuro del recruiting sta arrivando!</h2>
+          <p class="cta-text">
+            CandyHire sarà presto disponibile. Iscriviti ora alla lista d'attesa per essere tra i primi a provarlo e ricevere vantaggi esclusivi al lancio.
+          </p>
           <div class="cta-buttons">
-            <a href="http://localhost:4201" target="_blank" rel="noopener noreferrer" class="btn btn-candy btn-lg">
-              <i class="bi bi-play-circle-fill me-2"></i>
-              Demo
-            </a>
-            <a href="http://localhost:4202/login" target="_blank" rel="noopener noreferrer" class="btn btn-outline-candy btn-lg">
-              <i class="bi bi-box-arrow-in-right me-2"></i>
-              Accedi
-            </a>
+            <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-lg cta-main-btn">
+              <i class="bi bi-envelope-heart-fill me-2"></i>
+              Iscriviti alla Lista d'Attesa
+            </button>
           </div>
           <p class="cta-note">
-            <i class="bi bi-eye-fill"></i> Esplora tutte le funzionalità in modalità demo
-            <i class="bi bi-lock-fill ms-3"></i> Nessun inserimento dati richiesto
+            <i class="bi bi-rocket-takeoff-fill"></i> Accesso anticipato esclusivo
+            <i class="bi bi-gift-fill ms-3"></i> Prezzo speciale early bird
+            <i class="bi bi-star-fill ms-3"></i> Influenza il prodotto finale
           </p>
         </div>
       </div>

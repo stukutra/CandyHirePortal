@@ -1,0 +1,262 @@
+/* Waitlist Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content {
+  background: var(--ch-white);
+  border-radius: var(--ch-radius-xl);
+  max-width: 540px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: var(--ch-surface);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--ch-ink-light);
+  z-index: 10;
+
+  &:hover {
+    background: var(--ch-pink-light);
+    color: var(--ch-candy);
+    transform: rotate(90deg);
+  }
+
+  i {
+    font-size: 1.25rem;
+  }
+}
+
+.modal-body {
+  padding: 3rem 2.5rem;
+  text-align: center;
+}
+
+.modal-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 1.5rem;
+  background: linear-gradient(135deg, var(--ch-pink-light) 0%, var(--ch-lilac-light) 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: bounce 2s infinite;
+
+  i {
+    font-size: 2.5rem;
+    color: var(--ch-candy);
+  }
+}
+
+.modal-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--ch-ink);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.modal-text {
+  font-size: 1.125rem;
+  color: var(--ch-ink-light);
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.modal-benefits {
+  background: linear-gradient(135deg, rgba(247, 199, 217, 0.08) 0%, rgba(233, 213, 255, 0.08) 100%);
+  border: 1px solid var(--ch-border);
+  border-radius: var(--ch-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.benefit-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  border-radius: var(--ch-radius);
+  background: var(--ch-white);
+  transition: all 0.3s ease;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(247, 199, 217, 0.15) 0%, rgba(233, 213, 255, 0.15) 100%);
+    transform: translateX(5px);
+  }
+
+  i {
+    font-size: 1.5rem;
+    color: var(--ch-candy);
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--ch-pink-light) 0%, var(--ch-lilac-light) 100%);
+    border-radius: 50%;
+  }
+
+  span {
+    color: var(--ch-ink);
+    font-weight: 500;
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+}
+
+.waitlist-form {
+  margin-bottom: 1.5rem;
+}
+
+.error-message {
+  background: #fee;
+  border: 1px solid #fcc;
+  color: #c00;
+  padding: 1rem;
+  border-radius: var(--ch-radius);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+
+  i {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+  }
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid var(--ch-border);
+  border-radius: var(--ch-radius);
+  font-size: 1rem;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  transition: all 0.3s ease;
+  background: var(--ch-white);
+
+  &:focus {
+    outline: none;
+    border-color: var(--ch-pink);
+    box-shadow: 0 0 0 4px rgba(247, 199, 217, 0.2);
+  }
+
+  &::placeholder {
+    color: var(--ch-ink-light);
+  }
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.modal-note {
+  font-size: 0.875rem;
+  color: var(--ch-ink-light);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  i {
+    color: var(--ch-candy);
+    font-size: 1rem;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-body {
+    padding: 2rem 1.5rem;
+  }
+
+  .modal-title {
+    font-size: 1.5rem;
+  }
+
+  .modal-text {
+    font-size: 1rem;
+  }
+
+  .modal-icon {
+    width: 60px;
+    height: 60px;
+
+    i {
+      font-size: 2rem;
+    }
+  }
+}

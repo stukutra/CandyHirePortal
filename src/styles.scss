@@ -173,6 +173,25 @@ a {
   }
 }
 
+.btn-outline-candy {
+  background: transparent !important;
+  color: var(--ch-candy) !important;
+  border: 2px solid var(--ch-pink) !important;
+  box-shadow: none !important;
+
+  &:hover {
+    background: linear-gradient(135deg, var(--ch-pink) 0%, #ffc1e0 100%) !important;
+    color: #d91b5c !important;
+    border-color: var(--ch-pink) !important;
+    transform: translateY(-3px) !important;
+    box-shadow: 0 6px 20px rgba(247, 199, 217, 0.5) !important;
+  }
+
+  &:active {
+    transform: translateY(0) !important;
+  }
+}
+
 .btn-lg {
   padding: 0.875rem 1.75rem !important;
   font-size: 1rem !important;

@@ -1,0 +1,278 @@
+<!-- Candy Bubbles Background -->
+<div class="candy-bubbles-container">
+  @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+    <div class="bubble bubble-{{ i }}"></div>
+  }
+</div>
+
+<!-- Early Adopter Program Page -->
+<main class="early-adopter-page">
+  <div class="container">
+
+    <!-- Hero Section -->
+    <div class="hero-section">
+      <div class="hero-badge">
+        <i class="bi bi-star-fill"></i>
+        <span>PROGRAMMA ESCLUSIVO</span>
+      </div>
+      <h1 class="hero-title">Programma Early Adopter</h1>
+      <p class="hero-subtitle">
+        Unisciti alle prime aziende che stanno provando CandyHire in anteprima.
+        Prezzo speciale, supporto dedicato e accesso prioritario.
+      </p>
+    </div>
+
+    <!-- Counter Section -->
+    <div class="counter-section">
+      <div class="counter-card">
+        <div class="counter-header">
+          <i class="bi bi-hourglass-split counter-icon"></i>
+          <div class="counter-text">
+            <h3>Posti Disponibili Limitati</h3>
+            <p class="counter-numbers">
+              <span class="current">{{ registeredCompanies }}</span>
+              <span class="separator">/</span>
+              <span class="max">{{ maxSlots }}</span>
+              <span class="label">aziende già iscritte</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div class="progress-bar" [style.width.%]="slotsPercentage"></div>
+        </div>
+
+        <p class="remaining-text" [class.urgent]="isAlmostFull">
+          <i class="bi bi-exclamation-triangle-fill" *ngIf="isAlmostFull"></i>
+          <i class="bi bi-info-circle-fill" *ngIf="!isAlmostFull"></i>
+          {{ remainingSlots }} {{ remainingSlots === 1 ? 'posto rimasto' : 'posti rimasti' }}
+          <span *ngIf="isAlmostFull" class="urgent-label">- Affrettati!</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Benefits Cards -->
+    <div class="benefits-section">
+      <h2 class="section-title">Vantaggi Esclusivi per gli Early Adopter</h2>
+
+      <div class="benefits-grid">
+        <!-- Benefit 1 -->
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-gem"></i>
+          </div>
+          <h3>Prezzo Bloccato a Vita</h3>
+          <p class="benefit-price">
+            <span class="old-price">€2.000</span>
+            <i class="bi bi-arrow-right"></i>
+            <span class="new-price">€1.500</span>
+          </p>
+          <p class="benefit-description">
+            Risparmi €500 ogni anno e il tuo prezzo speciale rimane bloccato per sempre,
+            anche quando aumenteremo i prezzi.
+          </p>
+          <ul class="benefit-list">
+            <li><i class="bi bi-check-circle-fill"></i>Risparmio garantito a vita</li>
+            <li><i class="bi bi-check-circle-fill"></i>Nessun aumento futuro</li>
+            <li><i class="bi bi-check-circle-fill"></i>Condizioni preferenziali</li>
+          </ul>
+        </div>
+
+        <!-- Benefit 2 -->
+        <div class="benefit-card featured">
+          <div class="featured-badge">
+            <i class="bi bi-star-fill"></i>
+            PIÙ RICHIESTO
+          </div>
+          <div class="benefit-icon">
+            <i class="bi bi-chat-heart-fill"></i>
+          </div>
+          <h3>Supporto Diretto del Team</h3>
+          <p class="benefit-subtitle">
+            Accesso prioritario al nostro team
+          </p>
+          <p class="benefit-description">
+            Supporto dedicato via email, chat e videocall.
+            Il nostro team ti seguirà personalmente nell'implementazione.
+          </p>
+          <ul class="benefit-list">
+            <li><i class="bi bi-check-circle-fill"></i>Onboarding personalizzato</li>
+            <li><i class="bi bi-check-circle-fill"></i>Risposta entro 2 ore</li>
+            <li><i class="bi bi-check-circle-fill"></i>Consulenza strategica inclusa</li>
+          </ul>
+        </div>
+
+        <!-- Benefit 3 -->
+        <div class="benefit-card">
+          <div class="benefit-icon">
+            <i class="bi bi-rocket-takeoff-fill"></i>
+          </div>
+          <h3>Accesso Anticipato Beta</h3>
+          <p class="benefit-subtitle">
+            Prova le nuove funzionalità prima di tutti
+          </p>
+          <p class="benefit-description">
+            Accedi alla piattaforma beta in anteprima e influenza lo sviluppo
+            del prodotto con il tuo feedback.
+          </p>
+          <ul class="benefit-list">
+            <li><i class="bi bi-check-circle-fill"></i>Nuove feature in anteprima</li>
+            <li><i class="bi bi-check-circle-fill"></i>Feedback diretto con i dev</li>
+            <li><i class="bi bi-check-circle-fill"></i>Personalizzazioni prioritarie</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <div class="cta-card">
+        <h2 class="cta-title">Pronto a unirti al programma?</h2>
+        <p class="cta-text">
+          Compila il form e ti contatteremo entro 24 ore per darti accesso alla fase beta privata.
+        </p>
+        <button type="button" (click)="openModal()" class="btn btn-candy btn-lg cta-button">
+          <i class="bi bi-envelope-heart-fill me-2"></i>
+          Unisciti Ora al Programma
+        </button>
+        <p class="cta-note">
+          <i class="bi bi-shield-check"></i>
+          Nessun pagamento richiesto ora. Ti contatteremo per finalizzare l'iscrizione.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Registration Modal -->
+@if (showModal) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <button class="modal-close" (click)="closeModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+
+      <div class="modal-body">
+        @if (!showSuccessMessage) {
+          <!-- Registration Form -->
+          <div class="modal-icon">
+            <i class="bi bi-rocket-takeoff-fill"></i>
+          </div>
+
+          <h2 class="modal-title">Unisciti al Programma Early Adopter</h2>
+          <p class="modal-text">
+            Compila il form per riservare il tuo posto. Ti contatteremo per la fase beta privata.
+          </p>
+
+          <form class="registration-form" (ngSubmit)="submitForm()">
+            @if (errorMessage) {
+              <div class="error-message">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                {{ errorMessage }}
+              </div>
+            }
+
+            <div class="form-group">
+              <label for="companyName">Nome Azienda *</label>
+              <input
+                type="text"
+                id="companyName"
+                [(ngModel)]="formData.companyName"
+                name="companyName"
+                placeholder="Es. Acme Corporation"
+                class="form-input"
+                required
+                [disabled]="isSubmitting"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email Aziendale *</label>
+              <input
+                type="email"
+                id="email"
+                [(ngModel)]="formData.email"
+                name="email"
+                placeholder="mario.rossi@azienda.it"
+                class="form-input"
+                required
+                [disabled]="isSubmitting"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="role">Il Tuo Ruolo *</label>
+              <select
+                id="role"
+                [(ngModel)]="formData.role"
+                name="role"
+                class="form-input"
+                required
+                [disabled]="isSubmitting"
+              >
+                <option value="">Seleziona il tuo ruolo</option>
+                <option value="HR Manager">HR Manager</option>
+                <option value="Recruiter">Recruiter</option>
+                <option value="CEO/Founder">CEO/Founder</option>
+                <option value="Operations Manager">Operations Manager</option>
+                <option value="Talent Acquisition">Talent Acquisition</option>
+                <option value="Altro">Altro</option>
+              </select>
+            </div>
+
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input
+                  type="checkbox"
+                  [(ngModel)]="formData.privacyConsent"
+                  name="privacyConsent"
+                  required
+                  [disabled]="isSubmitting"
+                />
+                <span>
+                  Accetto l'<a href="/privacy-policy" target="_blank">informativa sulla privacy</a>
+                  e autorizzo il trattamento dei miei dati personali
+                </span>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-candy btn-lg btn-block" [disabled]="isSubmitting">
+              @if (isSubmitting) {
+                <i class="bi bi-hourglass-split me-2"></i>
+                Invio in corso...
+              } @else {
+                <i class="bi bi-send-fill me-2"></i>
+                Invia Richiesta
+              }
+            </button>
+          </form>
+
+          <p class="modal-note">
+            <i class="bi bi-info-circle"></i>
+            Riceverai una conferma via email entro 24 ore
+          </p>
+        } @else {
+          <!-- Success Message -->
+          <div class="success-content">
+            <div class="success-icon">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <h2 class="success-title">Grazie per il tuo interesse!</h2>
+            <p class="success-text">
+              Ti contatteremo entro 24 ore per darti accesso alla fase beta privata di CandyHire.
+            </p>
+            <p class="success-details">
+              Controlla la tua email (anche lo spam) per la conferma di iscrizione.
+            </p>
+            <button type="button" (click)="closeModal()" class="btn btn-candy btn-lg">
+              <i class="bi bi-check-lg me-2"></i>
+              Perfetto, grazie!
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
