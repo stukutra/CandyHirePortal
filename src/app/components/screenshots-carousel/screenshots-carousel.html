@@ -1,0 +1,36 @@
+<div class="screenshots-carousel">
+  <div class="carousel-wrapper">
+    <button class="carousel-btn carousel-btn-prev" (click)="previousSlide()" [disabled]="currentSlide === 0">
+      <i class="bi bi-chevron-left"></i>
+    </button>
+
+    <div class="carousel-content">
+      <div class="carousel-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+        @for (screenshot of screenshots; track screenshot.id) {
+          <div class="carousel-slide">
+            <img [src]="screenshot.image" [alt]="screenshot.title" class="screenshot-image" />
+            <div class="screenshot-caption">
+              <h3>{{ screenshot.title }}</h3>
+              <p>{{ screenshot.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <button class="carousel-btn carousel-btn-next" (click)="nextSlide()" [disabled]="currentSlide === screenshots.length - 1">
+      <i class="bi bi-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="carousel-indicators">
+    @for (screenshot of screenshots; track screenshot.id; let i = $index) {
+      <button
+        class="indicator"
+        [class.active]="currentSlide === i"
+        (click)="goToSlide(i)"
+        [attr.aria-label]="'Vai alla slide ' + (i + 1)">
+      </button>
+    }
+  </div>
+</div>

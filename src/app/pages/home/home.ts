@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { ScreenshotsCarousel } from '../../components/screenshots-carousel/screenshots-carousel';
 
 @Component({
   selector: 'app-home',
-  imports: [],
+  imports: [ScreenshotsCarousel],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
