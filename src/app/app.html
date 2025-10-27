@@ -1,178 +1,26 @@
-<!-- Candy Bubbles Background -->
-<div class="candy-bubbles-container">
-  @for (i of bubblesArray; track i) {
-    <div class="bubble bubble-{{ i }}"></div>
-  }
-</div>
-
-<!-- Main Landing Page Content -->
-<main class="landing-page">
-  <div class="container">
-    <div class="landing-content">
-      <!-- Logo Section -->
-      <div class="logo-section animate-fade-in">
-        <img src="/logo.png" alt="CandyHire Logo" class="logo" />
-      </div>
-
-      <!-- Hero Section -->
-      <div class="hero-section animate-fade-in">
-        <h1 class="hero-title">Trasforma il tuo Recruiting</h1>
-        <p class="hero-subtitle">
-          CandyHire è la piattaforma SaaS che semplifica e automatizza l'intero processo di selezione del personale.
-          Risparmia tempo, trova i candidati migliori e porta il tuo team HR al livello successivo.
-        </p>
-        <div class="hero-stats">
-          <div class="stat-item">
-            <div class="stat-number">80%</div>
-            <div class="stat-label">Tempo risparmiato</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">3x</div>
-            <div class="stat-label">Candidati qualificati</div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-number">50+</div>
-            <div class="stat-label">Aziende soddisfatte</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Features Section -->
-      <div class="features-section">
-        <h2 class="section-title">Tutto ciò che ti serve per un recruiting eccellente</h2>
-        <div class="features-grid animate-slide-in">
-          <div class="feature-card">
-            <i class="bi bi-people-fill feature-icon"></i>
-            <h3>Gestione Candidati Intelligente</h3>
-            <p>Database centralizzato per organizzare candidati, CV e note. Filtri avanzati e ricerca veloce per trovare il talento perfetto in pochi secondi.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Importazione automatica CV</li>
-              <li><i class="bi bi-star-fill"></i> Tag e categorizzazione</li>
-              <li><i class="bi bi-star-fill"></i> Storico completo interazioni</li>
-            </ul>
-          </div>
-
-          <div class="feature-card">
-            <i class="bi bi-briefcase-fill feature-icon"></i>
-            <h3>Job Posting Multicanale</h3>
-            <p>Pubblica le tue posizioni aperte su tutti i principali portali con un solo click. Monitora le candidature in tempo reale.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Pubblicazione automatizzata</li>
-              <li><i class="bi bi-star-fill"></i> Template personalizzabili</li>
-              <li><i class="bi bi-star-fill"></i> Tracking applicazioni</li>
-            </ul>
-          </div>
-
-          <div class="feature-card">
-            <i class="bi bi-calendar-check-fill feature-icon"></i>
-            <h3>Scheduling Automatico</h3>
-            <p>Pianifica colloqui senza email infinite. Sistema intelligente che propone slot disponibili e sincronizza calendari.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Calendario condiviso team</li>
-              <li><i class="bi bi-star-fill"></i> Reminder automatici</li>
-              <li><i class="bi bi-star-fill"></i> Videoconferenza integrata</li>
-            </ul>
-          </div>
-
-          <div class="feature-card">
-            <i class="bi bi-graph-up-arrow feature-icon"></i>
-            <h3>Analytics Avanzate</h3>
-            <p>Dashboard con KPI in tempo reale. Analizza tempi di assunzione, tassi di conversione e identifica colli di bottiglia.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Report personalizzati</li>
-              <li><i class="bi bi-star-fill"></i> Metriche in real-time</li>
-              <li><i class="bi bi-star-fill"></i> Export dati Excel/PDF</li>
-            </ul>
-          </div>
-
-          <div class="feature-card">
-            <i class="bi bi-robot feature-icon"></i>
-            <h3>AI-Powered Matching</h3>
-            <p>Intelligenza artificiale che analizza CV e job description per suggerirti i candidati più compatibili automaticamente.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Scoring automatico candidati</li>
-              <li><i class="bi bi-star-fill"></i> Suggerimenti intelligenti</li>
-              <li><i class="bi bi-star-fill"></i> Riduzione bias inconsci</li>
-            </ul>
-          </div>
-
-          <div class="feature-card">
-            <i class="bi bi-shield-check-fill feature-icon"></i>
-            <h3>Sicurezza & Compliance</h3>
-            <p>Protezione dati GDPR-compliant. Gestione permessi granulare e audit trail completo di tutte le operazioni.</p>
-            <ul class="feature-list">
-              <li><i class="bi bi-star-fill"></i> Crittografia end-to-end</li>
-              <li><i class="bi bi-star-fill"></i> Backup automatici</li>
-              <li><i class="bi bi-star-fill"></i> Certificazioni ISO</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Benefits Section -->
-      <div class="benefits-section">
-        <h2 class="section-title">Perché scegliere CandyHire?</h2>
-        <div class="benefits-grid">
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <i class="bi bi-lightning-charge-fill"></i>
-            </div>
-            <h4>Setup in 24H</h4>
-            <p>Configurazione rapida e personalizzata. Il nostro team ti supporta nell'onboarding completo.</p>
-          </div>
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <i class="bi bi-coin"></i>
-            </div>
-            <h4>ROI immediato</h4>
-            <p>Riduci i costi di recruiting fino al 60%. Nessun fee per assunzione, solo abbonamento mensile.</p>
-          </div>
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <i class="bi bi-headset"></i>
-            </div>
-            <h4>Supporto Italiano H24</h4>
-            <p>Team di assistenza dedicato sempre a tua disposizione via chat, email e telefono.</p>
-          </div>
-          <div class="benefit-item">
-            <div class="benefit-icon">
-              <i class="bi bi-cloud-check-fill"></i>
-            </div>
-            <h4>100% Cloud-based</h4>
-            <p>Accedi da qualsiasi dispositivo, ovunque. Aggiornamenti automatici e zero manutenzione.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTA Section -->
-      <div class="cta-section animate-fade-in">
-        <h2 class="cta-title">Inizia oggi la trasformazione digitale del tuo HR</h2>
-        <p class="cta-text">Unisciti alle aziende che hanno già scelto CandyHire</p>
-        <div class="cta-buttons">
-          <a href="http://localhost:4200" class="btn btn-candy btn-lg">
-            <i class="bi bi-play-circle-fill me-2"></i>
-            Richiedi Demo con Dati Fake
-          </a>
-          <a href="http://localhost:4200" class="btn btn-outline-candy btn-lg">
-            <i class="bi bi-box-arrow-in-right me-2"></i>
-            Accedi
-          </a>
-        </div>
-        <p class="cta-note">
-          <i class="bi bi-eye-fill"></i> Esplora tutte le funzionalità in modalità demo
-          <i class="bi bi-lock-fill ms-3"></i> Nessun inserimento dati richiesto
-        </p>
-      </div>
-
-      <!-- Footer -->
-      <footer class="landing-footer">
-        <p>&copy; 2025 CandyHire - Il tuo partner per il recruiting del futuro</p>
-        <p class="footer-company">
-          Un prodotto <a href="https://www.oneblade.it" target="_blank" rel="noopener noreferrer" class="company-link">oneBlade SRL</a>
-        </p>
-      </footer>
+<!-- Top Toolbar -->
+<header class="candy-toolbar">
+  <div class="toolbar-container">
+    <div class="toolbar-logo">
+      <a routerLink="/">
+        <img src="/logo.png" alt="CandyHire Logo" class="toolbar-logo-img" />
+      </a>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-outline-candy btn-sm">
+        <i class="bi bi-box-arrow-in-right me-2"></i>
+        Login
+      </button>
+      <button class="btn btn-candy btn-sm">
+        <i class="bi bi-cart-fill me-2"></i>
+        Acquista
+      </button>
     </div>
   </div>
-</main>
+</header>
 
 <router-outlet />
+
+<app-whatsapp-button />
+
+<app-footer />

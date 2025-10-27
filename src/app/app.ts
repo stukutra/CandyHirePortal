@@ -1,13 +1,13 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component } from '@angular/core';
+import { RouterOutlet, RouterLink } from '@angular/router';
+import { Footer } from './components/footer/footer';
+import { WhatsappButton } from './components/whatsapp-button/whatsapp-button';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, RouterLink, Footer, WhatsappButton],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('CandyHirePortal');
-  protected readonly bubblesArray = Array.from({ length: 20 }, (_, i) => i + 1);
 }

@@ -1,0 +1,128 @@
+/* Footer */
+.landing-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  border-top: 2px solid var(--ch-border);
+  padding: 1rem 2rem;
+  text-align: center;
+  z-index: 999;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+
+  p {
+    color: var(--ch-ink-light);
+    margin: 0.25rem 0;
+    line-height: 1.4;
+  }
+
+  .footer-product {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ch-ink);
+  }
+
+  .footer-copyright {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--ch-ink);
+  }
+
+  .footer-address {
+    font-size: 0.8125rem;
+  }
+
+  .footer-legal {
+    font-size: 0.75rem;
+  }
+
+  .footer-links {
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+
+    .footer-link {
+      color: var(--ch-candy);
+      text-decoration: none;
+      transition: var(--ch-transition);
+      padding: 0 0.5rem;
+
+      &:hover {
+        color: var(--ch-pink);
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .company-link {
+    color: var(--ch-candy);
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--ch-transition);
+
+    &:hover {
+      color: var(--ch-pink);
+      text-decoration: underline;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-footer {
+    padding: 0.75rem 1rem;
+  }
+
+  .footer-content {
+    p {
+      font-size: 0.7rem;
+    }
+
+    .footer-product {
+      font-size: 0.75rem;
+    }
+
+    .footer-copyright {
+      font-size: 0.7rem;
+    }
+
+    .footer-address {
+      font-size: 0.7rem;
+    }
+
+    .footer-legal {
+      font-size: 0.65rem;
+    }
+
+    .footer-links {
+      font-size: 0.65rem;
+
+      .footer-link {
+        padding: 0 0.3rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    .footer-legal {
+      font-size: 0.6rem;
+    }
+
+    .footer-links {
+      font-size: 0.6rem;
+
+      .footer-link {
+        display: block;
+        padding: 0.2rem 0;
+      }
+    }
+  }
+}
