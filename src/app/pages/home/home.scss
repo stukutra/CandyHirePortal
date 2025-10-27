@@ -329,6 +329,19 @@
   }
 }
 
+.target-mascot {
+  width: 140px;
+  height: 140px;
+  object-fit: contain;
+  margin: 0 auto 1.5rem;
+  display: block;
+  transition: transform 0.3s ease;
+
+  .target-card:hover & {
+    transform: scale(1.1) rotate(-5deg);
+  }
+}
+
 /* Features Section */
 .features-section {
   width: 100%;
