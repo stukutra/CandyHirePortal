@@ -15,6 +15,8 @@ interface Screenshot {
 })
 export class ScreenshotsCarousel {
   protected currentSlide = 0;
+  private touchStartX = 0;
+  private touchEndX = 0;
 
   protected readonly screenshots: Screenshot[] = [
     {
@@ -63,5 +65,30 @@ export class ScreenshotsCarousel {
 
   protected goToSlide(index: number): void {
     this.currentSlide = index;
+  }
+
+  // Touch swipe support per mobile
+  protected onTouchStart(event: TouchEvent): void {
+    this.touchStartX = event.changedTouches[0].screenX;
+  }
+
+  protected onTouchEnd(event: TouchEvent): void {
+    this.touchEndX = event.changedTouches[0].screenX;
+    this.handleSwipe();
+  }
+
+  private handleSwipe(): void {
+    const swipeThreshold = 50; // Minimo swipe in pixel
+    const diff = this.touchStartX - this.touchEndX;
+
+    if (Math.abs(diff) > swipeThreshold) {
+      if (diff > 0) {
+        // Swipe left - next slide
+        this.nextSlide();
+      } else {
+        // Swipe right - previous slide
+        this.previousSlide();
+      }
+    }
   }
 }

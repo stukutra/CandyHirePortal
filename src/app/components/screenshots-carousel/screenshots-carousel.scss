@@ -60,6 +60,8 @@
 
 .carousel-content {
   overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .carousel-track {
@@ -107,7 +109,33 @@
 }
 
 .carousel-indicators {
-  display: none;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+
+  .indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--ch-border);
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+
+    &:hover {
+      background: var(--ch-pink);
+      transform: scale(1.2);
+    }
+
+    &.active {
+      background: linear-gradient(135deg, var(--ch-pink) 0%, var(--ch-candy) 100%);
+      width: 32px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(247, 199, 217, 0.5);
+    }
+  }
 }
 
 /* Responsive Design */
@@ -136,25 +164,83 @@
 }
 
 @media (max-width: 480px) {
+  .screenshots-carousel {
+    padding: 1rem;
+    margin-bottom: 3rem;
+    overflow: visible; // Assicura che nulla sia tagliato
+    height: auto;
+    min-height: auto;
+  }
+
   .carousel-wrapper {
-    padding: 0 40px;
+    padding: 0; // Rimuovi padding laterale senza frecce
+    margin-bottom: 1rem;
+    height: auto;
+    min-height: 450px; // Altezza minima per contenere immagine + caption
   }
 
   .carousel-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
+    display: none; // Nascondi frecce su mobile
+  }
+
+  .carousel-content {
+    min-height: 450px; // Altezza minima per evitare tagli
+  }
+
+  .carousel-track {
+    align-items: flex-start; // Allinea in alto per evitare tagli
+    min-height: 450px;
+  }
+
+  .carousel-slide {
+    min-width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .screenshot-image {
+    max-height: 350px;
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--ch-radius);
+    display: block;
+    margin: 0 auto;
   }
 
   .screenshot-caption {
-    padding: 0.75rem 1rem;
+    padding: 1rem 0.5rem;
+    margin-top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
 
     h3 {
-      font-size: 1.125rem;
+      font-size: 1rem;
+      line-height: 1.3;
+      margin-bottom: 0.5rem;
     }
 
     p {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
+      line-height: 1.4;
+    }
+  }
+
+  .carousel-indicators {
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+
+    .indicator {
+      width: 10px;
+      height: 10px;
+
+      &.active {
+        width: 24px;
+      }
     }
   }
 }

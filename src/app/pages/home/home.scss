@@ -162,6 +162,8 @@
   background: var(--ch-white);
   box-shadow: var(--ch-shadow-lg);
   border: 2px solid var(--ch-border);
+  touch-action: pan-x; // Abilita swipe orizzontale su mobile
+  -webkit-overflow-scrolling: touch; // Smooth scroll su iOS
 }
 
 .carousel-track {
@@ -496,11 +498,20 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 2rem;
+    line-height: 1.3;
+    padding: 0 1rem;
   }
 
   .hero-subtitle {
-    font-size: 1.125rem;
+    font-size: 1.05rem;
+    padding: 0 1rem;
+  }
+
+  .hero-social-proof {
+    font-size: 0.85rem;
+    flex-wrap: wrap;
+    padding: 0 1rem;
   }
 
   .section-title {
@@ -580,7 +591,21 @@
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 1.75rem;
+    font-size: 1.65rem;
+    line-height: 1.4;
+  }
+
+  .hero-subtitle {
+    font-size: 0.95rem;
+  }
+
+  .hero-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-social-proof {
+    font-size: 0.8rem;
   }
 
   .feature-card {
@@ -592,15 +617,27 @@
     font-size: 0.9rem !important;
   }
 
+  .section-title {
+    font-size: 1.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .cta-note {
+    font-size: 0.8rem;
+
+    i {
+      display: block;
+      margin: 0.25rem auto;
+    }
+  }
+
   /* Carousel mobile */
   .carousel-container {
     padding: 0 1rem;
   }
 
   .carousel-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 1rem;
+    display: none; // Nascondi frecce su mobile per UI più pulita
   }
 
   .screenshot-caption {

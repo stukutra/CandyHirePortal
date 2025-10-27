@@ -236,9 +236,14 @@
     <div class="savings-banner">
       <div class="scarcity-badge">
         <i class="bi bi-hourglass-split"></i>
-        <span>Solo <strong>{{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong> disponibili a prezzo Early Bird</span>
+        <span class="badge-text-desktop">Solo <strong>{{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong> disponibili a prezzo Early Bird</span>
+        <span class="badge-text-mobile">Solo <strong>{{ earlyAdopterService.remainingSlots() }}</strong> Early Bird rimasti!</span>
       </div>
       <div class="savings-content">
+        <div class="mobile-scarcity-alert">
+          <i class="bi bi-hourglass-split"></i>
+          Solo <strong>{{ earlyAdopterService.remainingSlots() }}</strong> Early Bird rimasti!
+        </div>
         <i class="bi bi-piggy-bank-fill savings-icon"></i>
         <div class="savings-text">
           <h4>Risparmia €500 iscrivendoti ora!</h4>
