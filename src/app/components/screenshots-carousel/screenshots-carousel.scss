@@ -3,7 +3,7 @@
   width: 100%;
   max-width: 1600px;
   margin: 0 auto 5rem;
-  padding: 3rem 2rem;
+  padding: 2rem;
   background: var(--ch-white);
   border-radius: var(--ch-radius-lg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
@@ -77,7 +77,7 @@
 .screenshot-image {
   width: auto;
   max-width: 100%;
-  max-height: 550px;
+  max-height: 600px;
   height: auto;
   display: block;
   object-fit: contain;
@@ -87,9 +87,8 @@
 }
 
 .screenshot-caption {
-  padding: 1.5rem 2rem;
+  padding: 0;
   margin-top: 2rem;
-  background: linear-gradient(135deg, var(--ch-surface) 0%, var(--ch-white) 100%);
   text-align: center;
 
   h3 {
