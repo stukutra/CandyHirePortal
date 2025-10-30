@@ -36,8 +36,10 @@ echo ""
 echo "🐳 Starting Docker containers..."
 echo ""
 
-# Stop any existing containers
-docker-compose down 2>/dev/null || true
+# Stop only Portal containers (not CandyHire containers)
+echo "🛑 Stopping existing Portal containers..."
+docker stop candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
+docker rm candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
 
 # Build and start containers
 docker-compose up -d --build
