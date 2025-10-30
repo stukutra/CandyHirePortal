@@ -37,12 +37,6 @@ if (empty($data->email)) {
 } else if (!filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
     $errors['email'] = 'Invalid email format';
 }
-if (empty($data->industry)) {
-    $errors['industry'] = 'Industry is required';
-}
-if (empty($data->employees_count)) {
-    $errors['employees_count'] = 'Company size is required';
-}
 
 // Legal representative
 if (empty($data->legal_rep_first_name)) {
@@ -106,8 +100,8 @@ try {
     $company->postal_code = isset($data->postal_code) ? htmlspecialchars(strip_tags($data->postal_code)) : null;
     $company->province = isset($data->province) ? htmlspecialchars(strip_tags($data->province)) : null;
     $company->country = isset($data->country) ? htmlspecialchars(strip_tags($data->country)) : 'Italy';
-    $company->industry = htmlspecialchars(strip_tags($data->industry));
-    $company->employees_count = htmlspecialchars(strip_tags($data->employees_count));
+    $company->industry = isset($data->industry) ? htmlspecialchars(strip_tags($data->industry)) : null;
+    $company->employees_count = isset($data->employees_count) ? htmlspecialchars(strip_tags($data->employees_count)) : null;
     $company->description = isset($data->description) ? htmlspecialchars(strip_tags($data->description)) : null;
 
     // Legal representative
