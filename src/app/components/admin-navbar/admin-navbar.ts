@@ -16,6 +16,7 @@ export class AdminNavbar {
 
   currentAdmin = this.authService.currentAdmin;
   adminFullName = this.authService.adminFullName;
+  isAuthenticated = this.authService.isAuthenticated;
 
   logout(): void {
     this.authService.logout();

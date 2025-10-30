@@ -33,7 +33,9 @@ export class App {
   }
 
   private checkIfAdminArea(url: string): void {
-    this.isAdminArea.set(url.startsWith('/admin'));
+    // Show admin navbar only in admin area but NOT on login page
+    const isAdmin = url.startsWith('/admin') && !url.startsWith('/admin/login');
+    this.isAdminArea.set(isAdmin);
   }
 
   openWaitlistModal(): void {
