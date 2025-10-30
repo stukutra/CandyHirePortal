@@ -13,14 +13,14 @@
         </a>
       </div>
       <div class="toolbar-actions">
-        <button type="button" (click)="openWaitlistModal()" class="btn btn-outline-candy btn-sm">
+        <a routerLink="/login" class="btn btn-outline-candy btn-sm">
           <i class="bi bi-box-arrow-in-right me-2"></i>
           Login
-        </button>
-        <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-sm">
-          <i class="bi bi-cart-fill me-2"></i>
-          Acquista Early Access
-        </button>
+        </a>
+        <a routerLink="/register" class="btn btn-candy btn-sm">
+          <i class="bi bi-rocket-takeoff-fill me-2"></i>
+          Get Started
+        </a>
       </div>
     </div>
   </header>
@@ -30,17 +30,12 @@
 
 <!-- Floating CTA Button - Only show on public pages -->
 @if (!isAdminArea()) {
-  <button type="button" (click)="openWaitlistModal()" class="floating-cta-button">
+  <a routerLink="/register" class="floating-cta-button">
     <i class="bi bi-rocket-takeoff-fill"></i>
-    <span class="floating-cta-text">Iscriviti ora - posti limitati</span>
-  </button>
+    <span class="floating-cta-text">Start Your Free Trial</span>
+  </a>
 
   <app-footer />
-}
-
-<!-- Waitlist Modal -->
-@if (modalService.showModal()) {
-  <app-waitlist-modal (closeModal)="closeWaitlistModal()" />
 }
 
 <!-- Toast Notifications -->

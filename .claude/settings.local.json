@@ -17,7 +17,8 @@
       "Bash(python3:*)",
       "Bash(lsof:*)",
       "Bash(php -r:*)",
-      "Bash(docker restart:*)"
+      "Bash(docker restart:*)",
+      "Bash(xargs kill -9)"
     ],
     "deny": [],
     "ask": []

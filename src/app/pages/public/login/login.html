@@ -1,0 +1,103 @@
+<div class="login-container">
+  <div class="login-content">
+    <!-- Logo e titolo -->
+    <div class="login-header">
+      <img src="/logo.png" alt="CandyHire Logo" class="logo" />
+      <p class="subtitle">Hiring made sweet and simple</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-card">
+      <h2 class="card-title">Company Login</h2>
+
+      @if (errorMessage()) {
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+        <!-- Email Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-envelope"></i>
+            Email
+          </label>
+          <input
+            type="email"
+            class="form-control"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="your@company.com"
+            required
+            email
+          />
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-lock"></i>
+            Password
+          </label>
+          <div class="password-input-wrapper">
+            <input
+              [type]="showPassword() ? 'text' : 'password'"
+              class="form-control"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Enter your password"
+              required
+            />
+            <button
+              type="button"
+              class="password-toggle"
+              (click)="togglePasswordVisibility()"
+            >
+              <i [class]="showPassword() ? 'bi bi-eye-slash' : 'bi bi-eye'"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember me & Forgot password -->
+        <div class="form-options">
+          <label class="checkbox-label">
+            <input type="checkbox" name="remember" />
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="link-forgot">
+            Forgot password?
+          </a>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="btn btn-login"
+          [disabled]="isLoading() || !loginForm.valid"
+        >
+          @if (isLoading()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Signing in...
+          } @else {
+            Sign In
+          }
+        </button>
+      </form>
+
+      <!-- Sign up link -->
+      <div class="signup-link">
+        <span>Don't have an account?</span>
+        <a routerLink="/register" class="link-signup">
+          Sign Up
+        </a>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="login-footer">
+      <p>&copy; 2024 CandyHire Portal. All rights reserved.</p>
+    </div>
+  </div>
+</div>

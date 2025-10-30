@@ -5,6 +5,10 @@ import { CookiePolicy } from './pages/cookie-policy/cookie-policy';
 import { TermsConditions } from './pages/terms-conditions/terms-conditions';
 import { EarlyAdopterProgram } from './components/early-adopter-program/early-adopter-program';
 
+// Company auth
+import { Login } from './pages/public/login/login';
+import { Register } from './pages/public/register/register';
+
 // Admin imports
 import { AdminLogin } from './pages/admin/login/admin-login';
 import { AdminDashboard } from './pages/admin/dashboard/admin-dashboard';
@@ -15,6 +19,8 @@ import { adminGuard, adminLoginGuard } from './core/guards/auth.guard';
 export const routes: Routes = [
   // Public routes
   { path: '', component: Home },
+  { path: 'login', component: Login },
+  { path: 'register', component: Register },
   { path: 'early-access', component: EarlyAdopterProgram },
   { path: 'privacy-policy', component: PrivacyPolicy },
   { path: 'cookie-policy', component: CookiePolicy },
