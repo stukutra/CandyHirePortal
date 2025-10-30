@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  # MySQL Database - Portal Master DB
+  portal-mysql:
+    image: mysql:8.0
+    container_name: candyhire-portal-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    ports:
+      - "3308:3306"
+    volumes:
+      - portal_db_data:/var/lib/mysql
+      - ./migration:/docker-entrypoint-initdb.d
+    networks:
+      - candyhire-portal-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # PHP + Apache Backend
+  portal-php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: candyhire-portal-php
+    depends_on:
+      portal-mysql:
+        condition: service_healthy
+    ports:
+      - "8082:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./logs:/var/log/php
+    environment:
+      DB_HOST: portal-mysql
+      DB_NAME: ${MYSQL_DATABASE}
+      DB_USER: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRATION: 86400
+      JWT_REFRESH_EXPIRATION: 604800
+      # CandyHire SaaS DB connection for provisioning
+      SAAS_DB_HOST: ${SAAS_DB_HOST}
+      SAAS_DB_PORT: ${SAAS_DB_PORT}
+      SAAS_DB_USER: ${SAAS_DB_USER}
+      SAAS_DB_PASSWORD: ${SAAS_DB_PASSWORD}
+    networks:
+      - candyhire-portal-network
+
+  # PHPMyAdmin for Portal DB
+  portal-phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: candyhire-portal-phpmyadmin
+    depends_on:
+      - portal-mysql
+    ports:
+      - "8083:80"
+    environment:
+      PMA_HOST: portal-mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    networks:
+      - candyhire-portal-network
+
+volumes:
+  portal_db_data:
+
+networks:
+  candyhire-portal-network:
+    driver: bridge

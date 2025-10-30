@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/guidosalzano/Documents/MyProject/CandyHireSuite/**)",
+      "Read(//Users/guidosalzano/Documents/MyProject/CandyHireSuite/CandyHire/**)",
+      "Bash(tree:*)",
+      "Bash(chmod:*)",
+      "Bash(./setup.sh:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
