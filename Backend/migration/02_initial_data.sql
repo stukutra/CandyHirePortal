@@ -27,7 +27,7 @@ VALUES
   'admin',
   'admin@candyhire.com',
   -- Password: Admin123! (bcrypt hash)
-  '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+  '$2y$12$jww8fM.wv4Ae2hvavL03Q.LZWrpHZvFOxNvLzPlLVAEg3jjnlQK4G',
   'System',
   'Administrator',
   'super_admin',

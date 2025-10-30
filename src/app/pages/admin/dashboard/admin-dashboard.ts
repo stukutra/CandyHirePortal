@@ -80,10 +80,6 @@ export class AdminDashboard implements OnInit {
     });
   }
 
-  logout() {
-    this.authService.logout();
-  }
-
   goToCompanies() {
     this.router.navigate(['/admin/companies']);
   }
