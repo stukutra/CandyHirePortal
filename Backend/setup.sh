@@ -5,6 +5,7 @@
 # ============================================
 
 set -e
+il compoente angular login lo dovresti avere lo hai copiato dal progetto sass qui nel portal
 
 echo "========================================"
 echo "CandyHire Portal Backend Setup"

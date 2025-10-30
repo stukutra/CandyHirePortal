@@ -1,0 +1,319 @@
+<div class="company-detail">
+  <!-- Header -->
+  <header class="detail-header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <button class="btn btn-outline-secondary" (click)="goBack()">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <div>
+            <h1 class="page-title">Company Details</h1>
+            @if (company()) {
+              <p class="page-subtitle">{{ company()!.company_name }}</p>
+            }
+          </div>
+        </div>
+        <button class="btn btn-outline-danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid py-4">
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage() }}
+      </div>
+    } @else if (company()) {
+      <div class="row g-4">
+        <!-- Main Info -->
+        <div class="col-12 col-lg-8">
+          <!-- Company Info Card -->
+          <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="mb-0">
+                <i class="bi bi-building me-2"></i>
+                Company Information
+              </h5>
+              <button class="btn btn-sm btn-primary" (click)="openStatusModal()">
+                <i class="bi bi-pencil me-2"></i>
+                Change Status
+              </button>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Company Name</label>
+                    <p>{{ company()!.company_name }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>VAT Number</label>
+                    <p>{{ company()!.vat_number || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Email</label>
+                    <p>{{ company()!.email }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Phone</label>
+                    <p>{{ company()!.phone || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="info-item">
+                    <label>Website</label>
+                    <p>{{ company()!.website || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <div class="info-item">
+                    <label>Address</label>
+                    <p>{{ company()!.address || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="info-item">
+                    <label>City</label>
+                    <p>{{ company()!.city || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="info-item">
+                    <label>Province</label>
+                    <p>{{ company()!.province || '-' }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-4">
+                  <div class="info-item">
+                    <label>Country</label>
+                    <p>{{ company()!.country }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legal Representative -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-person-badge me-2"></i>
+                Legal Representative
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>First Name</label>
+                    <p>{{ company()!.legal_rep_first_name }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Last Name</label>
+                    <p>{{ company()!.legal_rep_last_name }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Email</label>
+                    <p>{{ company()!.legal_rep_email }}</p>
+                  </div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <div class="info-item">
+                    <label>Phone</label>
+                    <p>{{ company()!.legal_rep_phone || '-' }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Transactions -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-receipt me-2"></i>
+                Payment Transactions
+              </h5>
+            </div>
+            <div class="card-body p-0">
+              @if (transactions().length > 0) {
+                <div class="table-responsive">
+                  <table class="table table-hover mb-0">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (transaction of transactions(); track transaction.id) {
+                        <tr>
+                          <td>{{ transaction.transaction_type }}</td>
+                          <td>{{ formatCurrency(transaction.amount) }}</td>
+                          <td>
+                            <span class="badge" [class]="getStatusBadgeClass(transaction.status)">
+                              {{ transaction.status }}
+                            </span>
+                          </td>
+                          <td>{{ formatDate(transaction.created_at) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              } @else {
+                <div class="text-center py-4">
+                  <i class="bi bi-inbox display-6 text-muted"></i>
+                  <p class="text-muted mt-2 mb-0">No transactions yet</p>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-12 col-lg-4">
+          <!-- Status Card -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                Status
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="status-item">
+                <label>Registration Status</label>
+                <span class="badge" [class]="getStatusBadgeClass(company()!.registration_status)">
+                  {{ company()!.registration_status }}
+                </span>
+              </div>
+              <div class="status-item">
+                <label>Payment Status</label>
+                <span class="badge" [class]="getStatusBadgeClass(company()!.payment_status)">
+                  {{ company()!.payment_status }}
+                </span>
+              </div>
+              <div class="status-item">
+                <label>Active</label>
+                <span class="badge" [class]="company()!.is_active ? 'badge-success' : 'badge-secondary'">
+                  {{ company()!.is_active ? 'Yes' : 'No' }}
+                </span>
+              </div>
+              <div class="status-item">
+                <label>Email Verified</label>
+                <span class="badge" [class]="company()!.email_verified ? 'badge-success' : 'badge-secondary'">
+                  {{ company()!.email_verified ? 'Yes' : 'No' }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subscription Card -->
+          <div class="card mb-4">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-credit-card me-2"></i>
+                Subscription
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="info-item-sm">
+                <label>Plan</label>
+                <p>{{ company()!.subscription_plan || '-' }}</p>
+              </div>
+              <div class="info-item-sm">
+                <label>Start Date</label>
+                <p>{{ formatDate(company()!.subscription_start_date) }}</p>
+              </div>
+              <div class="info-item-sm">
+                <label>End Date</label>
+                <p>{{ formatDate(company()!.subscription_end_date) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tenant Card -->
+          <div class="card">
+            <div class="card-header">
+              <h5 class="mb-0">
+                <i class="bi bi-server me-2"></i>
+                Tenant
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="info-item-sm">
+                <label>Tenant Schema</label>
+                <p>{{ company()!.tenant_schema || '-' }}</p>
+              </div>
+              <div class="info-item-sm">
+                <label>Assigned At</label>
+                <p>{{ formatDate(company()!.tenant_assigned_at) }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Status Update Modal -->
+@if (showStatusModal()) {
+  <div class="modal-backdrop" (click)="closeStatusModal()"></div>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Change Company Status</h5>
+        <button class="btn-close" (click)="closeStatusModal()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <label class="form-label">Select New Status</label>
+        <select class="form-select" [(ngModel)]="selectedStatus">
+          @for (status of statusOptions; track status.value) {
+            <option [value]="status.value">{{ status.label }}</option>
+          }
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeStatusModal()" [disabled]="isUpdatingStatus()">
+          Cancel
+        </button>
+        <button class="btn btn-primary" (click)="updateStatus()" [disabled]="isUpdatingStatus()">
+          @if (isUpdatingStatus()) {
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Updating...
+          } @else {
+            <i class="bi bi-check-circle me-2"></i>
+            Update Status
+          }
+        </button>
+      </div>
+    </div>
+  </div>
+}

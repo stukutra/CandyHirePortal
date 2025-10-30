@@ -1,0 +1,186 @@
+<div class="admin-companies">
+  <!-- Header -->
+  <header class="companies-header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">Registered Companies</h1>
+          <p class="page-subtitle">{{ totalRecords() }} total companies</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline-secondary me-2" (click)="goToDashboard()">
+            <i class="bi bi-arrow-left me-2"></i>
+            Dashboard
+          </button>
+          <button class="btn btn-outline-danger" (click)="logout()">
+            <i class="bi bi-box-arrow-right me-2"></i>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid py-4">
+    <!-- Filters -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-12 col-md-4">
+            <label class="form-label">Search</label>
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="searchQuery"
+              placeholder="Company name, email, VAT..."
+              (keyup.enter)="applyFilters()"
+            />
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label">Registration Status</label>
+            <select class="form-select" [(ngModel)]="statusFilter">
+              <option value="">All Statuses</option>
+              <option value="pending">Pending</option>
+              <option value="payment_pending">Payment Pending</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-3">
+            <label class="form-label">Payment Status</label>
+            <select class="form-select" [(ngModel)]="paymentStatusFilter">
+              <option value="">All Payments</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100 me-2" (click)="applyFilters()">
+              <i class="bi bi-search me-2"></i>
+              Search
+            </button>
+            <button class="btn btn-outline-secondary" (click)="clearFilters()">
+              <i class="bi bi-x-circle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      <!-- Companies Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-list-ul me-2"></i>
+            Companies List
+          </h5>
+          <button class="btn btn-sm btn-success" (click)="exportCSV()">
+            <i class="bi bi-file-earmark-spreadsheet me-2"></i>
+            Export CSV
+          </button>
+        </div>
+        <div class="card-body p-0">
+          @if (companies().length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Company</th>
+                    <th>Email</th>
+                    <th>VAT Number</th>
+                    <th>Location</th>
+                    <th>Registration</th>
+                    <th>Payment</th>
+                    <th>Tenant</th>
+                    <th>Registered On</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (company of companies(); track company.id) {
+                    <tr class="clickable-row" (click)="viewDetail(company.id)">
+                      <td>
+                        <strong>{{ company.company_name }}</strong>
+                      </td>
+                      <td>{{ company.email }}</td>
+                      <td>{{ company.vat_number || '-' }}</td>
+                      <td>{{ company.city }}, {{ company.country }}</td>
+                      <td>
+                        <span class="badge" [class]="getStatusBadgeClass(company.registration_status)">
+                          {{ company.registration_status }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge" [class]="getStatusBadgeClass(company.payment_status)">
+                          {{ company.payment_status }}
+                        </span>
+                      </td>
+                      <td>
+                        @if (company.tenant_schema) {
+                          <span class="badge badge-info">{{ company.tenant_schema }}</span>
+                        } @else {
+                          <span class="text-muted">-</span>
+                        }
+                      </td>
+                      <td>{{ formatDate(company.created_at) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            @if (totalPages() > 1) {
+              <div class="pagination-wrapper">
+                <nav>
+                  <ul class="pagination mb-0">
+                    <li class="page-item" [class.disabled]="currentPage() === 1">
+                      <button class="page-link" (click)="goToPage(currentPage() - 1)">
+                        <i class="bi bi-chevron-left"></i>
+                      </button>
+                    </li>
+
+                    @for (page of [].constructor(totalPages()); track $index; let i = $index) {
+                      <li class="page-item" [class.active]="currentPage() === i + 1">
+                        <button class="page-link" (click)="goToPage(i + 1)">
+                          {{ i + 1 }}
+                        </button>
+                      </li>
+                    }
+
+                    <li class="page-item" [class.disabled]="currentPage() === totalPages()">
+                      <button class="page-link" (click)="goToPage(currentPage() + 1)">
+                        <i class="bi bi-chevron-right"></i>
+                      </button>
+                    </li>
+                  </ul>
+                </nav>
+                <p class="pagination-info">
+                  Page {{ currentPage() }} of {{ totalPages() }} ({{ totalRecords() }} total)
+                </p>
+              </div>
+            }
+          } @else {
+            <div class="text-center py-5">
+              <i class="bi bi-inbox display-4 text-muted"></i>
+              <p class="text-muted mt-3">No companies found</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>

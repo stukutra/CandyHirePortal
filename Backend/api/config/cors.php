@@ -9,17 +9,20 @@
 $allowed_origins_env = getenv('CORS_ALLOWED_ORIGINS');
 $allowed_origins = $allowed_origins_env
     ? explode(',', $allowed_origins_env)
-    : ['http://localhost:4200', 'http://localhost:4202'];
+    : ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4202'];
 
 // Get the origin of the request
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
 
-// Check if origin is allowed
-if (in_array($origin, $allowed_origins)) {
+// For development, allow localhost origins
+if (strpos($origin, 'http://localhost:') === 0) {
     header("Access-Control-Allow-Origin: $origin");
     header("Access-Control-Allow-Credentials: true");
-} else if (in_array('*', $allowed_origins)) {
-    // Allow all origins (not recommended for production)
+} else if (in_array($origin, $allowed_origins)) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+} else {
+    // Fallback for development
     header("Access-Control-Allow-Origin: *");
 }
 

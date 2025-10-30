@@ -1,0 +1,35 @@
+<nav class="admin-navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="navbar-brand">
+      <a routerLink="/admin/dashboard">
+        <img src="/logo.png" alt="CandyHire Portal" class="navbar-logo" />
+        <span class="navbar-title">Admin Portal</span>
+      </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <div class="navbar-nav">
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-speedometer2 me-2"></i>
+        Dashboard
+      </a>
+      <a routerLink="/admin/companies" routerLinkActive="active" class="nav-link">
+        <i class="bi bi-building me-2"></i>
+        Companies
+      </a>
+    </div>
+
+    <!-- User Info & Logout -->
+    <div class="navbar-user">
+      <div class="user-info">
+        <i class="bi bi-person-circle me-2"></i>
+        <span class="user-name">{{ adminFullName() }}</span>
+      </div>
+      <button class="btn btn-logout" (click)="logout()">
+        <i class="bi bi-box-arrow-right me-2"></i>
+        Logout
+      </button>
+    </div>
+  </div>
+</nav>

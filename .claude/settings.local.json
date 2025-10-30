@@ -10,7 +10,14 @@
       "Bash(docker-compose ps:*)",
       "Bash(cat:*)",
       "Bash(docker exec:*)",
-      "Bash(docker-compose logs:*)"
+      "Bash(docker-compose logs:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(lsof:*)",
+      "Bash(php -r:*)",
+      "Bash(docker restart:*)"
     ],
     "deny": [],
     "ask": []

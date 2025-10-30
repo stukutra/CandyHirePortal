@@ -1,0 +1,16 @@
+<div class="toast-container">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toast toast-{{ toast.type }}" [@slideIn]>
+      <div class="toast-icon">
+        <i class="bi" [class]="getIcon(toast.type)"></i>
+      </div>
+      <div class="toast-content">
+        <h4 class="toast-title">{{ toast.title }}</h4>
+        <p class="toast-message">{{ toast.message }}</p>
+      </div>
+      <button class="toast-close" (click)="remove(toast.id)">
+        <i class="bi bi-x"></i>
+      </button>
+    </div>
+  }
+</div>

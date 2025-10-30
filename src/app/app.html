@@ -1,35 +1,47 @@
-<!-- Top Toolbar -->
-<header class="candy-toolbar">
-  <div class="toolbar-container">
-    <div class="toolbar-logo">
-      <a routerLink="/">
-        <img src="/logo.png" alt="CandyHire Logo" class="toolbar-logo-img" />
-      </a>
+<!-- Admin Navbar - Only show in admin area -->
+@if (isAdminArea()) {
+  <app-admin-navbar />
+}
+
+<!-- Public Toolbar - Only show on public pages -->
+@if (!isAdminArea()) {
+  <header class="candy-toolbar">
+    <div class="toolbar-container">
+      <div class="toolbar-logo">
+        <a routerLink="/">
+          <img src="/logo.png" alt="CandyHire Logo" class="toolbar-logo-img" />
+        </a>
+      </div>
+      <div class="toolbar-actions">
+        <button type="button" (click)="openWaitlistModal()" class="btn btn-outline-candy btn-sm">
+          <i class="bi bi-box-arrow-in-right me-2"></i>
+          Login
+        </button>
+        <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-sm">
+          <i class="bi bi-cart-fill me-2"></i>
+          Acquista Early Access
+        </button>
+      </div>
     </div>
-    <div class="toolbar-actions">
-      <button type="button" (click)="openWaitlistModal()" class="btn btn-outline-candy btn-sm">
-        <i class="bi bi-box-arrow-in-right me-2"></i>
-        Login
-      </button>
-      <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-sm">
-        <i class="bi bi-cart-fill me-2"></i>
-        Acquista Early Access
-      </button>
-    </div>
-  </div>
-</header>
+  </header>
+}
 
 <router-outlet />
 
-<!-- Floating CTA Button -->
-<button type="button" (click)="openWaitlistModal()" class="floating-cta-button">
-  <i class="bi bi-rocket-takeoff-fill"></i>
-  <span class="floating-cta-text">Iscriviti ora - posti limitati</span>
-</button>
+<!-- Floating CTA Button - Only show on public pages -->
+@if (!isAdminArea()) {
+  <button type="button" (click)="openWaitlistModal()" class="floating-cta-button">
+    <i class="bi bi-rocket-takeoff-fill"></i>
+    <span class="floating-cta-text">Iscriviti ora - posti limitati</span>
+  </button>
 
-<app-footer />
+  <app-footer />
+}
 
 <!-- Waitlist Modal -->
 @if (modalService.showModal()) {
   <app-waitlist-modal (closeModal)="closeWaitlistModal()" />
 }
+
+<!-- Toast Notifications -->
+<app-toast-container />

@@ -27,7 +27,7 @@ Root Pass: candyhire_portal_root_pass
 
 ## API Endpoints
 
-### Autenticazione
+### Autenticazione Aziende
 
 ```bash
 # Registrazione nuova azienda
@@ -54,6 +54,49 @@ Content-Type: application/json
 {
   "email": "email@azienda.com",
   "password": "Password123!"
+}
+```
+
+### Admin API
+
+```bash
+# Login Admin
+POST http://localhost:8082/admin/login.php
+Content-Type: application/json
+
+{
+  "email": "admin@candyhire.com",
+  "password": "Admin123!"
+}
+```
+
+```bash
+# Dashboard Statistics
+GET http://localhost:8082/admin/dashboard-stats.php
+Authorization: Bearer {jwt_token}
+```
+
+```bash
+# Lista aziende registrate (con filtri e paginazione)
+GET http://localhost:8082/admin/companies-list.php?page=1&limit=20&search=&status=active&payment_status=completed
+Authorization: Bearer {jwt_token}
+```
+
+```bash
+# Dettaglio azienda
+GET http://localhost:8082/admin/company-detail.php?id={company_id}
+Authorization: Bearer {jwt_token}
+```
+
+```bash
+# Aggiorna stato azienda
+PUT http://localhost:8082/admin/company-update-status.php
+Authorization: Bearer {jwt_token}
+Content-Type: application/json
+
+{
+  "company_id": "comp_xxx",
+  "status": "active"
 }
 ```
 

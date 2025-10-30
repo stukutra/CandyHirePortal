@@ -33,9 +33,6 @@ class JWTHandler {
 
     /**
      * Generate access token for company
-     *
-     * @param array $company_data Company data to encode in token
-     * @return string JWT token
      */
     public function generateToken($company_data) {
         $issued_at = time();
@@ -59,9 +56,6 @@ class JWTHandler {
 
     /**
      * Generate access token for admin user
-     *
-     * @param array $admin_data Admin data to encode in token
-     * @return string JWT token
      */
     public function generateAdminToken($admin_data) {
         $issued_at = time();
@@ -85,9 +79,6 @@ class JWTHandler {
 
     /**
      * Generate refresh token
-     *
-     * @param array $user_data User data to encode in token
-     * @return string JWT refresh token
      */
     public function generateRefreshToken($user_data) {
         $issued_at = time();
@@ -108,9 +99,6 @@ class JWTHandler {
 
     /**
      * Validate and decode token
-     *
-     * @param string $token JWT token
-     * @return object|null Decoded token data or null if invalid
      */
     public function validateToken($token) {
         try {
@@ -123,17 +111,15 @@ class JWTHandler {
     }
 
     /**
-     * Get token from Cookie (preferred) or Authorization header (fallback)
-     *
-     * @return string|null Token or null if not found
+     * Get token from Cookie or Authorization header
      */
     public function getBearerToken() {
-        // First, try to get token from httpOnly cookie (most secure)
+        // First, try to get token from httpOnly cookie
         if (isset($_COOKIE['portal_access_token'])) {
             return $_COOKIE['portal_access_token'];
         }
 
-        // Fallback: get from Authorization header (for API clients)
+        // Fallback: get from Authorization header
         $headers = $this->getAuthorizationHeader();
 
         if (!empty($headers)) {
@@ -146,81 +132,7 @@ class JWTHandler {
     }
 
     /**
-     * Set JWT token in httpOnly cookie
-     *
-     * @param string $token Access token
-     * @param string $refresh_token Refresh token
-     */
-    public function setTokenCookies($token, $refresh_token) {
-        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
-        $domain = $this->getCookieDomain();
-
-        // Set access token cookie - httpOnly, secure, SameSite
-        setcookie(
-            'portal_access_token',
-            $token,
-            [
-                'expires' => time() + $this->expiration,
-                'path' => '/',
-                'domain' => $domain,
-                'secure' => $isSecure, // true in production with HTTPS
-                'httponly' => true,    // JavaScript cannot access
-                'samesite' => 'Lax' // Allow cross-site for subdomain access
-            ]
-        );
-
-        // Set refresh token cookie - httpOnly, secure, SameSite
-        setcookie(
-            'portal_refresh_token',
-            $refresh_token,
-            [
-                'expires' => time() + $this->refresh_expiration,
-                'path' => '/',
-                'domain' => $domain,
-                'secure' => $isSecure,
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]
-        );
-    }
-
-    /**
-     * Clear JWT cookies (for logout)
-     */
-    public function clearTokenCookies() {
-        $domain = $this->getCookieDomain();
-
-        setcookie('portal_access_token', '', [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'domain' => $domain,
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]);
-
-        setcookie('portal_refresh_token', '', [
-            'expires' => time() - 3600,
-            'path' => '/',
-            'domain' => $domain,
-            'httponly' => true,
-            'samesite' => 'Lax'
-        ]);
-    }
-
-    /**
-     * Get cookie domain from environment or auto-detect
-     *
-     * @return string
-     */
-    private function getCookieDomain() {
-        // Use domain from env if set, otherwise empty string for current domain
-        return getenv('COOKIE_DOMAIN') ?: '';
-    }
-
-    /**
      * Get Authorization header
-     *
-     * @return string|null
      */
     private function getAuthorizationHeader() {
         $headers = null;

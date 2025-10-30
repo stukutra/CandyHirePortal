@@ -1,0 +1,140 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <header class="dashboard-header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Welcome back, {{ adminFullName() }}!</p>
+        </div>
+        <button class="btn btn-outline-danger" (click)="logout()">
+          <i class="bi bi-box-arrow-right me-2"></i>
+          Logout
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid py-4">
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      <!-- Stats Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+              <i class="bi bi-building"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ stats()?.total_companies || 0 }}</h3>
+              <p class="stat-label">Total Companies</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ stats()?.active_companies || 0 }}</h3>
+              <p class="stat-label">Active Companies</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="stat-card stat-card-warning">
+            <div class="stat-icon">
+              <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ stats()?.payment_pending || 0 }}</h3>
+              <p class="stat-label">Payment Pending</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <div class="stat-card stat-card-info">
+            <div class="stat-icon">
+              <i class="bi bi-currency-euro"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">€{{ stats()?.total_revenue || 0 }}</h3>
+              <p class="stat-label">Total Revenue</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Latest Companies Table -->
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Latest Registered Companies
+          </h5>
+          <button class="btn btn-sm btn-primary" (click)="goToCompanies()">
+            View All
+            <i class="bi bi-arrow-right ms-2"></i>
+          </button>
+        </div>
+        <div class="card-body p-0">
+          @if (latestCompanies().length > 0) {
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead>
+                  <tr>
+                    <th>Company Name</th>
+                    <th>Email</th>
+                    <th>Registration Status</th>
+                    <th>Payment Status</th>
+                    <th>Registered On</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (company of latestCompanies(); track company.id) {
+                    <tr>
+                      <td>
+                        <strong>{{ company.company_name }}</strong>
+                      </td>
+                      <td>{{ company.email }}</td>
+                      <td>
+                        <span class="badge" [class]="getStatusBadgeClass(company.registration_status)">
+                          {{ company.registration_status }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="badge" [class]="getStatusBadgeClass(company.payment_status)">
+                          {{ company.payment_status }}
+                        </span>
+                      </td>
+                      <td>{{ formatDate(company.created_at) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <div class="text-center py-5">
+              <i class="bi bi-inbox display-4 text-muted"></i>
+              <p class="text-muted mt-3">No companies registered yet</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</div>
