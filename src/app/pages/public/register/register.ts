@@ -1,9 +1,10 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../../environments/environment';
+import { Country, CountryListResponse } from '../../../models/country.model';
 
 interface RegisterResponse {
   success: boolean;
@@ -19,7 +20,7 @@ interface RegisterResponse {
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
-export class Register {
+export class Register implements OnInit {
   private http = inject(HttpClient);
   private router = inject(Router);
 
@@ -31,6 +32,11 @@ export class Register {
   showConfirmPassword = signal(false);
   errorMessage = signal('');
   passwordStrength = signal<{level: number, text: string, color: string}>({level: 0, text: '', color: ''});
+
+  // Countries list
+  countries = signal<Country[]>([]);
+  selectedCountry = signal<Country | null>(null);
+  loadingCountries = signal(true);
 
   // Step 1: Personal Info
   personalInfo = signal({
@@ -46,6 +52,7 @@ export class Register {
   companyInfo = signal({
     companyName: '',
     vatNumber: '',
+    sdiCode: '', // SDI Code for Italian electronic invoicing
     companySize: '',
     industry: '',
     website: '',
@@ -53,7 +60,7 @@ export class Register {
     city: '',
     province: '',
     postalCode: '',
-    country: 'Italy',
+    countryCode: 'IT', // ISO country code
   });
 
   // Step 3: Subscription Plan
@@ -88,6 +95,54 @@ export class Register {
     '201-500 employees',
     '500+ employees',
   ];
+
+  ngOnInit() {
+    this.loadCountries();
+  }
+
+  loadCountries() {
+    this.loadingCountries.set(true);
+    this.http.get<CountryListResponse>(`${this.apiUrl}/public/countries.php`)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.countries.set(response.countries);
+            // Set Italy as default
+            const italy = response.countries.find(c => c.code === 'IT');
+            if (italy) {
+              this.selectedCountry.set(italy);
+            }
+          }
+          this.loadingCountries.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load countries:', err);
+          this.loadingCountries.set(false);
+        }
+      });
+  }
+
+  onCountryChange(countryCode: string) {
+    const country = this.countries().find(c => c.code === countryCode);
+    if (country) {
+      this.selectedCountry.set(country);
+      this.companyInfo.update(info => ({...info, countryCode}));
+
+      // Clear SDI code if not Italy
+      if (countryCode !== 'IT') {
+        this.companyInfo.update(info => ({...info, sdiCode: ''}));
+      }
+    }
+  }
+
+  getVatLabel(): string {
+    const country = this.selectedCountry();
+    return country?.vat_label || 'VAT Number';
+  }
+
+  isItalySelected(): boolean {
+    return this.companyInfo().countryCode === 'IT';
+  }
 
   nextStep() {
     if (this.validateCurrentStep()) {
@@ -140,10 +195,12 @@ export class Register {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
+    const country = this.selectedCountry();
     const registrationData = {
       // Company info
       company_name: this.companyInfo().companyName,
       vat_number: this.companyInfo().vatNumber,
+      sdi_code: this.companyInfo().sdiCode || null,
       email: this.personalInfo().email,
       phone: this.personalInfo().phone,
       website: this.companyInfo().website,
@@ -153,7 +210,8 @@ export class Register {
       city: this.companyInfo().city,
       province: this.companyInfo().province,
       postal_code: this.companyInfo().postalCode,
-      country: this.companyInfo().country,
+      country: country?.name || 'Italy',
+      country_code: this.companyInfo().countryCode,
 
       // Company details
       industry: this.companyInfo().industry,

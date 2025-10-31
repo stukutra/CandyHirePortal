@@ -92,9 +92,16 @@
                 <thead>
                   <tr>
                     <th>Company Name</th>
+                    <th>Legal Rep.</th>
                     <th>Email</th>
-                    <th>Registration Status</th>
-                    <th>Payment Status</th>
+                    <th>Phone</th>
+                    <th>VAT Number</th>
+                    <th>Location</th>
+                    <th>Industry</th>
+                    <th>Employees</th>
+                    <th>Plan</th>
+                    <th>Reg. Status</th>
+                    <th>Payment</th>
                     <th>Registered On</th>
                   </tr>
                 </thead>
@@ -104,7 +111,34 @@
                       <td>
                         <strong>{{ company.company_name }}</strong>
                       </td>
-                      <td>{{ company.email }}</td>
+                      <td>
+                        {{ company.legal_rep_first_name }} {{ company.legal_rep_last_name }}
+                      </td>
+                      <td>
+                        <small>{{ company.email }}</small>
+                      </td>
+                      <td>
+                        <small>{{ company.phone || '-' }}</small>
+                      </td>
+                      <td>
+                        <small>{{ company.vat_number || '-' }}</small>
+                      </td>
+                      <td>
+                        @if (company.city || company.province) {
+                          <small>{{ company.city }}@if (company.city && company.province) {, }{{ company.province }}</small>
+                        } @else {
+                          <small>-</small>
+                        }
+                      </td>
+                      <td>
+                        <small>{{ company.industry || '-' }}</small>
+                      </td>
+                      <td>
+                        <small>{{ company.employees_count || '-' }}</small>
+                      </td>
+                      <td>
+                        <span class="badge badge-info">{{ company.subscription_plan }}</span>
+                      </td>
                       <td>
                         <span class="badge" [class]="getStatusBadgeClass(company.registration_status)">
                           {{ company.registration_status }}
@@ -115,7 +149,9 @@
                           {{ company.payment_status }}
                         </span>
                       </td>
-                      <td>{{ formatDate(company.created_at) }}</td>
+                      <td>
+                        <small>{{ formatDate(company.created_at) }}</small>
+                      </td>
                     </tr>
                   }
                 </tbody>

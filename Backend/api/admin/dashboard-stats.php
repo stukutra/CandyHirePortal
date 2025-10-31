@@ -98,8 +98,29 @@ try {
     $recentStmt = $db->query($recentQuery);
     $recent_registrations = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Latest companies (last 5)
-    $latestQuery = "SELECT id, company_name, email, registration_status, payment_status, created_at
+    // Latest companies (last 5) - include all registration data
+    $latestQuery = "SELECT
+                        id,
+                        company_name,
+                        vat_number,
+                        email,
+                        phone,
+                        website,
+                        address,
+                        city,
+                        postal_code,
+                        province,
+                        country,
+                        industry,
+                        employees_count,
+                        legal_rep_first_name,
+                        legal_rep_last_name,
+                        legal_rep_email,
+                        legal_rep_phone,
+                        subscription_plan,
+                        registration_status,
+                        payment_status,
+                        created_at
                     FROM companies_registered
                     ORDER BY created_at DESC
                     LIMIT 5";

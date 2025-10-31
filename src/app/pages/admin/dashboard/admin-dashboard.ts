@@ -4,31 +4,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth.service';
 import { environment } from '../../../../environments/environment';
-
-interface DashboardStats {
-  total_companies: number;
-  active_companies: number;
-  payment_pending: number;
-  paid_companies: number;
-  total_revenue: number;
-}
-
-interface Company {
-  id: string;
-  company_name: string;
-  email: string;
-  registration_status: string;
-  payment_status: string;
-  created_at: string;
-}
-
-interface DashboardResponse {
-  success: boolean;
-  stats: DashboardStats;
-  companies_by_status: Array<{registration_status: string; count: number}>;
-  recent_registrations: Array<{date: string; count: number}>;
-  latest_companies: Company[];
-}
+import { DashboardStats, Company, DashboardResponse } from '../../../models/dashboard.model';
 
 @Component({
   selector: 'app-admin-dashboard',

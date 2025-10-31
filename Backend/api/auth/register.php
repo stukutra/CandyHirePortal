@@ -92,6 +92,7 @@ try {
     $company->id = Company::generateId();
     $company->company_name = htmlspecialchars(strip_tags($data->company_name));
     $company->vat_number = isset($data->vat_number) ? htmlspecialchars(strip_tags($data->vat_number)) : null;
+    $company->sdi_code = isset($data->sdi_code) && !empty($data->sdi_code) ? htmlspecialchars(strip_tags($data->sdi_code)) : null;
     $company->email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
     $company->phone = isset($data->phone) ? htmlspecialchars(strip_tags($data->phone)) : null;
     $company->website = isset($data->website) ? filter_var($data->website, FILTER_SANITIZE_URL) : null;
@@ -100,6 +101,7 @@ try {
     $company->postal_code = isset($data->postal_code) ? htmlspecialchars(strip_tags($data->postal_code)) : null;
     $company->province = isset($data->province) ? htmlspecialchars(strip_tags($data->province)) : null;
     $company->country = isset($data->country) ? htmlspecialchars(strip_tags($data->country)) : 'Italy';
+    $company->country_code = isset($data->country_code) ? strtoupper(htmlspecialchars(strip_tags($data->country_code))) : 'IT';
     $company->industry = isset($data->industry) ? htmlspecialchars(strip_tags($data->industry)) : null;
     $company->employees_count = isset($data->employees_count) ? htmlspecialchars(strip_tags($data->employees_count)) : null;
     $company->description = isset($data->description) ? htmlspecialchars(strip_tags($data->description)) : null;

@@ -170,7 +170,25 @@
                 />
               </div>
               <div class="col-md-6">
-                <label class="form-label">VAT Number *</label>
+                <label class="form-label">Country *</label>
+                @if (loadingCountries()) {
+                  <div class="form-control">Loading countries...</div>
+                } @else {
+                  <select
+                    class="form-select"
+                    [(ngModel)]="companyInfo().countryCode"
+                    (ngModelChange)="onCountryChange($event)"
+                    name="countryCode"
+                    required
+                  >
+                    @for (country of countries(); track country.code) {
+                      <option [value]="country.code">{{ country.name }}</option>
+                    }
+                  </select>
+                }
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">{{ getVatLabel() }} *</label>
                 <input
                   type="text"
                   class="form-control"
@@ -178,7 +196,26 @@
                   name="vatNumber"
                   required
                 />
+                @if (selectedCountry()?.has_vat) {
+                  <small class="form-text text-muted">{{ selectedCountry()?.vat_label }}</small>
+                }
               </div>
+              @if (isItalySelected()) {
+                <div class="col-md-6">
+                  <label class="form-label">Codice SDI</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    [(ngModel)]="companyInfo().sdiCode"
+                    name="sdiCode"
+                    maxlength="7"
+                    placeholder="Es: A4707H7"
+                  />
+                  <small class="form-text text-muted">
+                    Codice destinatario per fatturazione elettronica
+                  </small>
+                </div>
+              }
               <div class="col-md-6">
                 <label class="form-label">Company Size</label>
                 <select
