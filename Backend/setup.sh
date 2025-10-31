@@ -70,23 +70,53 @@ fi
 echo ""
 echo "📊 Database schema created successfully"
 echo ""
-echo "🎯 Creating tenant pool (100 available tenant IDs)..."
+echo "🎯 Creating tenant pool, countries, and admin user..."
 echo ""
 
 # Run Portal initial data insertion
 docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/02_initial_data.sql 2>/dev/null || echo "⚠️  Initial data already exists or failed to insert"
+echo "✅ Portal initial data imported"
 
 echo ""
-echo "📦 Importing CandyHire operational schema (single-database multi-tenancy)..."
+echo "🏗️  Creating 100 tenant databases..."
+echo "⚠️  This will take several minutes. Please wait..."
 echo ""
 
-# Import CandyHire schema from local migration folder
-docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/04_candyhire_schema.sql 2>/dev/null || echo "⚠️  CandyHire schema already exists or failed to import"
-echo "✅ CandyHire operational tables imported"
+# Tenant configuration
+TENANT_COUNT=100
+SAAS_SCHEMA="../../CandyHire/Backend/migration/04_candyhire_schema.sql"
+SAAS_DATA="../../CandyHire/Backend/migration/05_candyhire_initial_data.sql"
 
-# Import CandyHire initial data from local migration folder
-docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/05_candyhire_initial_data.sql 2>/dev/null || echo "⚠️  CandyHire initial data already exists or failed to import"
-echo "✅ CandyHire initial data imported"
+# Check if SaaS schema files exist
+if [ ! -f "$SAAS_SCHEMA" ]; then
+    echo "⚠️  Warning: SaaS schema file not found at $SAAS_SCHEMA"
+    echo "   Skipping tenant creation. Make sure CandyHire Backend migration files exist."
+else
+    # Create 100 tenant databases
+    success_count=0
+    for i in $(seq 1 $TENANT_COUNT); do
+        DB_NAME="candyhire_tenant_$i"
+
+        # Show progress every 10 databases
+        if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
+            echo "  📦 Processing tenant $i/$TENANT_COUNT..."
+        fi
+
+        # Create database
+        docker exec candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+
+        # Apply schema
+        docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} $DB_NAME < $SAAS_SCHEMA 2>/dev/null
+
+        # Apply initial data
+        docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} $DB_NAME < $SAAS_DATA 2>/dev/null
+
+        success_count=$((success_count + 1))
+    done
+
+    echo ""
+    echo "✅ Successfully created $success_count/$TENANT_COUNT tenant databases"
+fi
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"

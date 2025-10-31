@@ -11,6 +11,7 @@ class Company {
     public $id;
     public $company_name;
     public $vat_number;
+    public $sdi_code;
     public $email;
     public $phone;
     public $website;
@@ -19,6 +20,7 @@ class Company {
     public $postal_code;
     public $province;
     public $country;
+    public $country_code;
     public $industry;
     public $employees_count;
     public $description;
@@ -60,15 +62,15 @@ class Company {
      */
     public function create() {
         $query = "INSERT INTO companies_registered
-            (id, company_name, vat_number, email, phone, website,
-             address, city, postal_code, province, country,
+            (id, company_name, vat_number, sdi_code, email, phone, website,
+             address, city, postal_code, province, country, country_code,
              industry, employees_count, description,
              legal_rep_first_name, legal_rep_last_name, legal_rep_email, legal_rep_phone,
              password_hash, registration_status, payment_status,
              subscription_plan, terms_accepted, privacy_accepted)
             VALUES
-            (:id, :company_name, :vat_number, :email, :phone, :website,
-             :address, :city, :postal_code, :province, :country,
+            (:id, :company_name, :vat_number, :sdi_code, :email, :phone, :website,
+             :address, :city, :postal_code, :province, :country, :country_code,
              :industry, :employees_count, :description,
              :legal_rep_first_name, :legal_rep_last_name, :legal_rep_email, :legal_rep_phone,
              :password_hash, :registration_status, :payment_status,
@@ -85,6 +87,7 @@ class Company {
         $stmt->bindParam(':id', $this->id);
         $stmt->bindParam(':company_name', $this->company_name);
         $stmt->bindParam(':vat_number', $this->vat_number);
+        $stmt->bindParam(':sdi_code', $this->sdi_code);
         $stmt->bindParam(':email', $this->email);
         $stmt->bindParam(':phone', $this->phone);
         $stmt->bindParam(':website', $this->website);
@@ -93,6 +96,7 @@ class Company {
         $stmt->bindParam(':postal_code', $this->postal_code);
         $stmt->bindParam(':province', $this->province);
         $stmt->bindParam(':country', $this->country);
+        $stmt->bindParam(':country_code', $this->country_code);
         $stmt->bindParam(':industry', $this->industry);
         $stmt->bindParam(':employees_count', $this->employees_count);
         $stmt->bindParam(':description', $this->description);
@@ -240,6 +244,7 @@ class Company {
         $this->id = $row->id;
         $this->company_name = $row->company_name;
         $this->vat_number = $row->vat_number;
+        $this->sdi_code = $row->sdi_code ?? null;
         $this->email = $row->email;
         $this->phone = $row->phone;
         $this->website = $row->website;
@@ -248,6 +253,7 @@ class Company {
         $this->postal_code = $row->postal_code;
         $this->province = $row->province;
         $this->country = $row->country;
+        $this->country_code = $row->country_code ?? null;
         $this->industry = $row->industry;
         $this->employees_count = $row->employees_count;
         $this->description = $row->description;

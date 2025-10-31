@@ -6,15 +6,45 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
+-- Drop all tables first
+DROP TABLE IF EXISTS `payment_transactions`;
+DROP TABLE IF EXISTS `activity_logs`;
+DROP TABLE IF EXISTS `companies_registered`;
+DROP TABLE IF EXISTS `admin_users`;
+DROP TABLE IF EXISTS `tenant_pool`;
+DROP TABLE IF EXISTS `countries`;
+
+-- ============================================
+-- Table: countries
+-- Stores supported countries with VAT information
+-- ============================================
+CREATE TABLE `countries` (
+    `code` VARCHAR(2) PRIMARY KEY COMMENT 'ISO 3166-1 alpha-2 code',
+    `name` VARCHAR(100) NOT NULL COMMENT 'English name',
+    `name_it` VARCHAR(100) NOT NULL COMMENT 'Italian name',
+    `name_es` VARCHAR(100) NOT NULL COMMENT 'Spanish name',
+    `name_en` VARCHAR(100) NOT NULL COMMENT 'English name (duplicate for consistency)',
+    `has_vat` BOOLEAN DEFAULT TRUE COMMENT 'Does this country use VAT system?',
+    `vat_label` VARCHAR(50) DEFAULT 'VAT Number' COMMENT 'Label for VAT field',
+    `requires_sdi` BOOLEAN DEFAULT FALSE COMMENT 'Requires SDI code (Italy only)',
+    `currency` VARCHAR(3) DEFAULT 'EUR' COMMENT 'Currency code',
+    `phone_prefix` VARCHAR(10) NOT NULL COMMENT 'International phone prefix',
+    `is_eu` BOOLEAN DEFAULT FALSE COMMENT 'Is in European Union?',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_is_eu (`is_eu`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ============================================
 -- Table: companies_registered
 -- Stores all companies that register on the portal
 -- ============================================
-DROP TABLE IF EXISTS `companies_registered`;
 CREATE TABLE `companies_registered` (
   `id` VARCHAR(50) NOT NULL PRIMARY KEY,
   `company_name` VARCHAR(255) NOT NULL,
   `vat_number` VARCHAR(50) UNIQUE,
+  `sdi_code` VARCHAR(7) NULL COMMENT 'SDI Code for Italian electronic invoicing',
   `email` VARCHAR(255) NOT NULL UNIQUE,
   `phone` VARCHAR(50),
   `website` VARCHAR(500),
@@ -25,8 +55,9 @@ CREATE TABLE `companies_registered` (
   `postal_code` VARCHAR(20),
   `province` VARCHAR(100),
   `country` VARCHAR(100) NOT NULL DEFAULT 'Italy',
+  `country_code` VARCHAR(2) NULL DEFAULT 'IT' COMMENT 'ISO country code',
 
-  -- Company Info
+  -- Company Info (collected during registration)
   `industry` VARCHAR(100),
   `employees_count` VARCHAR(50),
   `description` TEXT,
@@ -69,14 +100,14 @@ CREATE TABLE `companies_registered` (
   INDEX idx_company_email (`email`),
   INDEX idx_company_status (`registration_status`),
   INDEX idx_payment_status (`payment_status`),
-  INDEX idx_tenant_id (`tenant_id`)
+  INDEX idx_tenant_id (`tenant_id`),
+  INDEX idx_country_code (`country_code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
 -- Table: tenant_pool
 -- Pool of available tenant IDs for single-database multi-tenancy
 -- ============================================
-DROP TABLE IF EXISTS `tenant_pool`;
 CREATE TABLE `tenant_pool` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` INT NOT NULL UNIQUE COMMENT 'Unique tenant identifier (1-100)',
@@ -96,7 +127,6 @@ CREATE TABLE `tenant_pool` (
 -- Table: payment_transactions
 -- Track all payment transactions
 -- ============================================
-DROP TABLE IF EXISTS `payment_transactions`;
 CREATE TABLE `payment_transactions` (
   `id` VARCHAR(50) NOT NULL PRIMARY KEY,
   `company_id` VARCHAR(50) NOT NULL,
@@ -129,7 +159,6 @@ CREATE TABLE `payment_transactions` (
 -- Table: admin_users
 -- Portal administrators
 -- ============================================
-DROP TABLE IF EXISTS `admin_users`;
 CREATE TABLE `admin_users` (
   `id` VARCHAR(50) NOT NULL PRIMARY KEY,
   `username` VARCHAR(100) NOT NULL UNIQUE,
@@ -151,7 +180,6 @@ CREATE TABLE `admin_users` (
 -- Table: activity_logs
 -- Audit trail for all activities
 -- ============================================
-DROP TABLE IF EXISTS `activity_logs`;
 CREATE TABLE `activity_logs` (
   `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
   `entity_type` VARCHAR(50) NOT NULL,
@@ -171,3 +199,7 @@ CREATE TABLE `activity_logs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- ============================================
+-- End of Portal Schema
+-- ============================================
