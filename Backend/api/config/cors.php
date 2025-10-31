@@ -1,38 +1,74 @@
 <?php
 /**
- * CORS Configuration
+ * Unified CORS Configuration for CandyHire Platform
+ * Works transparently in localhost and production
  *
- * Handles Cross-Origin Resource Sharing for API access
+ * Automatically detects environment and allows:
+ * - localhost:4200 (Portal dev)
+ * - localhost:4202 (SaaS dev)
+ * - www.candyhire.cloud (Portal production)
+ * - app.candyhire.cloud (SaaS production)
  */
 
-// Get allowed origins from environment or use defaults
-$allowed_origins_env = getenv('CORS_ALLOWED_ORIGINS');
-$allowed_origins = $allowed_origins_env
-    ? explode(',', $allowed_origins_env)
-    : ['http://localhost:4200', 'http://localhost:4201', 'http://localhost:4202'];
+// Load environment
+require_once __DIR__ . '/bootstrap.php';
 
 // Get the origin of the request
-$origin = $_SERVER['HTTP_ORIGIN'] ?? $_SERVER['HTTP_REFERER'] ?? '';
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-// For development, allow localhost origins
-if (strpos($origin, 'http://localhost:') === 0) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Credentials: true");
-} else if (in_array($origin, $allowed_origins)) {
-    header("Access-Control-Allow-Origin: $origin");
-    header("Access-Control-Allow-Credentials: true");
+// Define allowed origins based on environment
+$is_production = getenv('APP_ENV') === 'production';
+
+if ($is_production) {
+    // Production: Only allow candyhire.cloud domains
+    $allowed_origins = [
+        'https://www.candyhire.cloud',
+        'https://candyhire.cloud',
+        'https://app.candyhire.cloud'
+    ];
 } else {
-    // Fallback for development
+    // Development: Allow localhost on any port + custom env origins
+    $custom_origins = getenv('CORS_ALLOWED_ORIGINS')
+        ? explode(',', getenv('CORS_ALLOWED_ORIGINS'))
+        : [];
+
+    $allowed_origins = array_merge([
+        'http://localhost:4200',  // Portal Angular dev
+        'http://localhost:4202',  // SaaS Angular dev
+        'http://localhost:8082',  // Portal API
+        'http://localhost:8080',  // SaaS API
+        'http://127.0.0.1:4200',
+        'http://127.0.0.1:4202'
+    ], $custom_origins);
+}
+
+// Check if origin is allowed
+$is_allowed = false;
+
+if ($is_production) {
+    // Strict matching for production
+    $is_allowed = in_array($origin, $allowed_origins);
+} else {
+    // Flexible matching for development (allows any localhost port)
+    if (preg_match('/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/', $origin)) {
+        $is_allowed = true;
+    } else {
+        $is_allowed = in_array($origin, $allowed_origins);
+    }
+}
+
+// Set CORS headers
+if ($is_allowed) {
+    header("Access-Control-Allow-Origin: $origin");
+    header("Access-Control-Allow-Credentials: true");
+} else if (!$is_production) {
+    // Development fallback: allow all
     header("Access-Control-Allow-Origin: *");
 }
 
-// Allowed HTTP methods
+// Standard CORS headers
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-
-// Allowed headers
-header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin");
-
-// Max age for preflight cache
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, Accept, Origin, X-Tenant-ID");
 header("Access-Control-Max-Age: 3600");
 
 // Handle OPTIONS preflight request

@@ -155,4 +155,104 @@ class JWTHandler {
 
         return $headers;
     }
+
+    /**
+     * Validate token for admin access
+     */
+    public function validateAdminToken($token) {
+        $decoded = $this->validateToken($token);
+
+        if (!$decoded || !isset($decoded->data->type) || $decoded->data->type !== 'admin') {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * Validate token for company access
+     */
+    public function validateCompanyToken($token) {
+        $decoded = $this->validateToken($token);
+
+        if (!$decoded || !isset($decoded->data->type) || $decoded->data->type !== 'company') {
+            return null;
+        }
+
+        return $decoded;
+    }
+
+    /**
+     * Set JWT token in httpOnly cookie (for SSO)
+     * Works across Portal and SaaS subdomains
+     */
+    public function setTokenCookies($token, $refresh_token) {
+        $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
+        $domain = $this->getCookieDomain();
+
+        // Set access token cookie
+        setcookie(
+            'candyhire_access_token',
+            $token,
+            [
+                'expires' => time() + $this->expiration,
+                'path' => '/',
+                'domain' => $domain,
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax' // Allow cross-subdomain (www -> app)
+            ]
+        );
+
+        // Set refresh token cookie
+        setcookie(
+            'candyhire_refresh_token',
+            $refresh_token,
+            [
+                'expires' => time() + $this->refresh_expiration,
+                'path' => '/',
+                'domain' => $domain,
+                'secure' => $isSecure,
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]
+        );
+    }
+
+    /**
+     * Clear JWT cookies (for logout)
+     */
+    public function clearTokenCookies() {
+        $domain = $this->getCookieDomain();
+
+        setcookie('candyhire_access_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'domain' => $domain,
+            'httponly' => true
+        ]);
+
+        setcookie('candyhire_refresh_token', '', [
+            'expires' => time() - 3600,
+            'path' => '/',
+            'domain' => $domain,
+            'httponly' => true
+        ]);
+    }
+
+    /**
+     * Get cookie domain based on environment
+     * Returns empty string for localhost, .candyhire.cloud for production
+     */
+    private function getCookieDomain() {
+        $is_production = getenv('APP_ENV') === 'production';
+
+        if ($is_production) {
+            // Use .candyhire.cloud to share cookies between www and app subdomains
+            return '.candyhire.cloud';
+        }
+
+        // Development: use empty string (current domain only)
+        return '';
+    }
 }
