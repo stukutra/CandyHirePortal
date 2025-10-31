@@ -1,19 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { WaitlistModalService } from '../../services/waitlist-modal';
-import { EarlyAdopterService } from '../../services/early-adopter';
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-pricing',
-  imports: [CommonModule],
+  imports: [],
   templateUrl: './pricing.html',
   styleUrl: './pricing.scss',
 })
 export class Pricing {
-  private modalService = inject(WaitlistModalService);
-  earlyAdopterService = inject(EarlyAdopterService);
+  constructor(private router: Router) {}
 
-  openWaitlist(): void {
-    this.modalService.open();
+  goToRegister(): void {
+    this.router.navigate(['/register']);
   }
 }

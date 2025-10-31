@@ -13,17 +13,25 @@
       <div class="hero-section animate-fade-in mt-5">
         <h1 class="hero-title">Il software HR che trasforma il recruiting in un gioco da ragazzi</h1>
         <p class="hero-subtitle">
-          Gestisci candidati, pubblica annunci e pianifica colloqui in un unico posto.
+          Gestisci candidati, organizza il recruiting e pianifica colloqui in un unico posto.
           Semplice, bello e finalmente umano.
         </p>
         <app-rotating-phrases />
-        <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-lg hero-cta">
-          <i class="bi bi-rocket-takeoff-fill"></i>
-          Unisciti alla Lista d'Attesa
-        </button>
+        <div class="hero-buttons">
+          <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg hero-cta">
+            <i class="bi bi-rocket-takeoff-fill"></i>
+            Inizia Ora
+          </button>
+          <a href="DEMO_URL_PLACEHOLDER" target="_blank" class="btn btn-outline-candy btn-lg hero-cta-secondary">
+            <i class="bi bi-play-circle-fill"></i>
+            Vedi la Demo
+          </a>
+        </div>
         <p class="hero-social-proof">
-          <i class="bi bi-people-fill"></i>
-          Già <strong>{{ earlyAdopterService.registeredCompanies() }} HR Manager</strong> hanno richiesto l'accesso anticipato
+          <i class="bi bi-shield-check-fill text-success"></i>
+          Dati protetti GDPR
+          <i class="bi bi-headset ms-3 text-info"></i>
+          Supporto dedicato
         </p>
       </div>
 
@@ -41,9 +49,9 @@
           </div>
 
           <div class="feature-card">
-            <img src="/Mastotte/CandyHire_Job.png" alt="Job Posting" class="feature-mascot" />
-            <h3>Job Posting</h3>
-            <p>Pubblica annunci su tutti i portali con un click. Template personalizzabili e tracking candidature.</p>
+            <img src="/Mastotte/CandyHire_Job.png" alt="Gestione Posizioni" class="feature-mascot" />
+            <h3>Gestione Posizioni</h3>
+            <p>Crea e gestisci le posizioni aperte con pipeline Kanban. Template personalizzabili e tracking candidature.</p>
           </div>
 
           <div class="feature-card">
@@ -105,20 +113,28 @@
       <!-- CTA Section -->
       <div class="cta-section animate-fade-in">
         <div class="cta-card">
-          <h2 class="cta-title">Il futuro del recruiting sta arrivando!</h2>
+          <h2 class="cta-title">Smetti di perdere tempo, inizia a crescere</h2>
           <p class="cta-text">
-            CandyHire sarà presto disponibile. Iscriviti ora alla lista d'attesa per essere tra i primi a provarlo e ricevere vantaggi esclusivi al lancio.
+            €1.900/anno per un recruiting finalmente professionale. Nessun limite, nessun costo nascosto.
+            <strong>Un investimento che si ripaga da solo</strong> in tempo risparmiato e assunzioni di qualità.
           </p>
           <div class="cta-buttons">
-            <button type="button" (click)="openWaitlistModal()" class="btn btn-candy btn-lg cta-main-btn">
-              <i class="bi bi-envelope-heart-fill me-2"></i>
-              Iscriviti alla Lista d'Attesa
+            <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg cta-main-btn cta-pulse">
+              <i class="bi bi-lightning-charge-fill me-2"></i>
+              Inizia Subito - Solo €1.900/anno
             </button>
+            <a routerLink="/login" class="btn btn-outline-candy btn-lg ms-3">
+              <i class="bi bi-box-arrow-in-right me-2"></i>
+              Accedi
+            </a>
           </div>
           <p class="cta-note">
-            <i class="bi bi-rocket-takeoff-fill"></i> Accesso anticipato esclusivo
-            <i class="bi bi-gift-fill ms-3"></i> Prezzo speciale early bird
-            <i class="bi bi-star-fill ms-3"></i> Influenza il prodotto finale
+            <i class="bi bi-clock-fill text-warning"></i> Setup in 5 minuti
+            <i class="bi bi-shield-fill-check ms-3 text-success"></i> Pagamento sicuro
+            <i class="bi bi-headset ms-3 text-info"></i> Supporto incluso
+          </p>
+          <p class="cta-value-note">
+            <strong>Include tutto:</strong> candidati illimitati, team completo, backup automatico, aggiornamenti gratuiti
           </p>
         </div>
       </div>

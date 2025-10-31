@@ -28,13 +28,16 @@
 
 <router-outlet />
 
-<!-- Floating CTA Button - Only show on public pages -->
-@if (!isAdminArea()) {
+<!-- Floating CTA Button - Only show on public pages (except login/register) -->
+@if (!isAdminArea() && !isAuthPage()) {
   <a routerLink="/register" class="floating-cta-button">
-    <i class="bi bi-rocket-takeoff-fill"></i>
-    <span class="floating-cta-text">Start Your Free Trial</span>
+    <i class="bi bi-lightning-charge-fill"></i>
+    <span class="floating-cta-text">Inizia Ora - €1.900/anno</span>
   </a>
+}
 
+<!-- Footer - Show on all public pages -->
+@if (!isAdminArea()) {
   <app-footer />
 }
 

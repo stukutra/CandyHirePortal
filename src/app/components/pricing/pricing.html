@@ -1,46 +1,26 @@
 <div class="pricing-container">
-    <h2 class="pricing-title">Scegli il Tuo Piano</h2>
+    <h2 class="pricing-title">Piano Completo</h2>
     <p class="pricing-subtitle">
-      Un unico piano completo, due opportunità di risparmio
+      Tutto ciò di cui hai bisogno per gestire il recruiting in modo professionale
     </p>
 
-    <!-- Urgency Counter -->
-    <div class="urgency-counter">
-      <div class="counter-content">
-        <div class="counter-icon">
-          <i class="bi bi-hourglass-split"></i>
-        </div>
-        <div class="counter-info">
-          <p class="counter-text">
-            <strong>Solo {{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong>
-            disponibili a prezzo Early Bird
-          </p>
-          <div class="counter-bar">
-            <div class="counter-progress" [style.width.%]="earlyAdopterService.slotsPercentage()"></div>
-          </div>
-          <p class="counter-slots">
-            {{ earlyAdopterService.registeredCompanies() }}/{{ earlyAdopterService.getMaxSlots() }} posti riservati
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <div class="pricing-tiers">
-      <!-- Early Bird Tier -->
-      <div class="pricing-card early-bird">
+    <div class="pricing-tiers pricing-single">
+      <!-- Professional Tier - Unico Piano -->
+      <div class="pricing-card early-bird pricing-featured">
         <div class="card-badge">
           <i class="bi bi-star-fill"></i>
-          EARLY BIRD
+          PIANO COMPLETO
         </div>
 
         <div class="card-header">
-          <h3 class="card-title">Piano Completo</h3>
-          <p class="card-subtitle">Iscriviti ora e risparmia</p>
+          <h3 class="card-title">CandyHire Professional</h3>
+          <p class="card-subtitle">Soluzione all-in-one per il recruiting</p>
           <div class="card-price">
-            <span class="price-amount">€1.500</span>
+            <span class="price-amount">€1.900</span>
             <span class="price-period">/anno</span>
           </div>
-          <p class="price-note">Prezzo speciale early adopters</p>
+          <p class="price-note">+ IVA dove applicabile</p>
+          <p class="price-subtext">Circa €158/mese - Risparmia il 20% vs piano mensile</p>
         </div>
 
         <div class="card-body">
@@ -49,7 +29,7 @@
               <i class="bi bi-check-circle-fill"></i>
               <div>
                 <strong>Dashboard Analytics Completa</strong>
-                <p>KPI in tempo reale, conversion rate, time-to-hire</p>
+                <p>KPI in tempo reale, conversion rate, time-to-hire, funnel analysis</p>
               </div>
             </li>
 
@@ -57,7 +37,7 @@
               <i class="bi bi-check-circle-fill"></i>
               <div>
                 <strong>Gestione Posizioni Illimitata</strong>
-                <p>Pubblica annunci, gestisci pipeline Kanban, filtra per stato</p>
+                <p>Pubblica annunci, pipeline Kanban drag & drop, workflow personalizzabile</p>
               </div>
             </li>
 
@@ -65,15 +45,15 @@
               <i class="bi bi-check-circle-fill"></i>
               <div>
                 <strong>Database Candidati Centralizzato</strong>
-                <p>Profili completi, note, storico applicazioni, multi-job tracking</p>
+                <p>Profili completi, CV, note, storico applicazioni, multi-job tracking</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Team Recruiting</strong>
-                <p>Gestisci recruiters, assegna posizioni, monitora performance</p>
+                <strong>Team Recruiting Completo</strong>
+                <p>Gestisci recruiters, assegna posizioni, monitora performance individuale</p>
               </div>
             </li>
 
@@ -81,236 +61,140 @@
               <i class="bi bi-check-circle-fill"></i>
               <div>
                 <strong>Gestione Aziende Clienti</strong>
-                <p>Database companies, posti attivi, analytics finanziarie</p>
+                <p>Database companies, contratti, posti attivi, analytics finanziarie</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Calendario Interviste</strong>
-                <p>Vista timeline/calendario, scheduling, feedback interviste</p>
+                <strong>Calendario Interviste Avanzato</strong>
+                <p>Vista timeline/calendario, scheduling automatico, reminder, feedback</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Analytics Avanzate</strong>
-                <p>Revenue tracking, recruiter performance, funnel analysis</p>
+                <strong>Analytics & Revenue Tracking</strong>
+                <p>Metriche finanziarie, performance recruiters, ROI per cliente</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Pipeline Kanban Drag & Drop</strong>
-                <p>Colonne personalizzabili, animazioni, workflow visuale</p>
+                <strong>Backup Automatico & GDPR</strong>
+                <p>Backup giornalieri, crittografia end-to-end, conformità GDPR</p>
               </div>
             </li>
 
             <li class="feature-item feature-bonus">
               <i class="bi bi-gift-fill"></i>
               <div>
-                <strong>BONUS: Demo Pre-compilata</strong>
-                <p>Accesso immediato con dati di esempio</p>
+                <strong>Demo Gratuita Pre-compilata</strong>
+                <p>Accesso immediato alla demo con dati di esempio</p>
               </div>
             </li>
 
             <li class="feature-item feature-bonus">
               <i class="bi bi-gift-fill"></i>
               <div>
-                <strong>BONUS: Supporto Prioritario</strong>
-                <p>Assistenza dedicata per i primi 6 mesi</p>
+                <strong>Supporto Prioritario Incluso</strong>
+                <p>Assistenza dedicata via email, chat e videocall</p>
+              </div>
+            </li>
+
+            <li class="feature-item feature-bonus">
+              <i class="bi bi-gift-fill"></i>
+              <div>
+                <strong>Aggiornamenti Gratuiti</strong>
+                <p>Nuove funzionalità e miglioramenti sempre inclusi</p>
               </div>
             </li>
           </ul>
         </div>
 
         <div class="card-footer">
-          <button type="button" (click)="openWaitlist()" class="btn btn-candy btn-lg btn-block">
+          <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg btn-block">
             <i class="bi bi-rocket-takeoff-fill me-2"></i>
-            Prenota Ora €1.500
+            Inizia Ora - €1.900/anno
           </button>
           <p class="footer-note">
-            <i class="bi bi-clock-history"></i>
-            Offerta valida solo in fase pre-lancio
-          </p>
-        </div>
-      </div>
-
-      <!-- Standard Tier -->
-      <div class="pricing-card standard">
-        <div class="card-header">
-          <h3 class="card-title">Piano Completo</h3>
-          <p class="card-subtitle">Dopo il lancio ufficiale</p>
-          <div class="card-price">
-            <span class="price-amount">€2.000</span>
-            <span class="price-period">/anno</span>
-          </div>
-          <p class="price-note">Prezzo standard post-lancio</p>
-        </div>
-
-        <div class="card-body">
-          <ul class="features-list">
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Dashboard Analytics Completa</strong>
-                <p>KPI in tempo reale, conversion rate, time-to-hire</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Gestione Posizioni Illimitata</strong>
-                <p>Pubblica annunci, gestisci pipeline Kanban, filtra per stato</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Database Candidati Centralizzato</strong>
-                <p>Profili completi, note, storico applicazioni, multi-job tracking</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Team Recruiting</strong>
-                <p>Gestisci recruiters, assegna posizioni, monitora performance</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Gestione Aziende Clienti</strong>
-                <p>Database companies, posti attivi, analytics finanziarie</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Calendario Interviste</strong>
-                <p>Vista timeline/calendario, scheduling, feedback interviste</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Analytics Avanzate</strong>
-                <p>Revenue tracking, recruiter performance, funnel analysis</p>
-              </div>
-            </li>
-
-            <li class="feature-item">
-              <i class="bi bi-check-circle-fill"></i>
-              <div>
-                <strong>Pipeline Kanban Drag & Drop</strong>
-                <p>Colonne personalizzabili, animazioni, workflow visuale</p>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <div class="card-footer">
-          <button type="button" class="btn btn-outline-candy btn-lg btn-block" disabled>
-            <i class="bi bi-calendar-check me-2"></i>
-            Disponibile al Lancio
-          </button>
-          <p class="footer-note">
-            <i class="bi bi-info-circle"></i>
-            Prezzo standard dopo il lancio
+            <i class="bi bi-play-circle-fill text-primary"></i>
+            Demo gratuita sempre disponibile - Provala subito!
           </p>
         </div>
       </div>
     </div>
 
-    <!-- Confronto Risparmio -->
-    <div class="savings-banner">
-      <div class="scarcity-badge">
-        <i class="bi bi-hourglass-split"></i>
-        <span class="badge-text-desktop">Solo <strong>{{ earlyAdopterService.remainingSlots() }} {{ earlyAdopterService.remainingSlots() === 1 ? 'licenza' : 'licenze' }}</strong> disponibili a prezzo Early Bird</span>
-        <span class="badge-text-mobile">Solo <strong>{{ earlyAdopterService.remainingSlots() }}</strong> Early Bird rimasti!</span>
-      </div>
-      <div class="savings-content">
-        <div class="mobile-scarcity-alert">
-          <i class="bi bi-hourglass-split"></i>
-          Solo <strong>{{ earlyAdopterService.remainingSlots() }}</strong> Early Bird rimasti!
+    <!-- Cosa Include -->
+    <div class="value-proposition">
+      <h3 class="value-title">Un unico prezzo, tutto incluso</h3>
+      <div class="value-grid">
+        <div class="value-item">
+          <i class="bi bi-infinity"></i>
+          <h4>Posizioni illimitate</h4>
+          <p>Nessun limite su job posting e candidati</p>
         </div>
-        <i class="bi bi-piggy-bank-fill savings-icon"></i>
-        <div class="savings-text">
-          <h4>Risparmia €500 iscrivendoti ora!</h4>
-          <p>Gli early adopters ottengono il prezzo speciale di <strong>€1.500/anno invece di €2.000</strong></p>
-          <p class="urgency-text">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            Offerta valida solo in fase pre-lancio, fino ad esaurimento posti
-          </p>
+        <div class="value-item">
+          <i class="bi bi-people-fill"></i>
+          <h4>Team completo</h4>
+          <p>Aggiungi tutti i recruiters che vuoi</p>
         </div>
-        <button type="button" (click)="openWaitlist()" class="btn btn-candy-saturated btn-lg">
-          <i class="bi bi-envelope-heart-fill me-2"></i>
-          Approfitta dell'Offerta
-        </button>
+        <div class="value-item">
+          <i class="bi bi-building"></i>
+          <h4>Clienti illimitati</h4>
+          <p>Gestisci tutte le aziende che vuoi</p>
+        </div>
+        <div class="value-item">
+          <i class="bi bi-cloud-check-fill"></i>
+          <h4>Backup automatico</h4>
+          <p>Dati sempre al sicuro e protetti</p>
+        </div>
       </div>
     </div>
 
-    <!-- Cosa succede dopo -->
+    <!-- Come funziona -->
     <div class="what-happens-next">
-      <h3 class="next-title">Cosa succede dopo l'iscrizione?</h3>
-      <p class="next-subtitle">Ti seguiamo passo dopo passo, senza burocrazia e senza attese.</p>
+      <h3 class="next-title">Come funziona?</h3>
+      <p class="next-subtitle">3 passaggi e sei operativo. Semplice e veloce!</p>
+
+      <div class="demo-notice">
+        <i class="bi bi-star-fill"></i>
+        <span><strong>La demo è sempre disponibile gratuitamente</strong> - Provala anche prima di registrarti!</span>
+      </div>
+
       <div class="timeline">
         <div class="timeline-item">
           <div class="timeline-number">1</div>
           <div class="timeline-content">
-            <h4>Accesso immediato alla demo</h4>
-            <p>Ricevi subito il link alla demo interattiva con dati pre-compilati per esplorare tutte le funzionalità</p>
+            <h4>Registrati</h4>
+            <p>Crea il tuo account in 2 minuti con email e dati aziendali</p>
           </div>
         </div>
         <div class="timeline-item">
           <div class="timeline-number">2</div>
           <div class="timeline-content">
-            <h4>Ti contattiamo per una presentazione</h4>
-            <p>Un nostro consulente ti chiamerà per mostrarti in dettaglio come CandyHire può aiutare la tua azienda</p>
+            <h4>Completa il pagamento</h4>
+            <p>€1.900/anno + IVA - Pagamento sicuro con fattura immediata</p>
           </div>
         </div>
         <div class="timeline-item">
           <div class="timeline-number">3</div>
           <div class="timeline-content">
-            <h4>Invito alla fase beta</h4>
-            <p>Accesso anticipato al prodotto finale e il tuo prezzo speciale rimarrà bloccato per sempre</p>
+            <h4>Inizia subito</h4>
+            <p>Accesso immediato alla piattaforma completa - Sei operativo in pochi minuti</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Garanzie -->
-    <div class="guarantees">
-      <div class="guarantee-item">
-        <i class="bi bi-shield-check-fill"></i>
-        <span>30 giorni soddisfatti o rimborsati</span>
-      </div>
-      <div class="guarantee-item">
-        <i class="bi bi-cloud-check-fill"></i>
-        <span>Dati sempre al sicuro e backup automatico</span>
-      </div>
-      <div class="guarantee-item">
-        <i class="bi bi-headset-fill"></i>
-        <span>Supporto tecnico incluso</span>
-      </div>
-    </div>
-
-    <!-- Emotional Final Message -->
-    <div class="emotional-message">
-      <i class="bi bi-heart-fill"></i>
-      <p>
-        CandyHire è pensato per chi vuole rendere il recruiting <strong>finalmente semplice, bello e umano</strong>.
+    <!-- Note Legali -->
+    <div class="legal-notes">
+      <p class="vat-note">
+        * Prezzi indicati al netto IVA. IVA applicata automaticamente in base al paese di fatturazione.
+        Clienti UE B2B: reverse charge.
       </p>
-      <i class="bi bi-heart-fill"></i>
     </div>
 </div>

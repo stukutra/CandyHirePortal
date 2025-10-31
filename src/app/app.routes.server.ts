@@ -32,10 +32,6 @@ export const serverRoutes: ServerRoute[] = [
     path: 'terms-conditions',
     renderMode: RenderMode.Prerender
   },
-  {
-    path: 'early-access',
-    renderMode: RenderMode.Prerender
-  },
   // Catch-all for any other routes - Server-side rendering
   {
     path: '**',
