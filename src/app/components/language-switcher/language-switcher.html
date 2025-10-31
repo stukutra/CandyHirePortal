@@ -1,0 +1,36 @@
+<div class="language-switcher">
+  <button
+    type="button"
+    class="language-btn btn btn-outline-candy btn-sm"
+    (click)="toggleDropdown()"
+    aria-label="Select Language">
+    @if (getCurrentLanguage(); as currentLang) {
+      <span class="flag">{{ currentLang.flag }}</span>
+      <span class="lang-code">{{ currentLang.code.toUpperCase() }}</span>
+      <i class="bi bi-chevron-down ms-1"></i>
+    }
+  </button>
+
+  @if (isOpen) {
+    <div class="language-dropdown">
+      @for (lang of languages; track lang.code) {
+        <button
+          type="button"
+          class="language-option"
+          [class.active]="lang.code === translationService.currentLanguage()"
+          (click)="selectLanguage(lang.code)">
+          <span class="flag">{{ lang.flag }}</span>
+          <span class="label">{{ lang.label }}</span>
+          @if (lang.code === translationService.currentLanguage()) {
+            <i class="bi bi-check-lg ms-auto text-candy"></i>
+          }
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Backdrop to close dropdown when clicking outside -->
+@if (isOpen) {
+  <div class="language-backdrop" (click)="toggleDropdown()"></div>
+}

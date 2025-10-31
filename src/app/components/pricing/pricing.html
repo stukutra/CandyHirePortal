@@ -1,7 +1,7 @@
 <div class="pricing-container">
-    <h2 class="pricing-title">Piano Completo</h2>
+    <h2 class="pricing-title">{{ t('pricing.title') }}</h2>
     <p class="pricing-subtitle">
-      Tutto ciò di cui hai bisogno per gestire il recruiting in modo professionale
+      {{ t('pricing.subtitle') }}
     </p>
 
     <div class="pricing-tiers pricing-single">
@@ -9,18 +9,18 @@
       <div class="pricing-card early-bird pricing-featured">
         <div class="card-badge">
           <i class="bi bi-star-fill"></i>
-          PIANO COMPLETO
+          {{ t('pricing.badge') }}
         </div>
 
         <div class="card-header">
-          <h3 class="card-title">CandyHire Professional</h3>
-          <p class="card-subtitle">Soluzione all-in-one per il recruiting</p>
+          <h3 class="card-title">{{ t('pricing.plan.title') }}</h3>
+          <p class="card-subtitle">{{ t('pricing.plan.subtitle') }}</p>
           <div class="card-price">
-            <span class="price-amount">€1.900</span>
-            <span class="price-period">/anno</span>
+            <span class="price-amount">{{ t('pricing.plan.price') }}</span>
+            <span class="price-period">{{ t('pricing.plan.period') }}</span>
           </div>
-          <p class="price-note">+ IVA dove applicabile</p>
-          <p class="price-subtext">Circa €158/mese - Risparmia il 20% vs piano mensile</p>
+          <p class="price-note">{{ t('pricing.plan.vatNote') }}</p>
+          <p class="price-subtext">{{ t('pricing.plan.savings') }}</p>
         </div>
 
         <div class="card-body">
@@ -28,88 +28,88 @@
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Dashboard Analytics Completa</strong>
-                <p>KPI in tempo reale, conversion rate, time-to-hire, funnel analysis</p>
+                <strong>{{ t('pricing.features.analytics.title') }}</strong>
+                <p>{{ t('pricing.features.analytics.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Gestione Posizioni Illimitata</strong>
-                <p>Pubblica annunci, pipeline Kanban drag & drop, workflow personalizzabile</p>
+                <strong>{{ t('pricing.features.positions.title') }}</strong>
+                <p>{{ t('pricing.features.positions.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Database Candidati Centralizzato</strong>
-                <p>Profili completi, CV, note, storico applicazioni, multi-job tracking</p>
+                <strong>{{ t('pricing.features.candidates.title') }}</strong>
+                <p>{{ t('pricing.features.candidates.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Team Recruiting Completo</strong>
-                <p>Gestisci recruiters, assegna posizioni, monitora performance individuale</p>
+                <strong>{{ t('pricing.features.team.title') }}</strong>
+                <p>{{ t('pricing.features.team.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Gestione Aziende Clienti</strong>
-                <p>Database companies, contratti, posti attivi, analytics finanziarie</p>
+                <strong>{{ t('pricing.features.companies.title') }}</strong>
+                <p>{{ t('pricing.features.companies.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Calendario Interviste Avanzato</strong>
-                <p>Vista timeline/calendario, scheduling automatico, reminder, feedback</p>
+                <strong>{{ t('pricing.features.calendar.title') }}</strong>
+                <p>{{ t('pricing.features.calendar.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Analytics & Revenue Tracking</strong>
-                <p>Metriche finanziarie, performance recruiters, ROI per cliente</p>
+                <strong>{{ t('pricing.features.revenue.title') }}</strong>
+                <p>{{ t('pricing.features.revenue.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item">
               <i class="bi bi-check-circle-fill"></i>
               <div>
-                <strong>Backup Automatico & GDPR</strong>
-                <p>Backup giornalieri, crittografia end-to-end, conformità GDPR</p>
+                <strong>{{ t('pricing.features.backup.title') }}</strong>
+                <p>{{ t('pricing.features.backup.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item feature-bonus">
               <i class="bi bi-gift-fill"></i>
               <div>
-                <strong>Demo Gratuita Pre-compilata</strong>
-                <p>Accesso immediato alla demo con dati di esempio</p>
+                <strong>{{ t('pricing.features.demo.title') }}</strong>
+                <p>{{ t('pricing.features.demo.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item feature-bonus">
               <i class="bi bi-gift-fill"></i>
               <div>
-                <strong>Supporto Prioritario Incluso</strong>
-                <p>Assistenza dedicata via email, chat e videocall</p>
+                <strong>{{ t('pricing.features.support.title') }}</strong>
+                <p>{{ t('pricing.features.support.description') }}</p>
               </div>
             </li>
 
             <li class="feature-item feature-bonus">
               <i class="bi bi-gift-fill"></i>
               <div>
-                <strong>Aggiornamenti Gratuiti</strong>
-                <p>Nuove funzionalità e miglioramenti sempre inclusi</p>
+                <strong>{{ t('pricing.features.updates.title') }}</strong>
+                <p>{{ t('pricing.features.updates.description') }}</p>
               </div>
             </li>
           </ul>
@@ -118,11 +118,11 @@
         <div class="card-footer">
           <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg btn-block">
             <i class="bi bi-rocket-takeoff-fill me-2"></i>
-            Inizia Ora - €1.900/anno
+            {{ t('pricing.cta.button') }}
           </button>
           <p class="footer-note">
             <i class="bi bi-play-circle-fill text-primary"></i>
-            Demo gratuita sempre disponibile - Provala subito!
+            {{ t('pricing.cta.demoNote') }}
           </p>
         </div>
       </div>
@@ -130,61 +130,61 @@
 
     <!-- Cosa Include -->
     <div class="value-proposition">
-      <h3 class="value-title">Un unico prezzo, tutto incluso</h3>
+      <h3 class="value-title">{{ t('pricing.value.title') }}</h3>
       <div class="value-grid">
         <div class="value-item">
           <i class="bi bi-infinity"></i>
-          <h4>Posizioni illimitate</h4>
-          <p>Nessun limite su job posting e candidati</p>
+          <h4>{{ t('pricing.value.unlimited.title') }}</h4>
+          <p>{{ t('pricing.value.unlimited.description') }}</p>
         </div>
         <div class="value-item">
           <i class="bi bi-people-fill"></i>
-          <h4>Team completo</h4>
-          <p>Aggiungi tutti i recruiters che vuoi</p>
+          <h4>{{ t('pricing.value.team.title') }}</h4>
+          <p>{{ t('pricing.value.team.description') }}</p>
         </div>
         <div class="value-item">
           <i class="bi bi-building"></i>
-          <h4>Clienti illimitati</h4>
-          <p>Gestisci tutte le aziende che vuoi</p>
+          <h4>{{ t('pricing.value.clients.title') }}</h4>
+          <p>{{ t('pricing.value.clients.description') }}</p>
         </div>
         <div class="value-item">
           <i class="bi bi-cloud-check-fill"></i>
-          <h4>Backup automatico</h4>
-          <p>Dati sempre al sicuro e protetti</p>
+          <h4>{{ t('pricing.value.backup.title') }}</h4>
+          <p>{{ t('pricing.value.backup.description') }}</p>
         </div>
       </div>
     </div>
 
     <!-- Come funziona -->
     <div class="what-happens-next">
-      <h3 class="next-title">Come funziona?</h3>
-      <p class="next-subtitle">3 passaggi e sei operativo. Semplice e veloce!</p>
+      <h3 class="next-title">{{ t('pricing.howItWorks.title') }}</h3>
+      <p class="next-subtitle">{{ t('pricing.howItWorks.subtitle') }}</p>
 
       <div class="demo-notice">
         <i class="bi bi-star-fill"></i>
-        <span><strong>La demo è sempre disponibile gratuitamente</strong> - Provala anche prima di registrarti!</span>
+        <span><strong>{{ t('pricing.howItWorks.demoNotice') }}</strong> {{ t('pricing.howItWorks.demoNoticeDetail') }}</span>
       </div>
 
       <div class="timeline">
         <div class="timeline-item">
           <div class="timeline-number">1</div>
           <div class="timeline-content">
-            <h4>Registrati</h4>
-            <p>Crea il tuo account in 2 minuti con email e dati aziendali</p>
+            <h4>{{ t('pricing.howItWorks.step1.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step1.description') }}</p>
           </div>
         </div>
         <div class="timeline-item">
           <div class="timeline-number">2</div>
           <div class="timeline-content">
-            <h4>Completa il pagamento</h4>
-            <p>€1.900/anno + IVA - Pagamento sicuro con fattura immediata</p>
+            <h4>{{ t('pricing.howItWorks.step2.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step2.description') }}</p>
           </div>
         </div>
         <div class="timeline-item">
           <div class="timeline-number">3</div>
           <div class="timeline-content">
-            <h4>Inizia subito</h4>
-            <p>Accesso immediato alla piattaforma completa - Sei operativo in pochi minuti</p>
+            <h4>{{ t('pricing.howItWorks.step3.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step3.description') }}</p>
           </div>
         </div>
       </div>
@@ -193,8 +193,7 @@
     <!-- Note Legali -->
     <div class="legal-notes">
       <p class="vat-note">
-        * Prezzi indicati al netto IVA. IVA applicata automaticamente in base al paese di fatturazione.
-        Clienti UE B2B: reverse charge.
+        {{ t('pricing.legal.vatNote') }}
       </p>
     </div>
 </div>

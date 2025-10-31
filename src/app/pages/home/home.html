@@ -11,27 +11,26 @@
     <div class="landing-content">
       <!-- Hero Section -->
       <div class="hero-section animate-fade-in mt-5">
-        <h1 class="hero-title">Il software HR che trasforma il recruiting in un gioco da ragazzi</h1>
+        <h1 class="hero-title">{{ t('home.hero.title') }}</h1>
         <p class="hero-subtitle">
-          Gestisci candidati, organizza il recruiting e pianifica colloqui in un unico posto.
-          Semplice, bello e finalmente umano.
+          {{ t('home.hero.subtitle') }}
         </p>
         <app-rotating-phrases />
         <div class="hero-buttons">
           <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg hero-cta">
             <i class="bi bi-rocket-takeoff-fill"></i>
-            Inizia Ora
+            {{ t('home.hero.ctaStart') }}
           </button>
           <a href="DEMO_URL_PLACEHOLDER" target="_blank" class="btn btn-outline-candy btn-lg hero-cta-secondary">
             <i class="bi bi-play-circle-fill"></i>
-            Vedi la Demo
+            {{ t('home.hero.ctaDemo') }}
           </a>
         </div>
         <p class="hero-social-proof">
           <i class="bi bi-shield-check-fill text-success"></i>
-          Dati protetti GDPR
+          {{ t('home.hero.gdprProtected') }}
           <i class="bi bi-headset ms-3 text-info"></i>
-          Supporto dedicato
+          {{ t('home.hero.dedicatedSupport') }}
         </p>
       </div>
 
@@ -40,69 +39,69 @@
 
       <!-- Features Section -->
       <div class="features-section">
-        <h2 class="section-title">Tutto ciò che ti serve per gestire il recruiting</h2>
+        <h2 class="section-title">{{ t('home.features.title') }}</h2>
         <div class="features-grid animate-slide-in">
           <div class="feature-card">
             <img src="/Mastotte/CandyHire_NowHiring.png" alt="Gestione Candidati" class="feature-mascot" />
-            <h3>Gestione Candidati</h3>
-            <p>Database centralizzato per organizzare candidati, CV e note. Filtri avanzati e ricerca veloce.</p>
+            <h3>{{ t('home.features.candidates.title') }}</h3>
+            <p>{{ t('home.features.candidates.description') }}</p>
           </div>
 
           <div class="feature-card">
             <img src="/Mastotte/CandyHire_Job.png" alt="Gestione Posizioni" class="feature-mascot" />
-            <h3>Gestione Posizioni</h3>
-            <p>Crea e gestisci le posizioni aperte con pipeline Kanban. Template personalizzabili e tracking candidature.</p>
+            <h3>{{ t('home.features.positions.title') }}</h3>
+            <p>{{ t('home.features.positions.description') }}</p>
           </div>
 
           <div class="feature-card">
             <img src="/Mastotte/CandyHire_Plan.png" alt="Scheduling Colloqui" class="feature-mascot" />
-            <h3>Scheduling Colloqui</h3>
-            <p>Pianifica colloqui automaticamente. Sincronizza calendari e invia reminder ai candidati.</p>
+            <h3>{{ t('home.features.interviews.title') }}</h3>
+            <p>{{ t('home.features.interviews.description') }}</p>
           </div>
 
           <div class="feature-card">
             <img src="/Mastotte/CandyHire_Plan_Dashboard.png" alt="Analytics & Report" class="feature-mascot" />
-            <h3>Analytics & Report</h3>
-            <p>Dashboard con KPI in tempo reale. Analizza performance e ottimizza il processo di selezione.</p>
+            <h3>{{ t('home.features.analytics.title') }}</h3>
+            <p>{{ t('home.features.analytics.description') }}</p>
           </div>
 
           <div class="feature-card">
-            <span class="feature-badge">Prossimamente</span>
+            <span class="feature-badge">{{ t('home.features.ai.comingSoon') }}</span>
             <img src="/Mastotte/CandyHire_AI.png" alt="AI Matching" class="feature-mascot" />
-            <h3>AI Matching</h3>
-            <p>Intelligenza artificiale che suggerisce i candidati più compatibili per ogni posizione.</p>
+            <h3>{{ t('home.features.ai.title') }}</h3>
+            <p>{{ t('home.features.ai.description') }}</p>
           </div>
 
           <div class="feature-card">
             <img src="/Mastotte/CandyHire_Secure.png" alt="GDPR Compliant" class="feature-mascot" />
-            <h3>GDPR Compliant</h3>
-            <p>Protezione dati garantita. Backup automatici e crittografia end-to-end.</p>
+            <h3>{{ t('home.features.gdpr.title') }}</h3>
+            <p>{{ t('home.features.gdpr.description') }}</p>
           </div>
         </div>
       </div>
 
       <!-- Target Audience Section -->
       <div class="target-section">
-        <h2 class="section-title">A chi è dedicato CandyHire?</h2>
-        <p class="section-subtitle">La soluzione perfetta per chi gestisce recruiting in modo strutturato</p>
+        <h2 class="section-title">{{ t('home.target.title') }}</h2>
+        <p class="section-subtitle">{{ t('home.target.subtitle') }}</p>
 
         <div class="target-grid">
           <div class="target-card">
             <img src="/Mastotte/CandyHire_HR_Manager_di_PMI.png" alt="HR Manager di PMI" class="target-mascot" />
-            <h3>HR Manager di PMI</h3>
-            <p>Gestisci il recruiting della tua azienda con uno strumento professionale e facile da usare</p>
+            <h3>{{ t('home.target.hrManagers.title') }}</h3>
+            <p>{{ t('home.target.hrManagers.description') }}</p>
           </div>
 
           <div class="target-card">
             <img src="/Mastotte/Candy_AgenzieRecruiting.png" alt="Agenzie di Recruiting" class="target-mascot" />
-            <h3>Agenzie di Recruiting</h3>
-            <p>Coordina più clienti e posizioni simultaneamente con pipeline dedicate e analytics avanzate</p>
+            <h3>{{ t('home.target.agencies.title') }}</h3>
+            <p>{{ t('home.target.agencies.description') }}</p>
           </div>
 
           <div class="target-card">
             <img src="/Mastotte/CandyHire_Startup_in_crescita.png" alt="Startup in crescita" class="target-mascot" />
-            <h3>Startup in crescita</h3>
-            <p>Hai più di 10 colloqui al mese? È il momento di professionalizzare il tuo processo di selezione</p>
+            <h3>{{ t('home.target.startups.title') }}</h3>
+            <p>{{ t('home.target.startups.description') }}</p>
           </div>
         </div>
       </div>
@@ -113,28 +112,28 @@
       <!-- CTA Section -->
       <div class="cta-section animate-fade-in">
         <div class="cta-card">
-          <h2 class="cta-title">Smetti di perdere tempo, inizia a crescere</h2>
+          <h2 class="cta-title">{{ t('home.cta.title') }}</h2>
           <p class="cta-text">
-            €1.900/anno per un recruiting finalmente professionale. Nessun limite, nessun costo nascosto.
-            <strong>Un investimento che si ripaga da solo</strong> in tempo risparmiato e assunzioni di qualità.
+            {{ t('home.cta.description') }}
+            <strong>{{ t('home.cta.investment') }}</strong> {{ t('home.cta.investmentDetail') }}
           </p>
           <div class="cta-buttons">
             <button type="button" (click)="goToRegister()" class="btn btn-candy btn-lg cta-main-btn cta-pulse">
               <i class="bi bi-lightning-charge-fill me-2"></i>
-              Inizia Subito - Solo €1.900/anno
+              {{ t('home.cta.button') }}
             </button>
             <a routerLink="/login" class="btn btn-outline-candy btn-lg ms-3">
               <i class="bi bi-box-arrow-in-right me-2"></i>
-              Accedi
+              {{ t('home.cta.login') }}
             </a>
           </div>
           <p class="cta-note">
-            <i class="bi bi-clock-fill text-warning"></i> Setup in 5 minuti
-            <i class="bi bi-shield-fill-check ms-3 text-success"></i> Pagamento sicuro
-            <i class="bi bi-headset ms-3 text-info"></i> Supporto incluso
+            <i class="bi bi-clock-fill text-warning"></i> {{ t('home.cta.setup') }}
+            <i class="bi bi-shield-fill-check ms-3 text-success"></i> {{ t('home.cta.securePayment') }}
+            <i class="bi bi-headset ms-3 text-info"></i> {{ t('home.cta.supportIncluded') }}
           </p>
           <p class="cta-value-note">
-            <strong>Include tutto:</strong> candidati illimitati, team completo, backup automatico, aggiornamenti gratuiti
+            <strong>{{ t('home.cta.includesEverything') }}</strong> {{ t('home.cta.includesDetail') }}
           </p>
         </div>
       </div>

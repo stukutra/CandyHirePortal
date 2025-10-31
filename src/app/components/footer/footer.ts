@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslationService } from '../../core/services/translation.service';
 
 @Component({
   selector: 'app-footer',
@@ -8,14 +9,16 @@ import { RouterLink } from '@angular/router';
   styleUrl: './footer.scss',
 })
 export class Footer {
+  protected translationService = inject(TranslationService);
   protected readonly whatsappNumber = '393793101426';
-  protected readonly whatsappMessage = `Ciao!
-Ho visto CandyHire e sono interessato/a a scoprire come può rendere più dolce e semplice il recruiting del mio team HR!
-Vorrei avere maggiori informazioni sul prodotto e capire come può aiutarmi nella gestione dei candidati.
-Grazie!`;
 
-  protected get whatsappUrl(): string {
-    const encodedMessage = encodeURIComponent(this.whatsappMessage);
+  protected whatsappUrl = computed(() => {
+    const message = this.translationService.t('footer.whatsapp.message');
+    const encodedMessage = encodeURIComponent(message);
     return `https://wa.me/${this.whatsappNumber}?text=${encodedMessage}`;
+  });
+
+  t(key: string): string {
+    return this.translationService.t(key);
   }
 }

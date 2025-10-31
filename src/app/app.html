@@ -15,12 +15,13 @@
       <div class="toolbar-actions">
         <a routerLink="/login" class="btn btn-outline-candy btn-sm">
           <i class="bi bi-box-arrow-in-right me-2"></i>
-          Login
+          {{ t('nav.login') }}
         </a>
         <a routerLink="/register" class="btn btn-candy btn-sm">
           <i class="bi bi-rocket-takeoff-fill me-2"></i>
-          Get Started
+          {{ t('nav.getStarted') }}
         </a>
+        <app-language-switcher />
       </div>
     </div>
   </header>
@@ -32,7 +33,7 @@
 @if (!isAdminArea() && !isAuthPage()) {
   <a routerLink="/register" class="floating-cta-button">
     <i class="bi bi-lightning-charge-fill"></i>
-    <span class="floating-cta-text">Inizia Ora - €1.900/anno</span>
+    <span class="floating-cta-text">{{ t('floating.cta') }}</span>
   </a>
 }
 
