@@ -22,7 +22,8 @@
       "Bash(mkdir:*)",
       "Bash(./provision-tenants.sh:*)",
       "Bash(awk:*)",
-      "Bash(jobs:*)"
+      "Bash(jobs:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
