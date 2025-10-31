@@ -48,7 +48,7 @@ CREATE TABLE `companies_registered` (
   `subscription_end_date` DATE,
 
   -- Tenant Assignment
-  `tenant_schema` VARCHAR(50) UNIQUE,
+  `tenant_id` INT NULL,
   `tenant_assigned_at` TIMESTAMP NULL,
 
   -- PayPal
@@ -69,17 +69,17 @@ CREATE TABLE `companies_registered` (
   INDEX idx_company_email (`email`),
   INDEX idx_company_status (`registration_status`),
   INDEX idx_payment_status (`payment_status`),
-  INDEX idx_tenant_schema (`tenant_schema`)
+  INDEX idx_tenant_id (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
 -- Table: tenant_pool
--- Pool of available tenant database schemas
+-- Pool of available tenant IDs for single-database multi-tenancy
 -- ============================================
 DROP TABLE IF EXISTS `tenant_pool`;
 CREATE TABLE `tenant_pool` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
-  `schema_name` VARCHAR(50) NOT NULL UNIQUE,
+  `tenant_id` INT NOT NULL UNIQUE COMMENT 'Unique tenant identifier (1-100)',
   `is_available` BOOLEAN DEFAULT TRUE,
   `company_id` VARCHAR(50) NULL,
   `assigned_at` TIMESTAMP NULL,
@@ -87,8 +87,9 @@ CREATE TABLE `tenant_pool` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
   FOREIGN KEY (`company_id`) REFERENCES `companies_registered`(`id`) ON DELETE SET NULL,
-  INDEX idx_schema_available (`is_available`),
-  INDEX idx_schema_company (`company_id`)
+  INDEX idx_tenant_available (`is_available`),
+  INDEX idx_tenant_company (`company_id`),
+  INDEX idx_tenant_id (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================

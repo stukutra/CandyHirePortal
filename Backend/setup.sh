@@ -70,11 +70,23 @@ fi
 echo ""
 echo "📊 Database schema created successfully"
 echo ""
-echo "🎯 Creating tenant pool (4 available tenant schemas)..."
+echo "🎯 Creating tenant pool (100 available tenant IDs)..."
 echo ""
 
-# Run initial data insertion
+# Run Portal initial data insertion
 docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/02_initial_data.sql 2>/dev/null || echo "⚠️  Initial data already exists or failed to insert"
+
+echo ""
+echo "📦 Importing CandyHire operational schema (single-database multi-tenancy)..."
+echo ""
+
+# Import CandyHire schema from local migration folder
+docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/04_candyhire_schema.sql 2>/dev/null || echo "⚠️  CandyHire schema already exists or failed to import"
+echo "✅ CandyHire operational tables imported"
+
+# Import CandyHire initial data from local migration folder
+docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} CandyHirePortal < migration/05_candyhire_initial_data.sql 2>/dev/null || echo "⚠️  CandyHire initial data already exists or failed to import"
+echo "✅ CandyHire initial data imported"
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
