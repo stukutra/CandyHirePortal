@@ -15,6 +15,7 @@ export interface Company {
   id: string;
   company_name: string;
   vat_number: string | null;
+  sdi_code?: string | null;
   email: string;
   phone: string | null;
   website: string | null;
@@ -23,6 +24,7 @@ export interface Company {
   postal_code: string | null;
   province: string | null;
   country: string | null;
+  country_code?: string | null;
   industry: string | null;
   employees_count: string | null;
   legal_rep_first_name: string;
@@ -32,8 +34,8 @@ export interface Company {
   subscription_plan: string;
   registration_status: string;
   payment_status: string;
+  is_active: boolean;
   created_at: string;
-  sdi_code?: string | null; // SDI code for Italian electronic invoicing
 }
 
 export interface DashboardResponse {
@@ -42,4 +44,10 @@ export interface DashboardResponse {
   companies_by_status: Array<{registration_status: string; count: number}>;
   recent_registrations: Array<{date: string; count: number}>;
   latest_companies: Company[];
+  pagination?: {
+    total_items: number;
+    total_pages: number;
+    current_page: number;
+    items_per_page: number;
+  };
 }

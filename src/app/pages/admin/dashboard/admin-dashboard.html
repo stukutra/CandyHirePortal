@@ -73,98 +73,36 @@
         </div>
       </div>
 
-      <!-- Latest Companies Table -->
+      <!-- Latest Companies Table - Using Shared DataTable Component -->
       <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="mb-0">
             <i class="bi bi-building me-2"></i>
-            Latest Registered Companies
+            Aziende Registrate
           </h5>
-          <button class="btn btn-sm btn-primary" (click)="goToCompanies()">
-            View All
-            <i class="bi bi-arrow-right ms-2"></i>
-          </button>
         </div>
-        <div class="card-body p-0">
-          @if (latestCompanies().length > 0) {
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th>Company Name</th>
-                    <th>Legal Rep.</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>VAT Number</th>
-                    <th>Location</th>
-                    <th>Industry</th>
-                    <th>Employees</th>
-                    <th>Plan</th>
-                    <th>Reg. Status</th>
-                    <th>Payment</th>
-                    <th>Registered On</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (company of latestCompanies(); track company.id) {
-                    <tr>
-                      <td>
-                        <strong>{{ company.company_name }}</strong>
-                      </td>
-                      <td>
-                        {{ company.legal_rep_first_name }} {{ company.legal_rep_last_name }}
-                      </td>
-                      <td>
-                        <small>{{ company.email }}</small>
-                      </td>
-                      <td>
-                        <small>{{ company.phone || '-' }}</small>
-                      </td>
-                      <td>
-                        <small>{{ company.vat_number || '-' }}</small>
-                      </td>
-                      <td>
-                        @if (company.city || company.province) {
-                          <small>{{ company.city }}@if (company.city && company.province) {, }{{ company.province }}</small>
-                        } @else {
-                          <small>-</small>
-                        }
-                      </td>
-                      <td>
-                        <small>{{ company.industry || '-' }}</small>
-                      </td>
-                      <td>
-                        <small>{{ company.employees_count || '-' }}</small>
-                      </td>
-                      <td>
-                        <span class="badge badge-info">{{ company.subscription_plan }}</span>
-                      </td>
-                      <td>
-                        <span class="badge" [class]="getStatusBadgeClass(company.registration_status)">
-                          {{ company.registration_status }}
-                        </span>
-                      </td>
-                      <td>
-                        <span class="badge" [class]="getStatusBadgeClass(company.payment_status)">
-                          {{ company.payment_status }}
-                        </span>
-                      </td>
-                      <td>
-                        <small>{{ formatDate(company.created_at) }}</small>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-          } @else {
-            <div class="text-center py-5">
-              <i class="bi bi-inbox display-4 text-muted"></i>
-              <p class="text-muted mt-3">No companies registered yet</p>
-            </div>
-          }
+        <div class="card-body p-3">
+          <app-data-table
+            [config]="tableConfig"
+            [data]="latestCompanies()"
+            [pagination]="tablePagination"
+            [loading]="isLoading()"
+            (actionClick)="onTableAction($event)"
+            (pageChange)="onPageChange($event)"
+            (sortChange)="onSort($event)"
+            (searchChange)="onSearch($event)"
+            (filterChange)="onFilterChange($event)"
+            (itemsPerPageChange)="onItemsPerPageChange($event)">
+          </app-data-table>
         </div>
       </div>
     }
   </div>
+
+  <!-- Company Details Drawer -->
+  <app-company-details-drawer
+    [company]="selectedCompany()"
+    [isOpen]="drawerOpen()"
+    (close)="onCloseDrawer()">
+  </app-company-details-drawer>
 </div>

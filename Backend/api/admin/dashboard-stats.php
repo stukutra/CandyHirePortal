@@ -98,7 +98,59 @@ try {
     $recentStmt = $db->query($recentQuery);
     $recent_registrations = $recentStmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Latest companies (last 5) - include all registration data
+    // Latest companies with pagination, sorting, and filtering
+    $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+    $offset = ($page - 1) * $limit;
+    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+    $sort = isset($_GET['sort']) ? $_GET['sort'] : 'created_at';
+    $order = isset($_GET['order']) && $_GET['order'] === 'asc' ? 'ASC' : 'DESC';
+
+    // Allowed sortable columns
+    $allowedSort = ['company_name', 'email', 'city', 'subscription_plan', 'registration_status', 'payment_status', 'created_at'];
+    if (!in_array($sort, $allowedSort)) {
+        $sort = 'created_at';
+    }
+
+    // Build WHERE clause for filters
+    $whereConditions = [];
+    $params = [];
+
+    // Search filter
+    if (!empty($search)) {
+        $whereConditions[] = "(company_name LIKE :search OR email LIKE :search OR vat_number LIKE :search OR city LIKE :search)";
+        $params[':search'] = "%$search%";
+    }
+
+    // Status filters
+    if (isset($_GET['registration_status']) && !empty($_GET['registration_status'])) {
+        $whereConditions[] = "registration_status = :registration_status";
+        $params[':registration_status'] = $_GET['registration_status'];
+    }
+
+    if (isset($_GET['payment_status']) && !empty($_GET['payment_status'])) {
+        $whereConditions[] = "payment_status = :payment_status";
+        $params[':payment_status'] = $_GET['payment_status'];
+    }
+
+    if (isset($_GET['subscription_plan']) && !empty($_GET['subscription_plan'])) {
+        $whereConditions[] = "subscription_plan = :subscription_plan";
+        $params[':subscription_plan'] = $_GET['subscription_plan'];
+    }
+
+    $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+
+    // Count total items for pagination
+    $countQuery = "SELECT COUNT(*) as total FROM companies_registered $whereClause";
+    $countStmt = $db->prepare($countQuery);
+    foreach ($params as $key => $value) {
+        $countStmt->bindValue($key, $value);
+    }
+    $countStmt->execute();
+    $totalItems = (int)$countStmt->fetch(PDO::FETCH_OBJ)->total;
+    $totalPages = ceil($totalItems / $limit);
+
+    // Fetch companies with filters, sorting, and pagination
     $latestQuery = "SELECT
                         id,
                         company_name,
@@ -122,12 +174,26 @@ try {
                         subscription_plan,
                         registration_status,
                         payment_status,
+                        is_active,
                         created_at
                     FROM companies_registered
-                    ORDER BY created_at DESC
-                    LIMIT 5";
-    $latestStmt = $db->query($latestQuery);
+                    $whereClause
+                    ORDER BY $sort $order
+                    LIMIT :limit OFFSET :offset";
+
+    $latestStmt = $db->prepare($latestQuery);
+    foreach ($params as $key => $value) {
+        $latestStmt->bindValue($key, $value);
+    }
+    $latestStmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $latestStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $latestStmt->execute();
     $latest_companies = $latestStmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Convert is_active to boolean
+    foreach ($latest_companies as &$company) {
+        $company['is_active'] = (bool)$company['is_active'];
+    }
 
     http_response_code(200);
     echo json_encode([
@@ -141,7 +207,13 @@ try {
         ],
         'companies_by_status' => $companies_by_status,
         'recent_registrations' => $recent_registrations,
-        'latest_companies' => $latest_companies
+        'latest_companies' => $latest_companies,
+        'pagination' => [
+            'total_items' => $totalItems,
+            'total_pages' => $totalPages,
+            'current_page' => $page,
+            'items_per_page' => $limit
+        ]
     ]);
 
 } catch (PDOException $e) {

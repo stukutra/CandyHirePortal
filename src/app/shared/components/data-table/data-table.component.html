@@ -1,0 +1,217 @@
+<div class="data-table-container">
+  <!-- Header: Search e Filtri -->
+  <div class="table-header">
+    <div class="table-header-left">
+      @if (config.searchable) {
+        <div class="search-box">
+          <i class="bi bi-search"></i>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Cerca..."
+            [value]="searchText()"
+            (input)="onSearch($event)"
+          />
+        </div>
+      }
+
+      @if (config.filterable && config.filters) {
+        <div class="filters">
+          @for (filter of config.filters; track filter.key) {
+            <select
+              class="form-select"
+              (change)="onFilterChange(filter.key, $any($event.target).value)"
+            >
+              <option value="">{{ filter.label }}: Tutti</option>
+              @for (option of filter.options; track option) {
+                @if (option !== 'Tutti') {
+                  <option [value]="option">{{ option }}</option>
+                }
+              }
+            </select>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="table-header-right">
+      <label>Mostra</label>
+      <select
+        class="form-select items-per-page"
+        [value]="pagination.itemsPerPage || 25"
+        (change)="onItemsPerPageChange(+$any($event.target).value)"
+      >
+        @for (option of itemsPerPageOptions(); track option) {
+          <option [value]="option">{{ option }}</option>
+        }
+      </select>
+      <label>per pagina</label>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table class="table">
+      <thead>
+        <tr>
+          @for (column of config.columns; track column.key) {
+            <th
+              [style.width]="column.width"
+              [class.sortable]="column.sortable"
+              [class.text-center]="column.align === 'center'"
+              [class.text-end]="column.align === 'right'"
+              (click)="onSort(column)"
+            >
+              {{ column.label }}
+              @if (column.sortable) {
+                <i [class]="'bi ' + getSortIcon(column)"></i>
+              }
+            </th>
+          }
+
+          @if (config.actions && config.actions.length > 0) {
+            <th class="actions-column">Azioni</th>
+          }
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (loading) {
+          <tr>
+            <td [attr.colspan]="config.columns.length + (config.actions?.length ? 1 : 0)" class="text-center">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Caricamento...</span>
+              </div>
+            </td>
+          </tr>
+        } @else if (data.length === 0) {
+          <tr>
+            <td [attr.colspan]="config.columns.length + (config.actions?.length ? 1 : 0)" class="text-center">
+              {{ config.emptyMessage || 'Nessun dato disponibile' }}
+            </td>
+          </tr>
+        } @else {
+          @for (row of data; track row.id || $index) {
+            <tr>
+              @for (column of config.columns; track column.key) {
+                <td
+                  [class.text-center]="column.align === 'center'"
+                  [class.text-end]="column.align === 'right'"
+                >
+                  @switch (column.type) {
+                    @case ('date') {
+                      {{ getCellValue(row, column) | date: getDateFormat(column) }}
+                    }
+                    @case ('currency') {
+                      {{ getCellValue(row, column) | currency: 'EUR':'symbol':'1.2-2':'it-IT' }}
+                    }
+                    @case ('badge') {
+                      <span [class]="'badge ' + getBadgeClass(column, getCellValue(row, column))">
+                        {{ getCellValue(row, column) }}
+                      </span>
+                    }
+                    @case ('boolean') {
+                      @if (getBooleanValue(getCellValue(row, column))) {
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                      } @else {
+                        <i class="bi bi-x-circle-fill text-danger"></i>
+                      }
+                    }
+                    @case ('image') {
+                      @if (getCellValue(row, column) !== '-') {
+                        <img [src]="getCellValue(row, column)" alt="" class="table-image" />
+                      } @else {
+                        <span>-</span>
+                      }
+                    }
+                    @default {
+                      {{ getCellValue(row, column) }}
+                    }
+                  }
+                </td>
+              }
+
+              @if (config.actions && config.actions.length > 0) {
+                <td class="actions-column">
+                  <div class="actions-wrapper">
+                    @for (action of config.actions; track action.emit) {
+                      @if (shouldShowAction(action, row)) {
+                        @if (action.type === 'toggle' && action.key) {
+                          <!-- Toggle Switch -->
+                          <div class="form-check form-switch">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              role="switch"
+                              [checked]="getBooleanValue(row[action.key])"
+                              [title]="action.tooltip || action.label"
+                              (change)="onToggle(action, row, $event)"
+                            />
+                          </div>
+                        } @else {
+                          <!-- Button -->
+                          <button
+                            type="button"
+                            [class]="'btn btn-sm ' + (action.buttonClass || 'btn-outline-secondary')"
+                            [title]="action.tooltip || action.label"
+                            (click)="onActionClick(action, row)"
+                          >
+                            @if (action.icon) {
+                              <i [class]="'bi ' + action.icon"></i>
+                            }
+                            @if (!action.icon) {
+                              {{ action.label }}
+                            }
+                          </button>
+                        }
+                      }
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer: Paginazione -->
+  @if (pagination && !loading) {
+    <div class="table-footer">
+      <div class="pagination-info">
+        Visualizzati {{ paginationStart() }}-{{ paginationEnd() }} di {{ pagination.totalItems }} risultati
+      </div>
+
+      <nav>
+        <ul class="pagination">
+          <li class="page-item" [class.disabled]="pagination.currentPage === 1">
+            <button class="page-link" (click)="onPageChange(pagination.currentPage - 1)">
+              <i class="bi bi-chevron-left"></i>
+            </button>
+          </li>
+
+          @for (page of paginationPages(); track page) {
+            @if (page === '...') {
+              <li class="page-item disabled">
+                <span class="page-link">...</span>
+              </li>
+            } @else {
+              <li class="page-item" [class.active]="page === pagination.currentPage">
+                <button class="page-link" (click)="onPageChange(page)">
+                  {{ page }}
+                </button>
+              </li>
+            }
+          }
+
+          <li class="page-item" [class.disabled]="pagination.currentPage === totalPages()">
+            <button class="page-link" (click)="onPageChange(pagination.currentPage + 1)">
+              <i class="bi bi-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  }
+</div>

@@ -23,7 +23,8 @@
       "Bash(./provision-tenants.sh:*)",
       "Bash(awk:*)",
       "Bash(jobs:*)",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []

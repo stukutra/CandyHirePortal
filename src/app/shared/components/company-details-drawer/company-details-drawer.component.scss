@@ -1,0 +1,263 @@
+// Overlay
+.drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// Drawer Panel
+.drawer-panel {
+  position: fixed;
+  top: 0;
+  right: -600px;
+  width: 600px;
+  max-width: 100%;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &.open {
+    right: 0;
+  }
+}
+
+// Header
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  background: #f8f9fa;
+
+  .drawer-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #212529;
+  }
+
+  .btn-close {
+    cursor: pointer;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+// Body
+.drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+// Info Sections
+.info-section {
+  margin-bottom: 2rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  .section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #007bff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: #007bff;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// Info Grid
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    &.full-width {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #6c757d;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+    }
+
+    span {
+      font-size: 0.95rem;
+      color: #212529;
+      word-break: break-word;
+
+      &.badge {
+        align-self: flex-start;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 4px;
+      }
+    }
+  }
+}
+
+// Badge styling
+.badge {
+  &.badge-primary {
+    background-color: #007bff;
+    color: white;
+  }
+
+  &.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+  }
+
+  &.badge-success {
+    background-color: #28a745;
+    color: white;
+  }
+
+  &.badge-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+
+  &.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  &.badge-info {
+    background-color: #17a2b8;
+    color: white;
+  }
+
+  &.badge-dark {
+    background-color: #343a40;
+    color: white;
+  }
+}
+
+// Footer
+.drawer-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+// Text utilities
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-danger {
+  color: #dc3545 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.text-center {
+  text-align: center;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .drawer-panel {
+    width: 100%;
+    right: -100%;
+
+    &.open {
+      right: 0;
+    }
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+
+    .info-item {
+      &.full-width {
+        grid-column: 1;
+      }
+    }
+  }
+
+  .drawer-header {
+    padding: 1rem;
+
+    .drawer-title {
+      font-size: 1.1rem;
+    }
+  }
+
+  .drawer-body {
+    padding: 1rem;
+  }
+
+  .drawer-footer {
+    padding: 1rem;
+  }
+}
+
+// Scrollbar styling
+.drawer-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.drawer-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.drawer-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+
+  &:hover {
+    background: #555;
+  }
+}

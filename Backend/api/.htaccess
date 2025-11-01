@@ -9,3 +9,6 @@ RewriteEngine On
 # Enable error reporting (disable in production)
 php_flag display_errors on
 php_value error_reporting E_ALL
+
+# Route: /admin/companies/{id}/toggle-active -> admin/companies/toggle-active.php
+RewriteRule ^admin/companies/([^/]+)/toggle-active$ admin/companies/toggle-active.php [L,QSA]

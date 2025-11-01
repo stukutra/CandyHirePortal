@@ -1,0 +1,176 @@
+<!-- Overlay -->
+<div class="drawer-overlay"
+     [class.open]="isOpen"
+     (click)="onOverlayClick($event)">
+
+  <!-- Drawer Panel -->
+  <div class="drawer-panel" [class.open]="isOpen">
+
+    <!-- Header -->
+    <div class="drawer-header">
+      <h5 class="drawer-title">{{ company?.company_name }}</h5>
+      <button type="button" class="btn-close" (click)="onClose()" aria-label="Close"></button>
+    </div>
+
+    <!-- Body -->
+    <div class="drawer-body">
+      @if (company) {
+
+        <!-- Company Information -->
+        <div class="info-section">
+          <h6 class="section-title">
+            <i class="bi bi-building"></i>
+            Informazioni Azienda
+          </h6>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nome Azienda</label>
+              <span>{{ company.company_name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Partita IVA</label>
+              <span>{{ company.vat_number || 'N/A' }}</span>
+            </div>
+            @if (company.sdi_code) {
+              <div class="info-item">
+                <label>Codice SDI</label>
+                <span>{{ company.sdi_code }}</span>
+              </div>
+            }
+            <div class="info-item">
+              <label>Email</label>
+              <span>{{ company.email }}</span>
+            </div>
+            <div class="info-item">
+              <label>Telefono</label>
+              <span>{{ company.phone || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Sito Web</label>
+              <span>{{ company.website || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Settore</label>
+              <span>{{ company.industry || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Numero Dipendenti</label>
+              <span>{{ company.employees_count || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Address Information -->
+        <div class="info-section">
+          <h6 class="section-title">
+            <i class="bi bi-geo-alt"></i>
+            Indirizzo
+          </h6>
+          <div class="info-grid">
+            <div class="info-item full-width">
+              <label>Indirizzo</label>
+              <span>{{ company.address || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Città</label>
+              <span>{{ company.city || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>CAP</label>
+              <span>{{ company.postal_code || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Provincia</label>
+              <span>{{ company.province || 'N/A' }}</span>
+            </div>
+            <div class="info-item">
+              <label>Paese</label>
+              <span>{{ company.country || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Legal Representative -->
+        <div class="info-section">
+          <h6 class="section-title">
+            <i class="bi bi-person-badge"></i>
+            Rappresentante Legale
+          </h6>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Nome</label>
+              <span>{{ company.legal_rep_first_name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Cognome</label>
+              <span>{{ company.legal_rep_last_name }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email</label>
+              <span>{{ company.legal_rep_email }}</span>
+            </div>
+            <div class="info-item">
+              <label>Telefono</label>
+              <span>{{ company.legal_rep_phone || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subscription & Status -->
+        <div class="info-section">
+          <h6 class="section-title">
+            <i class="bi bi-card-checklist"></i>
+            Abbonamento e Stato
+          </h6>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Piano</label>
+              <span class="badge badge-info">{{ company.subscription_plan }}</span>
+            </div>
+            <div class="info-item">
+              <label>Stato Registrazione</label>
+              <span [class]="'badge ' + getStatusBadgeClass(company.registration_status)">
+                {{ company.registration_status }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Stato Pagamento</label>
+              <span [class]="'badge ' + getStatusBadgeClass(company.payment_status)">
+                {{ company.payment_status }}
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Account Attivo</label>
+              <span>
+                @if (company.is_active) {
+                  <i class="bi bi-check-circle-fill text-success"></i> Attivo
+                } @else {
+                  <i class="bi bi-x-circle-fill text-danger"></i> Disattivato
+                }
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Data Registrazione</label>
+              <span>{{ formatDate(company.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+
+      } @else {
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+          <p class="mt-3">Nessuna azienda selezionata</p>
+        </div>
+      }
+    </div>
+
+    <!-- Footer -->
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-secondary" (click)="onClose()">
+        <i class="bi bi-x-lg"></i>
+        Chiudi
+      </button>
+    </div>
+
+  </div>
+</div>
