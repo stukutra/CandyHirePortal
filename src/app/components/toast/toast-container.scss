@@ -77,17 +77,29 @@
     min-width: 0;
 
     .toast-title {
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: #1a202c;
-      margin: 0 0 0.25rem;
+      font-size: 0.9375rem !important;
+      font-weight: 700 !important;
+      color: #1a202c !important;
+      background: transparent !important;
+      margin: 0 0 0.25rem !important;
+      padding: 0 !important;
+      line-height: 1.4 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
     }
 
     .toast-message {
-      font-size: 0.875rem;
-      color: #718096;
-      margin: 0;
-      line-height: 1.4;
+      font-size: 0.875rem !important;
+      font-weight: 400 !important;
+      color: #4a5568 !important;
+      background: transparent !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1.4 !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: block !important;
     }
   }
 

@@ -5,8 +5,8 @@
         <i class="bi" [class]="getIcon(toast.type)"></i>
       </div>
       <div class="toast-content">
-        <h4 class="toast-title">{{ toast.title }}</h4>
-        <p class="toast-message">{{ toast.message }}</p>
+        <div class="toast-title">{{ toast.title }}</div>
+        <div class="toast-message">{{ toast.message }}</div>
       </div>
       <button class="toast-close" (click)="remove(toast.id)">
         <i class="bi bi-x"></i>

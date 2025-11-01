@@ -199,9 +199,7 @@ export class AdminDashboard implements OnInit {
   }
 
   editCompany(company: Company) {
-    console.log('Edit company:', company);
-    // TODO: Aprire modal edit
-    this.router.navigate(['/admin/companies', company.id, 'edit']);
+    this.router.navigate(['/admin/companies', company.id]);
   }
 
   toggleActiveStatus(company: Company) {
