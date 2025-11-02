@@ -20,6 +20,16 @@ fi
 echo "✅ Docker is running"
 echo ""
 
+# Detect docker-compose command (works for both Docker Desktop and Docker Engine)
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "❌ Error: docker-compose or docker compose not found"
+    exit 1
+fi
+
 # Check if .env exists, if not copy from .env.example
 if [ ! -f .env ]; then
     echo "📄 Creating .env file from .env.example..."
@@ -42,7 +52,7 @@ docker stop candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyad
 docker rm candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
 
 # Build and start containers
-docker-compose up -d --build
+$DOCKER_COMPOSE up -d --build
 
 echo ""
 echo "⏳ Waiting for MySQL to be ready..."
@@ -156,10 +166,10 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "🛠️  COMANDI UTILI"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "  docker-compose up -d       → Avvia servizi"
-echo "  docker-compose down        → Ferma servizi"
-echo "  docker-compose logs -f     → Visualizza log"
-echo "  docker-compose restart     → Riavvia servizi"
+echo "  docker compose up -d       → Avvia servizi"
+echo "  docker compose down        → Ferma servizi"
+echo "  docker compose logs -f     → Visualizza log"
+echo "  docker compose restart     → Riavvia servizi"
 echo ""
 echo "Happy coding! 🚀"
 echo ""
