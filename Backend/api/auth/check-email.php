@@ -44,16 +44,22 @@ try {
 
     if ($stmt->rowCount() > 0) {
         // Email exists
-        Response::success([
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
             'exists' => true,
             'message' => 'This email is already registered'
-        ]);
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit();
     } else {
         // Email available
-        Response::success([
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
             'exists' => false,
             'message' => 'Email available'
-        ]);
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit();
     }
 
 } catch (Exception $e) {

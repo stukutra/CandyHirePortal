@@ -44,17 +44,23 @@ try {
     if ($stmt->rowCount() > 0) {
         $company = $stmt->fetch(PDO::FETCH_ASSOC);
         // VAT exists
-        Response::success([
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
             'exists' => true,
             'message' => 'This VAT number is already registered',
             'company_name' => $company['company_name']
-        ]);
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit();
     } else {
         // VAT available
-        Response::success([
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
             'exists' => false,
             'message' => 'VAT number available'
-        ]);
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        exit();
     }
 
 } catch (Exception $e) {

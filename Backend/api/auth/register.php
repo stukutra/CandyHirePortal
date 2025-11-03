@@ -24,9 +24,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // Get posted data
-$data = json_decode(file_get_contents("php://input"));
+$raw_input = file_get_contents("php://input");
+error_log("========== REGISTRATION REQUEST START ==========");
+error_log("Raw input length: " . strlen($raw_input));
+$data = json_decode($raw_input);
+error_log("JSON decoded: " . ($data ? "SUCCESS" : "FAILED"));
+if ($data) {
+    error_log("Company: " . ($data->company_name ?? 'N/A'));
+    error_log("Email: " . ($data->email ?? 'N/A'));
+    error_log("VAT: " . ($data->vat_number ?? 'N/A'));
+}
 
 // Validate required fields
+error_log("Step 1: Starting validation");
 $errors = [];
 
 // Company information
@@ -67,28 +77,57 @@ if (empty($data->privacy_accepted) || $data->privacy_accepted !== true) {
     $errors['privacy_accepted'] = 'You must accept the privacy policy';
 }
 
+error_log("Step 1 Complete: Validation done. Errors count: " . count($errors));
+
 if (!empty($errors)) {
+    error_log("Validation failed with errors: " . json_encode($errors));
     Response::validationError($errors, 'Validation failed');
 }
 
 try {
+    error_log("Step 2: Connecting to database");
     // Database connection
     $database = new Database();
     $db = $database->getConnection();
 
     if (!$db) {
+        error_log("ERROR: Database connection failed");
         Response::serverError('Database connection failed');
     }
+    error_log("Step 2 Complete: Database connected");
 
+    error_log("Step 3: Checking if email exists");
     // Check if email already exists
     $company = new Company($db);
     if ($company->findByEmail($data->email)) {
+        error_log("ERROR: Email already exists: " . $data->email);
         Response::validationError(
             ['email' => 'This email is already registered'],
             'Email already exists'
         );
     }
+    error_log("Step 3 Complete: Email is available");
 
+    error_log("Step 4: Checking if VAT exists");
+    // Check if VAT number already exists (if provided)
+    if (!empty($data->vat_number)) {
+        $vat_check_query = "SELECT id, company_name FROM companies_registered WHERE vat_number = :vat_number LIMIT 1";
+        $vat_stmt = $db->prepare($vat_check_query);
+        $vat_stmt->bindParam(':vat_number', $data->vat_number);
+        $vat_stmt->execute();
+
+        if ($vat_stmt->rowCount() > 0) {
+            $existing_company = $vat_stmt->fetch(PDO::FETCH_ASSOC);
+            error_log("ERROR: VAT already exists: " . $data->vat_number);
+            Response::validationError(
+                ['vat_number' => 'This VAT number is already registered' . ($existing_company['company_name'] ? ' (' . $existing_company['company_name'] . ')' : '')],
+                'VAT number already exists'
+            );
+        }
+    }
+    error_log("Step 4 Complete: VAT is available");
+
+    error_log("Step 5: Preparing company object");
     // Create company
     $company->id = Company::generateId();
     $company->company_name = htmlspecialchars(strip_tags($data->company_name));
@@ -123,15 +162,23 @@ try {
     $company->terms_accepted = $data->terms_accepted;
     $company->privacy_accepted = $data->privacy_accepted;
 
+    error_log("Step 5 Complete: Company object prepared with ID: " . $company->id);
+
+    error_log("Step 6: Inserting company into database");
     // Create company
     if (!$company->create()) {
+        error_log("ERROR: Failed to create company in database");
         Response::serverError('Failed to create company registration');
     }
+    error_log("Step 6 Complete: Company created successfully");
 
+    error_log("Step 7: Logging registration");
     // Log registration
     $logger = getLogger($db);
     $logger->logRegistration($company->id, $company->email);
+    error_log("Step 7 Complete: Registration logged");
 
+    error_log("Step 8: Generating JWT tokens");
     // Generate JWT token
     $jwt_handler = new JWTHandler();
 
@@ -147,7 +194,9 @@ try {
 
     // Set tokens in httpOnly cookies
     $jwt_handler->setTokenCookies($access_token, $refresh_token);
+    error_log("Step 8 Complete: JWT tokens generated and cookies set");
 
+    error_log("Step 9: Creating PayPal order");
     // Create PayPal order
     $paypal_approval_url = null;
     $paypal_order_id = null;
@@ -244,9 +293,23 @@ try {
         error_log("WARNING: No PayPal approval URL - registration will complete without payment redirect");
     }
 
-    Response::success($response_data, 'Registration successful', 201);
+    // Send response directly (not wrapped in 'data' field)
+    http_response_code(201);
+    $response_data['success'] = true;
+    $json_response = json_encode($response_data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    error_log("========== SENDING FINAL RESPONSE ==========");
+    error_log("Response code: 201");
+    error_log("Response length: " . strlen($json_response));
+    error_log("Response JSON: " . $json_response);
+    error_log("========== REGISTRATION REQUEST END ==========");
+    echo $json_response;
+    exit();
 
 } catch (Exception $e) {
-    error_log("Registration error: " . $e->getMessage());
+    error_log("========== REGISTRATION ERROR ==========");
+    error_log("Error message: " . $e->getMessage());
+    error_log("Error file: " . $e->getFile() . ":" . $e->getLine());
+    error_log("Error trace: " . $e->getTraceAsString());
+    error_log("========== REGISTRATION REQUEST END (ERROR) ==========");
     Response::serverError('An error occurred during registration');
 }

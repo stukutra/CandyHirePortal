@@ -28,7 +28,8 @@
       "Bash(php -l:*)",
       "Bash(docker ps:*)",
       "Bash(docker inspect:*)",
-      "Bash(docker-compose up:*)"
+      "Bash(docker-compose up:*)",
+      "Bash(docker-compose:*)"
     ],
     "deny": [],
     "ask": []

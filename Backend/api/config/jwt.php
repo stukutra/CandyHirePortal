@@ -19,22 +19,37 @@ class JWTHandler {
     private $refresh_expiration;
 
     public function __construct() {
+        error_log("JWTHandler __construct: Starting");
+
         // JWT_SECRET MUST be set in environment - no fallback for security
         $this->secret_key = getenv('JWT_SECRET');
 
+        error_log("JWTHandler __construct: JWT_SECRET from getenv: " . ($this->secret_key ? "SET (length: " . strlen($this->secret_key) . ")" : "NOT SET"));
+
+        // Try $_ENV as fallback
+        if (!$this->secret_key && isset($_ENV['JWT_SECRET'])) {
+            $this->secret_key = $_ENV['JWT_SECRET'];
+            error_log("JWTHandler __construct: JWT_SECRET from \$_ENV: " . ($this->secret_key ? "SET (length: " . strlen($this->secret_key) . ")" : "NOT SET"));
+        }
+
         if (!$this->secret_key || strlen($this->secret_key) < 32) {
+            error_log("JWTHandler __construct: ERROR - JWT_SECRET not configured or too short");
             throw new Exception('JWT_SECRET not configured or too short (min 32 chars required)');
         }
 
         $this->algorithm = getenv('JWT_ALGORITHM') ?: 'HS256';
         $this->expiration = (int)(getenv('JWT_EXPIRATION') ?: 86400); // 24 hours
         $this->refresh_expiration = (int)(getenv('JWT_REFRESH_EXPIRATION') ?: 604800); // 7 days
+
+        error_log("JWTHandler __construct: Completed successfully");
     }
 
     /**
      * Generate access token for company
      */
     public function generateToken($company_data) {
+        error_log("JWTHandler generateToken: Starting for company: " . ($company_data['id'] ?? 'N/A'));
+
         $issued_at = time();
         $expiration_time = $issued_at + $this->expiration;
 
@@ -51,7 +66,33 @@ class JWTHandler {
             ]
         ];
 
-        return JWT::encode($payload, $this->secret_key, $this->algorithm);
+        error_log("JWTHandler generateToken: Payload prepared, encoding...");
+        error_log("JWTHandler generateToken: Payload JSON: " . json_encode($payload));
+        error_log("JWTHandler generateToken: Secret key type: " . gettype($this->secret_key));
+        error_log("JWTHandler generateToken: Secret key length: " . strlen($this->secret_key));
+        error_log("JWTHandler generateToken: Algorithm: " . $this->algorithm);
+        error_log("JWTHandler generateToken: About to call JWT::encode()...");
+
+        try {
+            $token = JWT::encode($payload, $this->secret_key, $this->algorithm);
+            error_log("JWTHandler generateToken: JWT::encode() returned");
+            error_log("JWTHandler generateToken: Token generated successfully (length: " . strlen($token) . ")");
+        } catch (\Exception $e) {
+            error_log("JWTHandler generateToken: EXCEPTION during JWT::encode()");
+            error_log("JWTHandler generateToken: Exception class: " . get_class($e));
+            error_log("JWTHandler generateToken: Exception message: " . $e->getMessage());
+            error_log("JWTHandler generateToken: Exception trace: " . $e->getTraceAsString());
+            throw $e; // Re-throw
+        } catch (\Throwable $t) {
+            error_log("JWTHandler generateToken: THROWABLE during JWT::encode()");
+            error_log("JWTHandler generateToken: Throwable class: " . get_class($t));
+            error_log("JWTHandler generateToken: Throwable message: " . $t->getMessage());
+            error_log("JWTHandler generateToken: Throwable trace: " . $t->getTraceAsString());
+            throw $t; // Re-throw
+        }
+
+        error_log("JWTHandler generateToken: Returning token");
+        return $token;
     }
 
     /**
@@ -81,6 +122,8 @@ class JWTHandler {
      * Generate refresh token
      */
     public function generateRefreshToken($user_data) {
+        error_log("JWTHandler generateRefreshToken: Starting for user: " . ($user_data['id'] ?? 'N/A'));
+
         $issued_at = time();
         $expiration_time = $issued_at + $this->refresh_expiration;
 
@@ -94,7 +137,20 @@ class JWTHandler {
             ]
         ];
 
-        return JWT::encode($payload, $this->secret_key, $this->algorithm);
+        error_log("JWTHandler generateRefreshToken: Encoding...");
+
+        try {
+            $token = JWT::encode($payload, $this->secret_key, $this->algorithm);
+            error_log("JWTHandler generateRefreshToken: Token generated successfully (length: " . strlen($token) . ")");
+        } catch (\Exception $e) {
+            error_log("JWTHandler generateRefreshToken: EXCEPTION during JWT::encode()");
+            error_log("JWTHandler generateRefreshToken: Exception class: " . get_class($e));
+            error_log("JWTHandler generateRefreshToken: Exception message: " . $e->getMessage());
+            error_log("JWTHandler generateRefreshToken: Exception trace: " . $e->getTraceAsString());
+            throw $e; // Re-throw
+        }
+
+        return $token;
     }
 
     /**
@@ -195,8 +251,12 @@ class JWTHandler {
      * Works across Portal and SaaS subdomains
      */
     public function setTokenCookies($token, $refresh_token) {
+        error_log("JWTHandler setTokenCookies: Starting");
+
         $isSecure = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on';
         $domain = $this->getCookieDomain();
+
+        error_log("JWTHandler setTokenCookies: isSecure=" . ($isSecure ? 'YES' : 'NO') . ", domain=" . ($domain ?: 'EMPTY'));
 
         // Set access token cookie
         setcookie(
@@ -212,6 +272,8 @@ class JWTHandler {
             ]
         );
 
+        error_log("JWTHandler setTokenCookies: Access token cookie set");
+
         // Set refresh token cookie
         setcookie(
             'candyhire_refresh_token',
@@ -225,6 +287,8 @@ class JWTHandler {
                 'samesite' => 'Lax'
             ]
         );
+
+        error_log("JWTHandler setTokenCookies: Refresh token cookie set - Completed successfully");
     }
 
     /**

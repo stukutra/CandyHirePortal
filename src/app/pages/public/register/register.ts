@@ -333,6 +333,7 @@ export class Register implements OnInit {
   }
 
   async completeRegistration() {
+    console.log('=== FRONTEND: completeRegistration() called ===');
     this.isLoading.set(true);
     this.errorMessage.set('');
 
@@ -375,7 +376,14 @@ export class Register implements OnInit {
       privacy_accepted: true,
     };
 
-    console.log('Starting registration with data:', registrationData);
+    console.log('=== FRONTEND: Registration data prepared ===');
+    console.log('Company:', registrationData.company_name);
+    console.log('Email:', registrationData.email);
+    console.log('VAT:', registrationData.vat_number);
+    console.log('Plan:', registrationData.subscription_plan);
+
+    console.log('=== FRONTEND: Sending POST request to API ===');
+    console.log('Endpoint:', API_ENDPOINTS.PUBLIC_REGISTER);
 
     this.apiService.post<RegisterResponse>(
       API_ENDPOINTS.PUBLIC_REGISTER,
@@ -384,45 +392,56 @@ export class Register implements OnInit {
       false // No credentials needed for registration
     ).subscribe({
       next: (response) => {
-        console.log('=== REGISTRATION RESPONSE ===');
-        console.log('Full response:', response);
-        console.log('Success:', response?.success);
-        console.log('PayPal URL:', response?.paypal_approval_url);
-        console.log('Message:', response?.message);
-        console.log('===========================');
+        console.log('=== FRONTEND: HTTP Response Received ===');
+        console.log('Response type:', typeof response);
+        console.log('Response is null?', response === null);
+        console.log('Response is undefined?', response === undefined);
+        console.log('Full response object:', response);
+
+        if (response) {
+          console.log('Response keys:', Object.keys(response));
+          console.log('success:', response.success);
+          console.log('message:', response.message);
+          console.log('paypal_approval_url:', response.paypal_approval_url);
+          console.log('company_id:', response.company_id);
+        }
 
         if (!response) {
-          console.error('Response is null or undefined');
+          console.error('❌ FRONTEND: Response is null or undefined');
           this.errorMessage.set('Invalid server response');
           this.isLoading.set(false);
           return;
         }
 
         if (response.success) {
+          console.log('✅ FRONTEND: Registration successful');
           if (response.paypal_approval_url) {
             // Redirect to PayPal - don't reset loading, page will navigate away
-            console.log('✅ Redirecting to PayPal:', response.paypal_approval_url);
+            console.log('✅ FRONTEND: Redirecting to PayPal:', response.paypal_approval_url);
             window.location.href = response.paypal_approval_url;
           } else {
             // Registration successful without payment (shouldn't happen normally)
-            console.warn('⚠️ Registration successful but no PayPal URL provided');
+            console.warn('⚠️ FRONTEND: Registration successful but no PayPal URL provided');
             this.isLoading.set(false);
             this.errorMessage.set('Registration completed but payment setup failed. Please contact support.');
           }
         } else {
           // Error from backend
-          console.error('❌ Registration failed:', response.message);
+          console.error('❌ FRONTEND: Registration failed:', response.message);
           this.errorMessage.set(response.message || 'Registration failed');
           this.isLoading.set(false);
         }
       },
       error: (err) => {
-        console.error('=== REGISTRATION ERROR ===');
-        console.error('Full error:', err);
-        console.error('Status:', err.status);
+        console.error('=== FRONTEND: HTTP Error Occurred ===');
+        console.error('Error type:', typeof err);
+        console.error('Full error object:', err);
+        console.error('Status code:', err.status);
+        console.error('Status text:', err.statusText);
+        console.error('Error body:', err.error);
         console.error('Error message:', err.error?.message);
-        console.error('Error object:', err.error);
-        console.error('========================');
+        console.error('Error success flag:', err.error?.success);
+        console.error('=====================================');
 
         // Show more detailed error message
         let errorMsg = 'Connection error. Please try again.';

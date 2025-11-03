@@ -1,8 +1,11 @@
 <?php
 /**
  * Bootstrap Configuration
- * Loads environment variables from .env file
+ * Loads Composer autoloader and environment variables from .env file
  */
+
+// Load Composer autoloader
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // Load .env file - try api folder first, then parent
 $envFile = __DIR__ . '/../.env';
