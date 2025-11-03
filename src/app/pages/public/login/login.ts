@@ -38,15 +38,22 @@ export class Login {
     this.http.post<LoginResponse>(`${this.apiUrl}/auth/login.php`, {
       email: this.email,
       password: this.password
-    }).subscribe({
+    }, { withCredentials: true }).subscribe({
       next: (response) => {
-        if (response.success && response.token) {
-          // Store token in localStorage
-          localStorage.setItem('portal_company_token', response.token);
-          localStorage.setItem('portal_company', JSON.stringify(response.company));
+        if (response.success) {
+          // Store company info in localStorage (tokens are in httpOnly cookies)
+          if (response.company) {
+            localStorage.setItem('portal_company', JSON.stringify(response.company));
+          }
 
-          // Redirect to company dashboard
-          this.router.navigate(['/dashboard']);
+          // Redirect based on payment status
+          if (response.company?.payment_status === 'completed') {
+            // Payment completed - go to dashboard
+            this.router.navigate(['/dashboard']);
+          } else {
+            // Payment pending - go to payment page
+            this.router.navigate(['/payment-pending']);
+          }
         } else {
           this.errorMessage.set(response.message || 'Login failed');
         }

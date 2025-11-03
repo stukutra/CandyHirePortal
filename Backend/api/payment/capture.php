@@ -115,9 +115,11 @@ try {
     }
 
     // Start transaction
+    error_log("Step 5: Starting database transaction");
     $db->beginTransaction();
 
     try {
+        error_log("Step 5.1: Updating payment transaction to completed");
         // Update payment transaction
         $stmt = $db->prepare("
             UPDATE payment_transactions
@@ -135,13 +137,16 @@ try {
             $capture_id,
             $transaction['id']
         ]);
+        error_log("Step 5.1 Complete: Payment transaction updated");
 
+        error_log("Step 5.2: Updating company status to payment_completed");
         // Update company status
         $stmt = $db->prepare("
             UPDATE companies_registered
             SET
                 registration_status = 'payment_completed',
                 payment_status = 'completed',
+                is_active = TRUE,
                 paypal_payer_id = ?,
                 subscription_start_date = CURDATE(),
                 subscription_end_date = DATE_ADD(CURDATE(), INTERVAL 1 YEAR),
@@ -152,7 +157,9 @@ try {
             $payer_id,
             $transaction['company_id']
         ]);
+        error_log("Step 5.2 Complete: Company status updated");
 
+        error_log("Step 5.3: Looking for available tenant");
         // Assign tenant from pool
         $stmt = $db->prepare("
             SELECT id, schema_name
@@ -166,6 +173,8 @@ try {
         $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($tenant) {
+            error_log("Step 5.3: Tenant found - ID: " . $tenant['id'] . ", Schema: " . $tenant['schema_name']);
+
             // Assign tenant to company
             $stmt = $db->prepare("
                 UPDATE tenant_pool
@@ -173,19 +182,24 @@ try {
                 WHERE id = ?
             ");
             $stmt->execute([$transaction['company_id'], $tenant['id']]);
+            error_log("Step 5.3: Tenant pool updated");
 
             // Update company with tenant info
             $stmt = $db->prepare("
                 UPDATE companies_registered
-                SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active'
+                SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
                 WHERE id = ?
             ");
             $stmt->execute([$tenant['id'], $transaction['company_id']]);
+            error_log("Step 5.3 Complete: Company assigned to tenant and status set to active");
+        } else {
+            error_log("WARNING: No available tenant found in pool");
         }
 
+        error_log("Step 5.4: Logging activity");
         // Log activity
         $logger = getLogger($db);
-        $logger->log(
+        $logger->logActivity(
             'company',
             $transaction['company_id'],
             'payment_completed',
@@ -198,10 +212,14 @@ try {
                 'paypal_transaction_id' => $capture_id
             ]
         );
+        error_log("Step 5.4 Complete: Activity logged");
 
+        error_log("Step 5.5: Committing transaction");
         $db->commit();
+        error_log("Step 5.5 Complete: Transaction committed successfully");
 
         // Return success
+        error_log("========== PAYMENT CAPTURE SUCCESS ==========");
         Response::success([
             'payment_captured' => true,
             'transaction_id' => $transaction['id'],
@@ -213,11 +231,17 @@ try {
         ], 'Payment captured successfully');
 
     } catch (Exception $e) {
+        error_log("ERROR in transaction: " . $e->getMessage());
+        error_log("Rolling back transaction");
         $db->rollBack();
         throw $e;
     }
 
 } catch (Exception $e) {
-    error_log("Payment capture error: " . $e->getMessage());
+    error_log("========== PAYMENT CAPTURE ERROR ==========");
+    error_log("Error message: " . $e->getMessage());
+    error_log("Error file: " . $e->getFile() . ":" . $e->getLine());
+    error_log("Error trace: " . $e->getTraceAsString());
+    error_log("========== PAYMENT CAPTURE REQUEST END (ERROR) ==========");
     Response::serverError('An error occurred while processing payment');
 }
