@@ -16,29 +16,47 @@ require_once __DIR__ . '/../config/paypal.php';
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../utils/logger.php';
 
+error_log("========== PAYMENT CAPTURE REQUEST START ==========");
+
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    error_log("ERROR: Method not allowed: " . $_SERVER['REQUEST_METHOD']);
     Response::error('Method not allowed', 405);
 }
 
 // Get posted data
-$data = json_decode(file_get_contents("php://input"));
+$raw_input = file_get_contents("php://input");
+error_log("Raw input length: " . strlen($raw_input));
+error_log("Raw input: " . $raw_input);
+$data = json_decode($raw_input);
+error_log("JSON decoded: " . ($data ? "SUCCESS" : "FAILED"));
+
+if ($data) {
+    error_log("Token: " . ($data->token ?? 'N/A'));
+}
 
 // Validate required fields
 if (empty($data->token)) {
+    error_log("ERROR: Missing token");
     Response::validationError(['token' => 'PayPal order token is required'], 'Missing order token');
 }
 
+error_log("Step 1: Token validated: " . $data->token);
+
 try {
+    error_log("Step 2: Connecting to database");
     // Database connection
     $database = new Database();
     $db = $database->getConnection();
 
     if (!$db) {
+        error_log("ERROR: Database connection failed");
         Response::serverError('Database connection failed');
     }
+    error_log("Step 2 Complete: Database connected");
 
     $paypal_order_id = $data->token;
+    error_log("Step 3: Looking for transaction with PayPal order ID: " . $paypal_order_id);
 
     // Find the transaction
     $stmt = $db->prepare("
@@ -50,20 +68,26 @@ try {
     $transaction = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$transaction) {
+        error_log("ERROR: Transaction not found for PayPal order ID: " . $paypal_order_id);
         Response::error('Transaction not found', 404);
     }
 
+    error_log("Step 3 Complete: Transaction found - ID: " . $transaction['id'] . ", Status: " . $transaction['status']);
+
     // Check if already processed
     if ($transaction['status'] === 'completed') {
+        error_log("INFO: Transaction already completed");
         Response::success([
             'already_processed' => true,
             'message' => 'Payment already completed'
         ], 'Payment already processed');
     }
 
+    error_log("Step 4: Capturing PayPal order");
     // Capture the PayPal order
     $paypal = new PayPalClient();
     $capture_result = $paypal->captureOrder($paypal_order_id);
+    error_log("Step 4 Complete: PayPal capture result status: " . ($capture_result['status'] ?? 'N/A'));
 
     // Check capture status
     if ($capture_result['status'] !== 'COMPLETED') {
