@@ -1,36 +1,12 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpParams } from '@angular/common/http';
+import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { environment } from '../../../../environments/environment';
-
-interface Company {
-  id: string;
-  company_name: string;
-  email: string;
-  vat_number: string;
-  city: string;
-  country: string;
-  registration_status: string;
-  payment_status: string;
-  subscription_plan: string | null;
-  tenant_schema: string | null;
-  created_at: string;
-}
-
-interface CompaniesResponse {
-  success: boolean;
-  data: Company[];
-  pagination: {
-    current_page: number;
-    total_pages: number;
-    total_records: number;
-    per_page: number;
-  };
-}
+import { Company, CompaniesListResponse } from '../../../models';
 
 @Component({
   selector: 'app-admin-companies',
@@ -40,12 +16,10 @@ interface CompaniesResponse {
   styleUrl: './admin-companies.scss',
 })
 export class AdminCompanies implements OnInit {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
-
-  private apiUrl = environment.apiUrl;
 
   companies = signal<Company[]>([]);
   isLoading = signal(true);
@@ -70,16 +44,14 @@ export class AdminCompanies implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const options = this.authService.getAuthOptions();
-    const params = new URLSearchParams({
-      page: this.currentPage().toString(),
-      limit: this.perPage().toString(),
-      search: this.searchQuery(),
-      status: this.statusFilter(),
-      payment_status: this.paymentStatusFilter()
-    });
+    const params = new HttpParams()
+      .set('page', this.currentPage().toString())
+      .set('limit', this.perPage().toString())
+      .set('search', this.searchQuery())
+      .set('status', this.statusFilter())
+      .set('payment_status', this.paymentStatusFilter());
 
-    this.http.get<CompaniesResponse>(`${this.apiUrl}/admin/companies-list.php?${params}`, options).subscribe({
+    this.apiService.get<CompaniesListResponse>(API_ENDPOINTS.ADMIN_COMPANIES_LIST, params).subscribe({
       next: (response) => {
         if (response.success) {
           this.companies.set(response.data);

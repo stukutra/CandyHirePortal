@@ -1,10 +1,9 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { environment } from '../../../../environments/environment';
 import { DashboardStats, Company, DashboardResponse } from '../../../models/dashboard.model';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { CompanyDetailsDrawerComponent } from '../../../shared/components/company-details-drawer/company-details-drawer.component';
@@ -18,12 +17,10 @@ import { TableConfig, TablePagination, TableActionEvent, TableSortEvent } from '
   styleUrl: './admin-dashboard.scss',
 })
 export class AdminDashboard implements OnInit {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private toastService = inject(ToastService);
-
-  private apiUrl = environment.apiUrl;
 
   stats = signal<DashboardStats | null>(null);
   latestCompanies = signal<Company[]>([]);
@@ -117,8 +114,6 @@ export class AdminDashboard implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const options = this.authService.getAuthOptions();
-
     // Build query params
     const params: any = {
       page: this.tablePagination.currentPage,
@@ -139,7 +134,7 @@ export class AdminDashboard implements OnInit {
       params[key] = this.currentFilters()[key];
     });
 
-    this.http.get<DashboardResponse>(`${this.apiUrl}/admin/dashboard-stats.php`, { ...options, params }).subscribe({
+    this.apiService.get<DashboardResponse>(API_ENDPOINTS.ADMIN_DASHBOARD_STATS, params).subscribe({
       next: (response) => {
         if (response.success) {
           this.stats.set(response.stats);
@@ -203,13 +198,12 @@ export class AdminDashboard implements OnInit {
   }
 
   toggleActiveStatus(company: Company) {
-    const options = this.authService.getAuthOptions();
     const newStatus = !company.is_active;
 
-    this.http.put<any>(
-      `${this.apiUrl}/admin/companies/${company.id}/toggle-active`,
+    this.apiService.put<any>(
+      API_ENDPOINTS.ADMIN_COMPANY_TOGGLE_ACTIVE,
       {},
-      options
+      { id: company.id }
     ).subscribe({
       next: (response) => {
         if (response.success) {

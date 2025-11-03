@@ -1,26 +1,10 @@
 import { Injectable, signal, computed, PLATFORM_ID, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, of } from 'rxjs';
-import { environment } from '../../../environments/environment';
-
-export interface AdminUser {
-  id: string;
-  username: string;
-  email: string;
-  first_name: string | null;
-  last_name: string | null;
-  role: 'super_admin' | 'admin' | 'support';
-}
-
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  token?: string;
-  admin?: AdminUser;
-  error?: string;
-}
+import { ApiService, API_ENDPOINTS } from './api.service';
+import { AdminUser, AuthResponse } from '../../models';
 
 @Injectable({
   providedIn: 'root',
@@ -28,9 +12,7 @@ export interface AuthResponse {
 export class AuthService {
   private platformId = inject(PLATFORM_ID);
   private router = inject(Router);
-  private http = inject(HttpClient);
-
-  private apiUrl = environment.apiUrl || 'http://localhost:8082';
+  private apiService = inject(ApiService);
 
   private currentAdminSignal = signal<AdminUser | null>(null);
   private isAuthenticatedSignal = signal<boolean>(false);
@@ -57,12 +39,10 @@ export class AuthService {
    * Admin login (using httpOnly cookies for security)
    */
   loginAdmin(email: string, password: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/admin/login.php`, {
-      email,
-      password
-    }, {
-      withCredentials: true  // Include cookies in request
-    }).pipe(
+    return this.apiService.post<AuthResponse>(
+      API_ENDPOINTS.ADMIN_LOGIN,
+      { email, password }
+    ).pipe(
       tap(response => {
         // With httpOnly cookies, token is not in response - it's in the cookie
         if (response.success && response.admin) {
@@ -99,9 +79,7 @@ export class AuthService {
    */
   logout(): void {
     // Call logout endpoint to clear httpOnly cookie
-    this.http.post(`${this.apiUrl}/admin/logout.php`, {}, {
-      withCredentials: true
-    }).subscribe({
+    this.apiService.post(API_ENDPOINTS.ADMIN_LOGOUT, {}).subscribe({
       next: () => {
         this.clearAuthData();
         this.router.navigate(['/admin/login']);

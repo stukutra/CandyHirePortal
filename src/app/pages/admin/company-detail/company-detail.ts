@@ -1,62 +1,12 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpParams } from '@angular/common/http';
+import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { environment } from '../../../../environments/environment';
-
-interface CompanyDetailData {
-  id: string;
-  company_name: string;
-  vat_number: string;
-  email: string;
-  phone: string;
-  website: string;
-  address: string;
-  city: string;
-  postal_code: string;
-  province: string;
-  country: string;
-  industry: string;
-  employees_count: string;
-  description: string;
-  legal_rep_first_name: string;
-  legal_rep_last_name: string;
-  legal_rep_email: string;
-  legal_rep_phone: string;
-  registration_status: string;
-  payment_status: string;
-  subscription_plan: string;
-  subscription_start_date: string;
-  subscription_end_date: string;
-  tenant_schema: string;
-  tenant_assigned_at: string;
-  paypal_subscription_id: string;
-  paypal_payer_id: string;
-  is_active: boolean;
-  email_verified: boolean;
-  created_at: string;
-  updated_at: string;
-  last_login: string;
-}
-
-interface Transaction {
-  id: string;
-  transaction_type: string;
-  amount: string;
-  currency: string;
-  status: string;
-  created_at: string;
-}
-
-interface DetailResponse {
-  success: boolean;
-  company: CompanyDetailData;
-  transactions: Transaction[];
-  activity_logs: any[];
-}
+import { CompanyDetail as CompanyDetailModel, Transaction, CompanyDetailResponse, CompanyUpdateResponse } from '../../../models';
 
 @Component({
   selector: 'app-company-detail',
@@ -66,16 +16,14 @@ interface DetailResponse {
   styleUrl: './company-detail.scss',
 })
 export class CompanyDetail implements OnInit {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private authService = inject(AuthService);
   private toastService = inject(ToastService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
-  private apiUrl = environment.apiUrl;
-
-  company = signal<CompanyDetailData | null>(null);
-  editedCompany: CompanyDetailData | null = null;
+  company = signal<CompanyDetailModel | null>(null);
+  editedCompany: CompanyDetailModel | null = null;
   transactions = signal<Transaction[]>([]);
   isLoading = signal(true);
   errorMessage = signal('');
@@ -107,9 +55,9 @@ export class CompanyDetail implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const options = this.authService.getAuthOptions();
+    const params = new HttpParams().set('id', companyId);
 
-    this.http.get<DetailResponse>(`${this.apiUrl}/admin/company-detail.php?id=${companyId}`, options).subscribe({
+    this.apiService.get<CompanyDetailResponse>(API_ENDPOINTS.ADMIN_COMPANY_DETAIL, params).subscribe({
       next: (response) => {
         if (response.success) {
           this.company.set(response.company);
@@ -144,13 +92,12 @@ export class CompanyDetail implements OnInit {
 
     this.isUpdatingStatus.set(true);
 
-    const options = this.authService.getAuthOptions();
     const body = {
       company_id: company.id,
       status: this.selectedStatus()
     };
 
-    this.http.put<any>(`${this.apiUrl}/admin/company-update-status.php`, body, options).subscribe({
+    this.apiService.put<CompanyUpdateResponse>(API_ENDPOINTS.ADMIN_COMPANY_UPDATE_STATUS, body).subscribe({
       next: (response) => {
         if (response.success) {
           this.toastService.success('Status Updated', `Company status changed to ${this.selectedStatus()}`);
@@ -178,9 +125,7 @@ export class CompanyDetail implements OnInit {
 
     this.isSaving.set(true);
 
-    const options = this.authService.getAuthOptions();
-
-    this.http.put<any>(`${this.apiUrl}/admin/company-update.php`, this.editedCompany, options).subscribe({
+    this.apiService.put<CompanyUpdateResponse>(API_ENDPOINTS.ADMIN_COMPANY_UPDATE, this.editedCompany).subscribe({
       next: (response) => {
         if (response.success) {
           this.toastService.success('Salvato', 'Modifiche salvate con successo');

@@ -1,37 +1,10 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
-import { environment } from '../../../../environments/environment';
+import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
+import { Tenant, TenantPoolResponse } from '../../../models';
 import { DataTableComponent } from '../../../shared/components/data-table/data-table.component';
 import { TableConfig, TablePagination } from '../../../shared/models/table-config.model';
 import { TableColumn } from '../../../shared/models/table-column.model';
-
-interface Tenant {
-  id: number;
-  schema_name: string;
-  is_available: boolean;
-  company_id: string | null;
-  assigned_at: string | null;
-  created_at: string;
-  company: {
-    name: string;
-    email: string;
-    registration_status: string;
-    payment_status: string;
-  } | null;
-}
-
-interface TenantPoolResponse {
-  success: boolean;
-  tenants: Tenant[];
-  stats: {
-    total: number;
-    available: number;
-    assigned: number;
-    active: number;
-  };
-}
 
 @Component({
   selector: 'app-tenant-pool',
@@ -41,10 +14,7 @@ interface TenantPoolResponse {
   styleUrl: './tenant-pool.scss',
 })
 export class TenantPool implements OnInit {
-  private http = inject(HttpClient);
-  private authService = inject(AuthService);
-
-  private apiUrl = environment.apiUrl;
+  private apiService = inject(ApiService);
 
   allTenants = signal<Tenant[]>([]); // All tenants for client-side pagination
   stats = signal({
@@ -216,9 +186,7 @@ export class TenantPool implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const options = this.authService.getAuthOptions();
-
-    this.http.get<TenantPoolResponse>(`${this.apiUrl}/admin/tenant-pool.php`, options).subscribe({
+    this.apiService.get<TenantPoolResponse>(API_ENDPOINTS.ADMIN_TENANT_POOL).subscribe({
       next: (response) => {
         if (response.success) {
           this.allTenants.set(response.tenants);
