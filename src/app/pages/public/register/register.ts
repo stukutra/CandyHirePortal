@@ -2,8 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../../environments/environment';
+import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { Country, CountryListResponse } from '../../../models/country.model';
 
 interface RegisterResponse {
@@ -21,10 +20,8 @@ interface RegisterResponse {
   styleUrl: './register.scss',
 })
 export class Register implements OnInit {
-  private http = inject(HttpClient);
+  private apiService = inject(ApiService);
   private router = inject(Router);
-
-  private apiUrl = environment.apiUrl || 'http://localhost:8082';
 
   currentStep = signal(1);
   isLoading = signal(false);
@@ -102,7 +99,7 @@ export class Register implements OnInit {
 
   loadCountries() {
     this.loadingCountries.set(true);
-    this.http.get<CountryListResponse>(`${this.apiUrl}/public/countries.php`)
+    this.apiService.get<CountryListResponse>(API_ENDPOINTS.PUBLIC_COUNTRIES, undefined, undefined, false)
       .subscribe({
         next: (response) => {
           if (response.success) {
@@ -144,10 +141,65 @@ export class Register implements OnInit {
     return this.companyInfo().countryCode === 'IT';
   }
 
-  nextStep() {
-    if (this.validateCurrentStep()) {
-      this.currentStep.update(step => step + 1);
+  async nextStep() {
+    if (!this.validateCurrentStep()) {
+      return;
     }
+
+    // If moving from step 1, check if email already exists
+    if (this.currentStep() === 1) {
+      this.isLoading.set(true);
+
+      try {
+        const response = await this.apiService.post<{success: boolean, exists: boolean, message: string}>(
+          API_ENDPOINTS.CHECK_EMAIL,
+          { email: this.personalInfo().email },
+          undefined,
+          false
+        ).toPromise();
+
+        this.isLoading.set(false);
+
+        if (response && response.exists) {
+          this.errorMessage.set('This email is already registered. Please use a different email or sign in.');
+          return;
+        }
+      } catch (error) {
+        this.isLoading.set(false);
+        this.errorMessage.set('Unable to verify email. Please try again.');
+        console.error('Email check error:', error);
+        return;
+      }
+    }
+
+    // If moving from step 2, check if VAT number already exists
+    if (this.currentStep() === 2) {
+      this.isLoading.set(true);
+
+      try {
+        const response = await this.apiService.post<{success: boolean, exists: boolean, message: string, company_name?: string}>(
+          API_ENDPOINTS.CHECK_VAT,
+          { vat_number: this.companyInfo().vatNumber },
+          undefined,
+          false
+        ).toPromise();
+
+        this.isLoading.set(false);
+
+        if (response && response.exists) {
+          const companyName = response.company_name ? ` (${response.company_name})` : '';
+          this.errorMessage.set(`This VAT number is already registered${companyName}. Please use a different VAT number.`);
+          return;
+        }
+      } catch (error) {
+        this.isLoading.set(false);
+        this.errorMessage.set('Unable to verify VAT number. Please try again.');
+        console.error('VAT check error:', error);
+        return;
+      }
+    }
+
+    this.currentStep.update(step => step + 1);
   }
 
   previousStep() {
@@ -160,25 +212,91 @@ export class Register implements OnInit {
 
     if (step === 1) {
       const personal = this.personalInfo();
-      if (!personal.firstName || !personal.lastName || !personal.email || !personal.password) {
-        this.errorMessage.set('Please fill in all required fields');
+
+      // Check all required fields
+      if (!personal.firstName?.trim()) {
+        this.errorMessage.set('First Name is required');
         return false;
       }
+      if (!personal.lastName?.trim()) {
+        this.errorMessage.set('Last Name is required');
+        return false;
+      }
+      if (!personal.email?.trim()) {
+        this.errorMessage.set('Email is required');
+        return false;
+      }
+
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(personal.email)) {
+        this.errorMessage.set('Please enter a valid email address');
+        return false;
+      }
+
+      if (!personal.password) {
+        this.errorMessage.set('Password is required');
+        return false;
+      }
+
+      // Validate password strength
+      if (personal.password.length < 8) {
+        this.errorMessage.set('Password must be at least 8 characters long');
+        return false;
+      }
+
+      const hasUpperCase = /[A-Z]/.test(personal.password);
+      const hasLowerCase = /[a-z]/.test(personal.password);
+      const hasNumber = /\d/.test(personal.password);
+
+      if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+        this.errorMessage.set('Password must contain uppercase, lowercase, and numbers');
+        return false;
+      }
+
+      if (!personal.confirmPassword) {
+        this.errorMessage.set('Please confirm your password');
+        return false;
+      }
+
       if (personal.password !== personal.confirmPassword) {
         this.errorMessage.set('Passwords do not match');
         return false;
       }
-      if (personal.password.length < 8) {
-        this.errorMessage.set('Password must be at least 8 characters');
-        return false;
-      }
+
       return true;
     }
 
     if (step === 2) {
       const company = this.companyInfo();
-      if (!company.companyName || !company.vatNumber) {
-        this.errorMessage.set('Please fill in all required fields');
+
+      if (!company.companyName?.trim()) {
+        this.errorMessage.set('Company Name is required');
+        return false;
+      }
+
+      if (!company.countryCode) {
+        this.errorMessage.set('Country is required');
+        return false;
+      }
+
+      if (!company.vatNumber?.trim()) {
+        this.errorMessage.set('VAT Number is required');
+        return false;
+      }
+
+      // Basic VAT number validation (at least 5 characters)
+      if (company.vatNumber.trim().length < 5) {
+        this.errorMessage.set('Please enter a valid VAT Number');
+        return false;
+      }
+
+      return true;
+    }
+
+    if (step === 3) {
+      if (!this.selectedPlan()) {
+        this.errorMessage.set('Please select a subscription plan');
         return false;
       }
       return true;
@@ -234,29 +352,47 @@ export class Register implements OnInit {
       privacy_accepted: true,
     };
 
-    this.http.post<RegisterResponse>(`${this.apiUrl}/auth/register.php`, registrationData)
-      .subscribe({
-        next: (response) => {
-          if (response.success) {
-            if (response.paypal_approval_url) {
-              // Redirect to PayPal
-              window.location.href = response.paypal_approval_url;
-            } else {
-              // Registration successful
-              alert('Registration completed! Please check your email to verify your account.');
-              this.router.navigate(['/login']);
-            }
+    this.apiService.post<RegisterResponse>(
+      API_ENDPOINTS.PUBLIC_REGISTER,
+      registrationData,
+      undefined,
+      false // No credentials needed for registration
+    ).subscribe({
+      next: (response) => {
+        console.log('Registration response:', response);
+
+        if (response.success) {
+          if (response.paypal_approval_url) {
+            // Redirect to PayPal - don't reset loading, page will navigate away
+            console.log('Redirecting to PayPal:', response.paypal_approval_url);
+            window.location.href = response.paypal_approval_url;
           } else {
-            this.errorMessage.set(response.message || 'Registration failed');
+            // Registration successful without payment (shouldn't happen normally)
+            this.isLoading.set(false);
+            alert('Registration completed! Please check your email to verify your account.');
+            this.router.navigate(['/login']);
           }
-          this.isLoading.set(false);
-        },
-        error: (err) => {
-          console.error('Registration error:', err);
-          this.errorMessage.set('Connection error. Please try again.');
+        } else {
+          // Error from backend
+          this.errorMessage.set(response.message || 'Registration failed');
           this.isLoading.set(false);
         }
-      });
+      },
+      error: (err) => {
+        console.error('Registration error:', err);
+
+        // Show more detailed error message
+        let errorMsg = 'Connection error. Please try again.';
+        if (err.error?.message) {
+          errorMsg = err.error.message;
+        } else if (err.status === 0) {
+          errorMsg = 'Cannot connect to server. Please check if the backend is running.';
+        }
+
+        this.errorMessage.set(errorMsg);
+        this.isLoading.set(false);
+      }
+    });
   }
 
   processPayPalPayment() {

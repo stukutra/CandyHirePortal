@@ -13,6 +13,7 @@ header('Content-Type: application/json');
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../config/paypal.php';
 require_once __DIR__ . '/../models/Company.php';
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../utils/logger.php';
@@ -147,8 +148,81 @@ try {
     // Set tokens in httpOnly cookies
     $jwt_handler->setTokenCookies($access_token, $refresh_token);
 
+    // Create PayPal order
+    $paypal_approval_url = null;
+    $paypal_order_id = null;
+
+    error_log("Starting PayPal order creation for company: " . $company->id);
+
+    try {
+        error_log("Instantiating PayPalClient...");
+        $paypal = new PayPalClient();
+        error_log("PayPalClient instantiated successfully");
+
+        // Define plan prices (in EUR)
+        $plan_prices = [
+            'ultimate' => 1500.00
+        ];
+
+        $amount = $plan_prices[$company->subscription_plan] ?? 1500.00;
+        $currency = 'EUR';
+        $description = "CandyHire {$company->subscription_plan} Plan - Annual Subscription";
+
+        error_log("Creating PayPal order - Amount: $amount, Currency: $currency");
+
+        // Create PayPal order with company metadata
+        $order = $paypal->createOrder($amount, $currency, $description, [
+            'company_id' => $company->id,
+            'subscription_plan' => $company->subscription_plan
+        ]);
+
+        error_log("PayPal order created successfully. Order ID: " . ($order['id'] ?? 'N/A'));
+
+        $paypal_order_id = $order['id'];
+
+        // Find approval URL
+        foreach ($order['links'] as $link) {
+            if ($link['rel'] === 'approve') {
+                $paypal_approval_url = $link['href'];
+                break;
+            }
+        }
+
+        error_log("PayPal approval URL: " . ($paypal_approval_url ?? 'NOT FOUND'));
+
+        // Create payment transaction record
+        $transaction_id = 'TXN_' . strtoupper(bin2hex(random_bytes(8)));
+        $stmt = $db->prepare("
+            INSERT INTO payment_transactions (
+                id, company_id, transaction_type, amount, currency,
+                status, paypal_order_id, metadata
+            ) VALUES (?, ?, 'subscription', ?, ?, 'pending', ?, ?)
+        ");
+
+        $metadata_json = json_encode([
+            'subscription_plan' => $company->subscription_plan,
+            'order_created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $stmt->execute([
+            $transaction_id,
+            $company->id,
+            $amount,
+            $currency,
+            $paypal_order_id,
+            $metadata_json
+        ]);
+
+    } catch (Exception $e) {
+        error_log("PayPal order creation error: " . $e->getMessage());
+        error_log("PayPal error trace: " . $e->getTraceAsString());
+        // Don't fail registration if PayPal fails - admin can manually process
+    }
+
+    error_log("PayPal order creation completed. Approval URL: " . ($paypal_approval_url ?? 'NULL'));
+
     // Return success response
-    Response::success([
+    $response_data = [
         'company' => [
             'id' => $company->id,
             'company_name' => $company->company_name,
@@ -159,7 +233,18 @@ try {
         ],
         'next_step' => 'payment',
         'message' => 'Registration successful. Please proceed with payment.'
-    ], 'Registration successful', 201);
+    ];
+
+    // Add PayPal approval URL if available
+    if ($paypal_approval_url) {
+        error_log("Adding PayPal approval URL to response");
+        $response_data['paypal_approval_url'] = $paypal_approval_url;
+        $response_data['paypal_order_id'] = $paypal_order_id;
+    } else {
+        error_log("WARNING: No PayPal approval URL - registration will complete without payment redirect");
+    }
+
+    Response::success($response_data, 'Registration successful', 201);
 
 } catch (Exception $e) {
     error_log("Registration error: " . $e->getMessage());

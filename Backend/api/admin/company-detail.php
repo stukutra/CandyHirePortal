@@ -80,7 +80,7 @@ try {
     $logsQuery = "SELECT
                     action,
                     user_id,
-                    user_email,
+                    user_type,
                     ip_address,
                     metadata,
                     created_at

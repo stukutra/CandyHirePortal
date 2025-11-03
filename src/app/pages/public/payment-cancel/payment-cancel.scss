@@ -1,0 +1,191 @@
+.payment-result-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f7c7d9 0%, #d8ccf0 100%);
+  padding: 2rem;
+}
+
+.payment-result-content {
+  max-width: 800px;
+  width: 100%;
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.cancel-state {
+  .cancel-icon {
+    font-size: 5rem;
+    margin-bottom: 1.5rem;
+
+    i {
+      color: #ffc107;
+    }
+  }
+
+  .cancel-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .cancel-message {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+}
+
+.info-card {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: left;
+
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #856404;
+
+    i {
+      color: #ffc107;
+    }
+  }
+
+  p {
+    color: #856404;
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.next-steps {
+  margin-bottom: 2rem;
+
+  h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #333;
+  }
+}
+
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.option-card {
+  background: #f8f9fa;
+  border: 2px solid #dee2e6;
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #f7c7d9;
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  i {
+    font-size: 3rem;
+    color: #f7c7d9;
+    margin-bottom: 1rem;
+  }
+
+  h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+.support-info {
+  background: #e7f3ff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-top: 2rem;
+
+  p {
+    color: #004085;
+    margin: 0;
+    line-height: 1.6;
+
+    strong {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    a {
+      color: #0056b3;
+      text-decoration: none;
+      font-weight: 600;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.payment-result-footer {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #dee2e6;
+
+  p {
+    color: #999;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .payment-result-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .cancel-state {
+    .cancel-title {
+      font-size: 1.5rem;
+    }
+
+    .cancel-message {
+      font-size: 1rem;
+    }
+  }
+
+  .options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .option-card {
+    padding: 1.5rem;
+
+    i {
+      font-size: 2.5rem;
+    }
+  }
+}

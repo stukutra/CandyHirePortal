@@ -51,6 +51,13 @@ services:
       SAAS_DB_PORT: ${SAAS_DB_PORT}
       SAAS_DB_USER: ${SAAS_DB_USER}
       SAAS_DB_PASSWORD: ${SAAS_DB_PASSWORD}
+      # PayPal Configuration
+      PAYPAL_MODE: ${PAYPAL_MODE}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET}
+      # Application
+      APP_ENV: ${APP_ENV}
+      APP_URL: ${APP_URL}
     networks:
       - candyhire-portal-network
 

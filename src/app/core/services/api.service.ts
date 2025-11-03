@@ -29,6 +29,8 @@ export const API_ENDPOINTS = {
   // Public Auth
   PUBLIC_LOGIN: '/auth/login.php',
   PUBLIC_REGISTER: '/auth/register.php',
+  CHECK_EMAIL: '/auth/check-email.php',
+  CHECK_VAT: '/auth/check-vat.php',
   PUBLIC_VERIFY_EMAIL: '/auth/verify-email.php',
   PUBLIC_FORGOT_PASSWORD: '/auth/forgot-password.php',
   PUBLIC_RESET_PASSWORD: '/auth/reset-password.php',
@@ -40,6 +42,10 @@ export const API_ENDPOINTS = {
 
   // Countries
   PUBLIC_COUNTRIES: '/public/countries.php',
+
+  // Payment (PayPal)
+  PAYMENT_CAPTURE: '/payment/capture.php',
+  PAYMENT_CANCEL: '/payment/cancel.php',
 } as const;
 
 /**

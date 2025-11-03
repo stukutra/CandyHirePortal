@@ -7,6 +7,8 @@ import { TermsConditions } from './pages/terms-conditions/terms-conditions';
 // Company auth
 import { Login } from './pages/public/login/login';
 import { Register } from './pages/public/register/register';
+import { PaymentSuccess } from './pages/public/payment-success/payment-success';
+import { PaymentCancel } from './pages/public/payment-cancel/payment-cancel';
 
 // Admin imports
 import { AdminLogin } from './pages/admin/login/admin-login';
@@ -21,6 +23,8 @@ export const routes: Routes = [
   { path: '', component: Home },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+  { path: 'payment/success', component: PaymentSuccess },
+  { path: 'payment/cancel', component: PaymentCancel },
   { path: 'privacy-policy', component: PrivacyPolicy },
   { path: 'cookie-policy', component: CookiePolicy },
   { path: 'terms-conditions', component: TermsConditions },
