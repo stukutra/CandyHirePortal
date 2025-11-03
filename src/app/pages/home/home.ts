@@ -1,19 +1,21 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ScreenshotsCarousel } from '../../components/screenshots-carousel/screenshots-carousel';
 import { Pricing } from '../../components/pricing/pricing';
 import { RotatingPhrases } from '../../components/rotating-phrases/rotating-phrases';
 import { TranslationService } from '../../core/services/translation.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
-  imports: [ScreenshotsCarousel, Pricing, RotatingPhrases, RouterLink],
+  imports: [ScreenshotsCarousel, Pricing, RotatingPhrases],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
 export class Home {
   protected readonly bubblesArray = Array.from({ length: 20 }, (_, i) => i + 1);
   protected translationService = inject(TranslationService);
+  saasUrl = environment.saasUrl || 'http://localhost:4202';
 
   constructor(private router: Router) {}
 

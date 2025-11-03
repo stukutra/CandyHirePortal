@@ -1,9 +1,10 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { Country, CountryListResponse } from '../../../models/country.model';
+import { environment } from '../../../../environments/environment';
 
 interface RegisterResponse {
   success: boolean;
@@ -15,7 +16,7 @@ interface RegisterResponse {
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [FormsModule, CommonModule, RouterLink],
+  imports: [FormsModule, CommonModule],
   templateUrl: './register.html',
   styleUrl: './register.scss',
 })
@@ -28,6 +29,7 @@ export class Register implements OnInit {
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   errorMessage = signal('');
+  saasUrl = environment.saasUrl || 'http://localhost:4202';
   passwordStrength = signal<{level: number, text: string, color: string}>({level: 0, text: '', color: ''});
 
   // Countries list

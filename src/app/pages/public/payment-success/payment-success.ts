@@ -1,6 +1,6 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, PLATFORM_ID } from '@angular/core';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 
 interface PaymentCaptureData {
@@ -33,11 +33,13 @@ export class PaymentSuccess implements OnInit {
   private apiService = inject(ApiService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private platformId = inject(PLATFORM_ID);
 
   isProcessing = signal(true);
   isSuccess = signal(false);
   errorMessage = signal('');
-  paymentDetails = signal<any>(null);
+  countdown = signal(5);
+  paymentDetails = signal<PaymentCaptureData | null>(null);
 
   ngOnInit() {
     // Get PayPal token from query params
@@ -64,28 +66,32 @@ export class PaymentSuccess implements OnInit {
       next: (response) => {
         // Handle both successful capture and already processed cases
         if (response.success && response.data && (response.data.payment_captured || response.data.already_processed)) {
+          this.isProcessing.set(false);
           this.isSuccess.set(true);
-          this.paymentDetails.set({
-            transaction_id: response.data.transaction_id,
-            amount: response.data.amount,
-            currency: response.data.currency,
-            tenant_assigned: response.data.tenant_assigned,
-            tenant_schema: response.data.tenant_schema,
-            message: response.message
-          });
+          this.paymentDetails.set(response.data);
 
-          // Redirect to SaaS application after 3 seconds
-          const redirectUrl = response.data.redirect_url || 'http://localhost:4202';
-          setTimeout(() => {
-            console.log('Redirecting to SaaS:', redirectUrl);
-            // Use window.location.href for external redirect (different port/domain)
-            // This ensures cookies are sent with the request
-            window.location.href = redirectUrl;
-          }, 3000);
+          // Start countdown from 5 to 0
+          if (isPlatformBrowser(this.platformId)) {
+            const countdownInterval = setInterval(() => {
+              const current = this.countdown();
+              if (current > 0) {
+                this.countdown.set(current - 1);
+              } else {
+                clearInterval(countdownInterval);
+              }
+            }, 1000);
+
+            // Redirect after 5 seconds
+            setTimeout(() => {
+              const redirectUrl = response.data.redirect_url || 'http://localhost:4202';
+              console.log('Redirecting to SaaS:', redirectUrl);
+              window.location.href = redirectUrl;
+            }, 5000);
+          }
         } else {
           this.errorMessage.set(response.message || 'Payment processing failed');
+          this.isProcessing.set(false);
         }
-        this.isProcessing.set(false);
       },
       error: (err) => {
         console.error('Payment capture error:', err);

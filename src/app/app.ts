@@ -7,6 +7,7 @@ import { ToastContainer } from './components/toast/toast-container';
 import { AdminNavbar } from './components/admin-navbar/admin-navbar';
 import { LanguageSwitcher } from './components/language-switcher/language-switcher';
 import { TranslationService } from './core/services/translation.service';
+import { environment } from '../environments/environment';
 import { it } from './i18n/it';
 import { es } from './i18n/es';
 import { en } from './i18n/en';
@@ -23,6 +24,7 @@ export class App {
 
   isAdminArea = signal(false);
   isAuthPage = signal(false);
+  saasUrl = environment.saasUrl || 'http://localhost:4202';
 
   constructor() {
     // Initialize translations

@@ -212,11 +212,11 @@ try {
         // Update company with tenant info
         $stmt = $db->prepare("
             UPDATE companies_registered
-            SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
+            SET tenant_id = ?, tenant_schema = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
             WHERE id = ?
         ");
-        $stmt->execute([$tenant['id'], $transaction['company_id']]);
-        error_log("Step 5.3.3 Complete: Company assigned to tenant and status set to active");
+        $stmt->execute([$tenant['id'], $tenant['schema_name'], $transaction['company_id']]);
+        error_log("Step 5.3.3 Complete: Company assigned to tenant (schema: " . $tenant['schema_name'] . ") and status set to active");
 
         // Step 5.3.4: Initialize tenant database with company data and first admin user
         error_log("Step 5.3.4: Initializing tenant database with first admin user");

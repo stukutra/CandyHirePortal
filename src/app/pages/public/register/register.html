@@ -140,9 +140,9 @@
             </div>
 
             <div class="button-group">
-              <button type="button" class="btn btn-secondary" routerLink="/login">
+              <a [href]="saasUrl" class="btn btn-secondary">
                 Back to Login
-              </button>
+              </a>
               <button type="button" class="btn btn-primary" (click)="nextStep()">
                 Continue
                 <i class="bi bi-arrow-right ms-2"></i>
@@ -385,7 +385,7 @@
       <!-- Already have an account -->
       <div class="login-link">
         <span>Already have an account?</span>
-        <a routerLink="/login" class="link-login">Sign in</a>
+        <a [href]="saasUrl" class="link-login">Sign in</a>
       </div>
     </div>
 

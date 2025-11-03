@@ -10,6 +10,7 @@ interface LoginResponse {
   message: string;
   token?: string;
   company?: any;
+  redirect_url?: string;
 }
 
 @Component({
@@ -46,7 +47,14 @@ export class Login {
             localStorage.setItem('portal_company', JSON.stringify(response.company));
           }
 
-          // Redirect based on payment status
+          // If redirect_url is provided, redirect to SaaS application
+          if (response.redirect_url) {
+            console.log('Redirecting to SaaS:', response.redirect_url);
+            window.location.href = response.redirect_url;
+            return;
+          }
+
+          // Otherwise, redirect based on payment status
           if (response.company?.payment_status === 'completed') {
             // Payment completed - go to dashboard
             this.router.navigate(['/dashboard']);

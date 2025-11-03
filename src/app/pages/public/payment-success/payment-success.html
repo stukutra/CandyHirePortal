@@ -9,58 +9,48 @@
           </div>
         </div>
         <h2>Processing your payment...</h2>
-        <p>Please wait while we confirm your transaction with PayPal.</p>
+        <p>Please wait while we confirm your transaction and set up your account.</p>
       </div>
     }
 
     <!-- Success State -->
-    @if (!isProcessing() && isSuccess()) {
+    @if (!isProcessing() && isSuccess() && paymentDetails()) {
       <div class="success-state">
         <div class="success-icon">
           <i class="bi bi-check-circle-fill"></i>
         </div>
         <h1 class="success-title">Payment Successful!</h1>
-        <p class="success-message">{{ paymentDetails()?.message }}</p>
+        <p class="success-message">Your payment has been processed successfully and your account is ready.</p>
 
-        <div class="payment-details-card">
-          <h3>Payment Details</h3>
-          <div class="detail-row">
+        <div class="payment-details">
+          <div class="detail-item">
             <span class="detail-label">Transaction ID:</span>
             <span class="detail-value">{{ paymentDetails()?.transaction_id }}</span>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">Amount:</span>
-            <span class="detail-value">
-              {{ paymentDetails()?.amount }} {{ paymentDetails()?.currency }}
-            </span>
-          </div>
-          @if (paymentDetails()?.tenant_assigned) {
-            <div class="detail-row">
-              <span class="detail-label">Status:</span>
-              <span class="detail-value badge-success">Tenant Assigned</span>
+          @if (paymentDetails()?.amount) {
+            <div class="detail-item">
+              <span class="detail-label">Amount:</span>
+              <span class="detail-value">{{ paymentDetails()?.amount }} {{ paymentDetails()?.currency?.toUpperCase() }}</span>
+            </div>
+          }
+          @if (paymentDetails()?.tenant_schema) {
+            <div class="detail-item">
+              <span class="detail-label">Your Tenant:</span>
+              <span class="detail-value">{{ paymentDetails()?.tenant_schema }}</span>
             </div>
           }
         </div>
 
-        <div class="next-steps">
-          <h3>What's Next?</h3>
-          <ul>
-            <li><i class="bi bi-check-circle"></i> Your account is now active</li>
-            <li><i class="bi bi-check-circle"></i> A dedicated tenant has been assigned</li>
-            <li><i class="bi bi-check-circle"></i> You can now log in to your dashboard</li>
-            <li><i class="bi bi-check-circle"></i> Check your email for important information</li>
-          </ul>
+        <div class="alert alert-info">
+          <i class="bi bi-clock me-2"></i>
+          <strong>Redirecting in {{ countdown() }} seconds...</strong>
+          <p class="mb-0 mt-2">You will be automatically redirected to your CandyHire dashboard.</p>
         </div>
-
-        <p class="redirect-notice">
-          <i class="bi bi-arrow-right-circle me-2"></i>
-          Redirecting to your dashboard in 3 seconds...
-        </p>
       </div>
     }
 
     <!-- Error State -->
-    @if (!isProcessing() && !isSuccess() && errorMessage()) {
+    @if (!isProcessing() && errorMessage()) {
       <div class="error-state">
         <div class="error-icon">
           <i class="bi bi-exclamation-triangle-fill"></i>
