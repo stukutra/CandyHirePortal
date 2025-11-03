@@ -31,7 +31,7 @@ try {
     $query = "
         SELECT
             tp.id,
-            tp.tenant_id,
+            tp.schema_name,
             tp.is_available,
             tp.company_id,
             tp.assigned_at,
@@ -42,7 +42,7 @@ try {
             cr.payment_status
         FROM tenant_pool tp
         LEFT JOIN companies_registered cr ON tp.company_id = cr.id
-        ORDER BY tp.tenant_id ASC
+        ORDER BY tp.schema_name ASC
     ";
 
     $stmt = $db->prepare($query);
@@ -52,7 +52,7 @@ try {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $tenants[] = [
             'id' => (int)$row['id'],
-            'tenant_id' => (int)$row['tenant_id'],
+            'schema_name' => $row['schema_name'],
             'is_available' => (bool)$row['is_available'],
             'company_id' => $row['company_id'],
             'assigned_at' => $row['assigned_at'],
