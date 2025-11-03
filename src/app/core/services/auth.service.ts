@@ -54,16 +54,19 @@ export class AuthService {
   }
 
   /**
-   * Admin login
+   * Admin login (using httpOnly cookies for security)
    */
   loginAdmin(email: string, password: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/admin/login.php`, {
       email,
       password
+    }, {
+      withCredentials: true  // Include cookies in request
     }).pipe(
       tap(response => {
-        if (response.success && response.token && response.admin) {
-          this.setAuthData(response.token, response.admin);
+        // With httpOnly cookies, token is not in response - it's in the cookie
+        if (response.success && response.admin) {
+          this.setAuthData(response.admin);
         }
       }),
       catchError(error => {
@@ -78,50 +81,54 @@ export class AuthService {
   }
 
   /**
-   * Set authentication data in memory and localStorage
+   * Set authentication data in memory only (token is in httpOnly cookie)
    */
-  private setAuthData(token: string, admin: AdminUser): void {
-    this.authTokenSignal.set(token);
+  private setAuthData(admin: AdminUser): void {
     this.currentAdminSignal.set(admin);
     this.isAuthenticatedSignal.set(true);
+    this.authTokenSignal.set('cookie'); // Flag to indicate cookie-based auth
 
+    // Store only admin data in localStorage for persistence across page reloads
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.setItem('portal_auth_token', token);
       localStorage.setItem('portal_admin', JSON.stringify(admin));
     }
   }
 
   /**
-   * Logout admin
+   * Logout admin (clears httpOnly cookie on server)
    */
   logout(): void {
-    this.authTokenSignal.set(null);
-    this.currentAdminSignal.set(null);
-    this.isAuthenticatedSignal.set(false);
-
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('portal_auth_token');
-      localStorage.removeItem('portal_admin');
-    }
-
-    this.router.navigate(['/admin/login']);
+    // Call logout endpoint to clear httpOnly cookie
+    this.http.post(`${this.apiUrl}/admin/logout.php`, {}, {
+      withCredentials: true
+    }).subscribe({
+      next: () => {
+        this.clearAuthData();
+        this.router.navigate(['/admin/login']);
+      },
+      error: (err) => {
+        console.error('Logout error:', err);
+        // Clear local data anyway
+        this.clearAuthData();
+        this.router.navigate(['/admin/login']);
+      }
+    });
   }
 
   /**
-   * Check if user is authenticated (from localStorage)
+   * Check if user is authenticated (from localStorage admin data + httpOnly cookie)
    */
   checkAuth(): boolean {
     if (!isPlatformBrowser(this.platformId)) {
       return false;
     }
 
-    const token = localStorage.getItem('portal_auth_token');
     const adminStr = localStorage.getItem('portal_admin');
 
-    if (token && adminStr) {
+    if (adminStr) {
       try {
         const admin = JSON.parse(adminStr) as AdminUser;
-        this.authTokenSignal.set(token);
+        this.authTokenSignal.set('cookie'); // Flag for cookie-based auth
         this.currentAdminSignal.set(admin);
         this.isAuthenticatedSignal.set(true);
         return true;
@@ -136,12 +143,13 @@ export class AuthService {
   }
 
   /**
-   * Clear all auth data
+   * Clear all auth data (cookie is cleared by server on logout)
    */
   private clearAuthData(): void {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('portal_auth_token');
       localStorage.removeItem('portal_admin');
+      // Remove legacy token if exists
+      localStorage.removeItem('portal_auth_token');
     }
     this.authTokenSignal.set(null);
     this.currentAdminSignal.set(null);
@@ -150,12 +158,12 @@ export class AuthService {
 
   /**
    * Get authorization headers for HTTP requests
+   * Note: With httpOnly cookies, auth is handled via cookies sent with withCredentials: true
+   * This method still exists for backwards compatibility
    */
   getAuthHeaders(): HttpHeaders {
-    const token = this.authToken();
     return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
+      'Content-Type': 'application/json'
     });
   }
 
@@ -168,27 +176,13 @@ export class AuthService {
   }
 
   /**
-   * Check if token is expired (basic check)
+   * Get HTTP options with credentials for authenticated requests
+   * Use this for all authenticated API calls to include httpOnly cookies
    */
-  isTokenExpired(): boolean {
-    const token = this.authToken();
-    if (!token) return true;
-
-    try {
-      // JWT token has 3 parts separated by dots
-      const payload = token.split('.')[1];
-      const decodedPayload = JSON.parse(atob(payload));
-
-      // Check expiration
-      if (decodedPayload.exp) {
-        const expirationDate = new Date(decodedPayload.exp * 1000);
-        return expirationDate < new Date();
-      }
-
-      return false;
-    } catch (e) {
-      console.error('Error checking token expiration:', e);
-      return true;
-    }
+  getAuthOptions(): { headers: HttpHeaders; withCredentials: boolean } {
+    return {
+      headers: this.getAuthHeaders(),
+      withCredentials: true
+    };
   }
 }

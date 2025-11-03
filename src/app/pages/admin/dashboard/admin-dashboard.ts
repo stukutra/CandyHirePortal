@@ -117,7 +117,7 @@ export class AdminDashboard implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
 
     // Build query params
     const params: any = {
@@ -139,7 +139,7 @@ export class AdminDashboard implements OnInit {
       params[key] = this.currentFilters()[key];
     });
 
-    this.http.get<DashboardResponse>(`${this.apiUrl}/admin/dashboard-stats.php`, { headers, params }).subscribe({
+    this.http.get<DashboardResponse>(`${this.apiUrl}/admin/dashboard-stats.php`, { ...options, params }).subscribe({
       next: (response) => {
         if (response.success) {
           this.stats.set(response.stats);
@@ -203,13 +203,13 @@ export class AdminDashboard implements OnInit {
   }
 
   toggleActiveStatus(company: Company) {
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
     const newStatus = !company.is_active;
 
     this.http.put<any>(
       `${this.apiUrl}/admin/companies/${company.id}/toggle-active`,
       {},
-      { headers }
+      options
     ).subscribe({
       next: (response) => {
         if (response.success) {

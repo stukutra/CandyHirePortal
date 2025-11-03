@@ -5,19 +5,18 @@ import { AuthService } from '../services/auth.service';
 /**
  * Guard for protecting admin routes
  * Redirects to /admin/login if not authenticated
+ * Note: With httpOnly cookies, token validation is done server-side
  */
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
-  // Check if token exists and is valid
-  if (authService.isAuthenticated() && !authService.isTokenExpired()) {
+  // Check if authenticated (admin data exists in localStorage)
+  if (authService.isAuthenticated()) {
     return true;
   }
 
-  // Clear any invalid auth data
-  authService.logout();
-
+  // Not authenticated, redirect to login
   return router.createUrlTree(['/admin/login']);
 };
 
@@ -30,7 +29,7 @@ export const adminLoginGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   // If already authenticated, redirect to admin dashboard
-  if (authService.isAuthenticated() && !authService.isTokenExpired()) {
+  if (authService.isAuthenticated()) {
     return router.createUrlTree(['/admin/dashboard']);
   }
 
@@ -45,7 +44,7 @@ export const adminRoleGuard = (allowedRoles: ('super_admin' | 'admin' | 'support
     const authService = inject(AuthService);
     const router = inject(Router);
 
-    if (!authService.isAuthenticated() || authService.isTokenExpired()) {
+    if (!authService.isAuthenticated()) {
       return router.createUrlTree(['/admin/login']);
     }
 

@@ -70,7 +70,7 @@ export class AdminCompanies implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
     const params = new URLSearchParams({
       page: this.currentPage().toString(),
       limit: this.perPage().toString(),
@@ -79,7 +79,7 @@ export class AdminCompanies implements OnInit {
       payment_status: this.paymentStatusFilter()
     });
 
-    this.http.get<CompaniesResponse>(`${this.apiUrl}/admin/companies-list.php?${params}`, { headers }).subscribe({
+    this.http.get<CompaniesResponse>(`${this.apiUrl}/admin/companies-list.php?${params}`, options).subscribe({
       next: (response) => {
         if (response.success) {
           this.companies.set(response.data);

@@ -107,9 +107,9 @@ export class CompanyDetail implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
 
-    this.http.get<DetailResponse>(`${this.apiUrl}/admin/company-detail.php?id=${companyId}`, { headers }).subscribe({
+    this.http.get<DetailResponse>(`${this.apiUrl}/admin/company-detail.php?id=${companyId}`, options).subscribe({
       next: (response) => {
         if (response.success) {
           this.company.set(response.company);
@@ -144,13 +144,13 @@ export class CompanyDetail implements OnInit {
 
     this.isUpdatingStatus.set(true);
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
     const body = {
       company_id: company.id,
       status: this.selectedStatus()
     };
 
-    this.http.put<any>(`${this.apiUrl}/admin/company-update-status.php`, body, { headers }).subscribe({
+    this.http.put<any>(`${this.apiUrl}/admin/company-update-status.php`, body, options).subscribe({
       next: (response) => {
         if (response.success) {
           this.toastService.success('Status Updated', `Company status changed to ${this.selectedStatus()}`);
@@ -178,9 +178,9 @@ export class CompanyDetail implements OnInit {
 
     this.isSaving.set(true);
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
 
-    this.http.put<any>(`${this.apiUrl}/admin/company-update.php`, this.editedCompany, { headers }).subscribe({
+    this.http.put<any>(`${this.apiUrl}/admin/company-update.php`, this.editedCompany, options).subscribe({
       next: (response) => {
         if (response.success) {
           this.toastService.success('Salvato', 'Modifiche salvate con successo');

@@ -216,9 +216,9 @@ export class TenantPool implements OnInit {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    const headers = this.authService.getAuthHeaders();
+    const options = this.authService.getAuthOptions();
 
-    this.http.get<TenantPoolResponse>(`${this.apiUrl}/admin/tenant-pool.php`, { headers }).subscribe({
+    this.http.get<TenantPoolResponse>(`${this.apiUrl}/admin/tenant-pool.php`, options).subscribe({
       next: (response) => {
         if (response.success) {
           this.allTenants.set(response.tenants);

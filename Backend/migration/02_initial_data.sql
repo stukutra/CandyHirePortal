@@ -5,31 +5,31 @@
 SET NAMES utf8mb4;
 
 -- ============================================
--- Insert Tenant Pool (100 available tenant IDs)
+-- Insert Tenant Pool (100 available tenant schemas)
 -- Single-database multi-tenancy approach
 -- ============================================
-INSERT INTO `tenant_pool` (`tenant_id`, `is_available`) VALUES
-(1, TRUE), (2, TRUE), (3, TRUE), (4, TRUE), (5, TRUE),
-(6, TRUE), (7, TRUE), (8, TRUE), (9, TRUE), (10, TRUE),
-(11, TRUE), (12, TRUE), (13, TRUE), (14, TRUE), (15, TRUE),
-(16, TRUE), (17, TRUE), (18, TRUE), (19, TRUE), (20, TRUE),
-(21, TRUE), (22, TRUE), (23, TRUE), (24, TRUE), (25, TRUE),
-(26, TRUE), (27, TRUE), (28, TRUE), (29, TRUE), (30, TRUE),
-(31, TRUE), (32, TRUE), (33, TRUE), (34, TRUE), (35, TRUE),
-(36, TRUE), (37, TRUE), (38, TRUE), (39, TRUE), (40, TRUE),
-(41, TRUE), (42, TRUE), (43, TRUE), (44, TRUE), (45, TRUE),
-(46, TRUE), (47, TRUE), (48, TRUE), (49, TRUE), (50, TRUE),
-(51, TRUE), (52, TRUE), (53, TRUE), (54, TRUE), (55, TRUE),
-(56, TRUE), (57, TRUE), (58, TRUE), (59, TRUE), (60, TRUE),
-(61, TRUE), (62, TRUE), (63, TRUE), (64, TRUE), (65, TRUE),
-(66, TRUE), (67, TRUE), (68, TRUE), (69, TRUE), (70, TRUE),
-(71, TRUE), (72, TRUE), (73, TRUE), (74, TRUE), (75, TRUE),
-(76, TRUE), (77, TRUE), (78, TRUE), (79, TRUE), (80, TRUE),
-(81, TRUE), (82, TRUE), (83, TRUE), (84, TRUE), (85, TRUE),
-(86, TRUE), (87, TRUE), (88, TRUE), (89, TRUE), (90, TRUE),
-(91, TRUE), (92, TRUE), (93, TRUE), (94, TRUE), (95, TRUE),
-(96, TRUE), (97, TRUE), (98, TRUE), (99, TRUE), (100, TRUE)
-ON DUPLICATE KEY UPDATE `tenant_id` = VALUES(`tenant_id`);
+INSERT INTO `tenant_pool` (`schema_name`, `is_available`) VALUES
+('CandyHire_Tenant_1', TRUE), ('CandyHire_Tenant_2', TRUE), ('CandyHire_Tenant_3', TRUE), ('CandyHire_Tenant_4', TRUE), ('CandyHire_Tenant_5', TRUE),
+('CandyHire_Tenant_6', TRUE), ('CandyHire_Tenant_7', TRUE), ('CandyHire_Tenant_8', TRUE), ('CandyHire_Tenant_9', TRUE), ('CandyHire_Tenant_10', TRUE),
+('CandyHire_Tenant_11', TRUE), ('CandyHire_Tenant_12', TRUE), ('CandyHire_Tenant_13', TRUE), ('CandyHire_Tenant_14', TRUE), ('CandyHire_Tenant_15', TRUE),
+('CandyHire_Tenant_16', TRUE), ('CandyHire_Tenant_17', TRUE), ('CandyHire_Tenant_18', TRUE), ('CandyHire_Tenant_19', TRUE), ('CandyHire_Tenant_20', TRUE),
+('CandyHire_Tenant_21', TRUE), ('CandyHire_Tenant_22', TRUE), ('CandyHire_Tenant_23', TRUE), ('CandyHire_Tenant_24', TRUE), ('CandyHire_Tenant_25', TRUE),
+('CandyHire_Tenant_26', TRUE), ('CandyHire_Tenant_27', TRUE), ('CandyHire_Tenant_28', TRUE), ('CandyHire_Tenant_29', TRUE), ('CandyHire_Tenant_30', TRUE),
+('CandyHire_Tenant_31', TRUE), ('CandyHire_Tenant_32', TRUE), ('CandyHire_Tenant_33', TRUE), ('CandyHire_Tenant_34', TRUE), ('CandyHire_Tenant_35', TRUE),
+('CandyHire_Tenant_36', TRUE), ('CandyHire_Tenant_37', TRUE), ('CandyHire_Tenant_38', TRUE), ('CandyHire_Tenant_39', TRUE), ('CandyHire_Tenant_40', TRUE),
+('CandyHire_Tenant_41', TRUE), ('CandyHire_Tenant_42', TRUE), ('CandyHire_Tenant_43', TRUE), ('CandyHire_Tenant_44', TRUE), ('CandyHire_Tenant_45', TRUE),
+('CandyHire_Tenant_46', TRUE), ('CandyHire_Tenant_47', TRUE), ('CandyHire_Tenant_48', TRUE), ('CandyHire_Tenant_49', TRUE), ('CandyHire_Tenant_50', TRUE),
+('CandyHire_Tenant_51', TRUE), ('CandyHire_Tenant_52', TRUE), ('CandyHire_Tenant_53', TRUE), ('CandyHire_Tenant_54', TRUE), ('CandyHire_Tenant_55', TRUE),
+('CandyHire_Tenant_56', TRUE), ('CandyHire_Tenant_57', TRUE), ('CandyHire_Tenant_58', TRUE), ('CandyHire_Tenant_59', TRUE), ('CandyHire_Tenant_60', TRUE),
+('CandyHire_Tenant_61', TRUE), ('CandyHire_Tenant_62', TRUE), ('CandyHire_Tenant_63', TRUE), ('CandyHire_Tenant_64', TRUE), ('CandyHire_Tenant_65', TRUE),
+('CandyHire_Tenant_66', TRUE), ('CandyHire_Tenant_67', TRUE), ('CandyHire_Tenant_68', TRUE), ('CandyHire_Tenant_69', TRUE), ('CandyHire_Tenant_70', TRUE),
+('CandyHire_Tenant_71', TRUE), ('CandyHire_Tenant_72', TRUE), ('CandyHire_Tenant_73', TRUE), ('CandyHire_Tenant_74', TRUE), ('CandyHire_Tenant_75', TRUE),
+('CandyHire_Tenant_76', TRUE), ('CandyHire_Tenant_77', TRUE), ('CandyHire_Tenant_78', TRUE), ('CandyHire_Tenant_79', TRUE), ('CandyHire_Tenant_80', TRUE),
+('CandyHire_Tenant_81', TRUE), ('CandyHire_Tenant_82', TRUE), ('CandyHire_Tenant_83', TRUE), ('CandyHire_Tenant_84', TRUE), ('CandyHire_Tenant_85', TRUE),
+('CandyHire_Tenant_86', TRUE), ('CandyHire_Tenant_87', TRUE), ('CandyHire_Tenant_88', TRUE), ('CandyHire_Tenant_89', TRUE), ('CandyHire_Tenant_90', TRUE),
+('CandyHire_Tenant_91', TRUE), ('CandyHire_Tenant_92', TRUE), ('CandyHire_Tenant_93', TRUE), ('CandyHire_Tenant_94', TRUE), ('CandyHire_Tenant_95', TRUE),
+('CandyHire_Tenant_96', TRUE), ('CandyHire_Tenant_97', TRUE), ('CandyHire_Tenant_98', TRUE), ('CandyHire_Tenant_99', TRUE), ('CandyHire_Tenant_100', TRUE)
+ON DUPLICATE KEY UPDATE `schema_name` = VALUES(`schema_name`);
 
 -- ============================================
 -- Insert Default Admin User
