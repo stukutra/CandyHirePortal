@@ -62,7 +62,10 @@ class JWTHandler {
                 'email' => $company_data['email'],
                 'company_name' => $company_data['company_name'] ?? null,
                 'tenant_schema' => $company_data['tenant_schema'] ?? null,
-                'type' => 'company'
+                'tenant_id' => $company_data['tenant_id'] ?? null,
+                'user_id' => $company_data['user_id'] ?? null,
+                'role_id' => $company_data['role_id'] ?? null,
+                'type' => $company_data['type'] ?? 'company'
             ]
         ];
 
@@ -133,7 +136,12 @@ class JWTHandler {
             'iss' => 'candyhire-portal-api',
             'type' => 'refresh',
             'data' => [
-                'id' => $user_data['id']
+                'id' => $user_data['id'],
+                'email' => $user_data['email'] ?? null,
+                'tenant_schema' => $user_data['tenant_schema'] ?? null,
+                'tenant_id' => $user_data['tenant_id'] ?? null,
+                'user_id' => $user_data['user_id'] ?? null,
+                'role_id' => $user_data['role_id'] ?? null
             ]
         ];
 

@@ -48,27 +48,30 @@ class Database {
     /**
      * Get connection to a specific tenant database
      *
+     * Tenant databases are in the same MySQL server as Portal
+     *
      * @param string $tenant_schema Tenant schema name
      * @return PDO|null
      */
     public function getTenantConnection($tenant_schema) {
-        $saas_host = getenv('SAAS_DB_HOST') ?: 'host.docker.internal';
-        $saas_port = getenv('SAAS_DB_PORT') ?: '3307';
-        $saas_user = getenv('SAAS_DB_USER') ?: 'candyhire_user';
-        $saas_password = getenv('SAAS_DB_PASSWORD') ?: 'candyhire_pass';
+        // Tenant databases are in the same MySQL server as Portal
+        $host = getenv('DB_HOST') ?: 'portal-mysql';
+        $username = getenv('DB_ROOT_USER') ?: 'root';
+        $password = getenv('DB_ROOT_PASSWORD') ?: 'candyhire_portal_root_pass';
 
         try {
-            $dsn = "mysql:host={$saas_host};port={$saas_port};dbname={$tenant_schema};charset=utf8mb4";
-            $conn = new PDO($dsn, $saas_user, $saas_password);
+            $dsn = "mysql:host={$host};dbname={$tenant_schema};charset=utf8mb4";
+            $conn = new PDO($dsn, $username, $password);
 
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_OBJ);
+            $conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 
+            error_log("Tenant connection established to: $tenant_schema");
             return $conn;
 
         } catch(PDOException $e) {
-            error_log("Tenant Database Connection Error: " . $e->getMessage());
+            error_log("Tenant Database Connection Error for $tenant_schema: " . $e->getMessage());
             return null;
         }
     }

@@ -3,14 +3,23 @@ import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 
+interface PaymentCaptureData {
+  payment_captured?: boolean;
+  already_processed?: boolean;
+  transaction_id?: string;
+  amount?: number;
+  currency?: string;
+  tenant_assigned?: boolean;
+  tenant_schema?: string;
+  tenant_id?: string;
+  user_id?: string;
+  redirect_url?: string;
+}
+
 interface PaymentCaptureResponse {
   success: boolean;
-  payment_captured: boolean;
-  transaction_id: string;
-  amount: number;
-  currency: string;
-  tenant_assigned: boolean;
   message: string;
+  data: PaymentCaptureData;
 }
 
 @Component({
@@ -53,20 +62,26 @@ export class PaymentSuccess implements OnInit {
       { token }
     ).subscribe({
       next: (response) => {
-        if (response.success && response.payment_captured) {
+        // Handle both successful capture and already processed cases
+        if (response.success && response.data && (response.data.payment_captured || response.data.already_processed)) {
           this.isSuccess.set(true);
           this.paymentDetails.set({
-            transaction_id: response.transaction_id,
-            amount: response.amount,
-            currency: response.currency,
-            tenant_assigned: response.tenant_assigned,
+            transaction_id: response.data.transaction_id,
+            amount: response.data.amount,
+            currency: response.data.currency,
+            tenant_assigned: response.data.tenant_assigned,
+            tenant_schema: response.data.tenant_schema,
             message: response.message
           });
 
-          // Redirect to login after 5 seconds
+          // Redirect to SaaS application after 3 seconds
+          const redirectUrl = response.data.redirect_url || 'http://localhost:4202';
           setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 5000);
+            console.log('Redirecting to SaaS:', redirectUrl);
+            // Use window.location.href for external redirect (different port/domain)
+            // This ensures cookies are sent with the request
+            window.location.href = redirectUrl;
+          }, 3000);
         } else {
           this.errorMessage.set(response.message || 'Payment processing failed');
         }

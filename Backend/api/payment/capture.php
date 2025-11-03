@@ -77,9 +77,29 @@ try {
     // Check if already processed
     if ($transaction['status'] === 'completed') {
         error_log("INFO: Transaction already completed");
+
+        // Get company and tenant info
+        $stmt = $db->prepare("
+            SELECT c.id, c.company_name, c.tenant_id, t.schema_name
+            FROM companies_registered c
+            LEFT JOIN tenant_pool t ON c.tenant_id = t.id
+            WHERE c.id = ?
+        ");
+        $stmt->execute([$transaction['company_id']]);
+        $company = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $saas_url = getenv('SAAS_URL') ?: 'http://localhost:4202';
+
         Response::success([
             'already_processed' => true,
-            'message' => 'Payment already completed'
+            'payment_captured' => true,
+            'transaction_id' => $transaction['id'],
+            'amount' => $transaction['amount'],
+            'currency' => $transaction['currency'],
+            'tenant_assigned' => !empty($company['tenant_id']),
+            'tenant_schema' => $company['schema_name'] ?? null,
+            'redirect_url' => $saas_url,
+            'message' => 'Payment already completed. Your account is active! Redirecting to your dashboard...'
         ], 'Payment already processed');
     }
 
@@ -159,8 +179,9 @@ try {
         ]);
         error_log("Step 5.2 Complete: Company status updated");
 
-        error_log("Step 5.3: Looking for available tenant");
-        // Assign tenant from pool
+        error_log("Step 5.3: Looking for available tenant from pool");
+
+        // Find available tenant from pool
         $stmt = $db->prepare("
             SELECT id, schema_name
             FROM tenant_pool
@@ -172,29 +193,76 @@ try {
         $stmt->execute();
         $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($tenant) {
-            error_log("Step 5.3: Tenant found - ID: " . $tenant['id'] . ", Schema: " . $tenant['schema_name']);
-
-            // Assign tenant to company
-            $stmt = $db->prepare("
-                UPDATE tenant_pool
-                SET is_available = FALSE, company_id = ?, assigned_at = NOW()
-                WHERE id = ?
-            ");
-            $stmt->execute([$transaction['company_id'], $tenant['id']]);
-            error_log("Step 5.3: Tenant pool updated");
-
-            // Update company with tenant info
-            $stmt = $db->prepare("
-                UPDATE companies_registered
-                SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
-                WHERE id = ?
-            ");
-            $stmt->execute([$tenant['id'], $transaction['company_id']]);
-            error_log("Step 5.3 Complete: Company assigned to tenant and status set to active");
-        } else {
-            error_log("WARNING: No available tenant found in pool");
+        if (!$tenant) {
+            error_log("ERROR: No available tenant found in pool");
+            throw new Exception("No available tenant databases. Please contact support.");
         }
+
+        error_log("Step 5.3.1: Tenant found - ID: " . $tenant['id'] . ", Schema: " . $tenant['schema_name']);
+
+        // Assign tenant to company
+        $stmt = $db->prepare("
+            UPDATE tenant_pool
+            SET is_available = FALSE, company_id = ?, assigned_at = NOW()
+            WHERE id = ?
+        ");
+        $stmt->execute([$transaction['company_id'], $tenant['id']]);
+        error_log("Step 5.3.2: Tenant pool updated - marked as unavailable");
+
+        // Update company with tenant info
+        $stmt = $db->prepare("
+            UPDATE companies_registered
+            SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
+            WHERE id = ?
+        ");
+        $stmt->execute([$tenant['id'], $transaction['company_id']]);
+        error_log("Step 5.3.3 Complete: Company assigned to tenant and status set to active");
+
+        // Step 5.3.4: Initialize tenant database with company data and first admin user
+        error_log("Step 5.3.4: Initializing tenant database with first admin user");
+
+        // Get full company data for tenant initialization
+        $stmt = $db->prepare("
+            SELECT * FROM companies_registered WHERE id = ?
+        ");
+        $stmt->execute([$transaction['company_id']]);
+        $company_full_data = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$company_full_data) {
+            throw new Exception("Company data not found for tenant initialization");
+        }
+
+        require_once __DIR__ . '/../utils/tenant_initializer.php';
+
+        $tenant_initializer = new TenantInitializer($tenant['schema_name'], (string)$tenant['id']);
+        $tenant_init_result = $tenant_initializer->initializeTenant($company_full_data);
+
+        error_log("Step 5.3.4 Complete: Tenant initialized - User ID: " . $tenant_init_result['user_id']);
+
+        // Step 5.3.5: Regenerate JWT with tenant info and new user_id
+        error_log("Step 5.3.5: Regenerating JWT with tenant information");
+
+        require_once __DIR__ . '/../config/jwt.php';
+        $jwtHandler = new JWTHandler();
+
+        $jwt_payload = [
+            'id' => $company_full_data['id'],
+            'email' => $company_full_data['email'],
+            'company_name' => $company_full_data['company_name'],
+            'tenant_id' => $tenant_init_result['tenant_id'],
+            'tenant_schema' => $tenant['schema_name'],
+            'user_id' => $tenant_init_result['user_id'],
+            'role_id' => $tenant_init_result['role_id'],
+            'type' => 'company_admin'
+        ];
+
+        $access_token = $jwtHandler->generateToken($jwt_payload);
+        $refresh_token = $jwtHandler->generateRefreshToken($jwt_payload);
+
+        // Update JWT cookies with tenant information
+        $jwtHandler->setTokenCookies($access_token, $refresh_token);
+
+        error_log("Step 5.3.5 Complete: JWT regenerated with tenant information");
 
         error_log("Step 5.4: Logging activity");
         // Log activity
@@ -218,7 +286,8 @@ try {
         $db->commit();
         error_log("Step 5.5 Complete: Transaction committed successfully");
 
-        // Return success
+        // Return success with redirect URL to SaaS
+        $saas_url = getenv('SAAS_URL') ?: 'http://localhost:4202';
         error_log("========== PAYMENT CAPTURE SUCCESS ==========");
         Response::success([
             'payment_captured' => true,
@@ -226,8 +295,12 @@ try {
             'paypal_order_id' => $paypal_order_id,
             'amount' => $transaction['amount'],
             'currency' => $transaction['currency'],
-            'tenant_assigned' => isset($tenant),
-            'message' => 'Payment completed successfully. Your account is now active!'
+            'tenant_assigned' => true,
+            'tenant_schema' => $tenant['schema_name'],
+            'tenant_id' => $tenant_init_result['tenant_id'],
+            'user_id' => $tenant_init_result['user_id'],
+            'redirect_url' => $saas_url,
+            'message' => 'Payment completed successfully. Your tenant has been assigned and your account is now active! Redirecting to your dashboard...'
         ], 'Payment captured successfully');
 
     } catch (Exception $e) {

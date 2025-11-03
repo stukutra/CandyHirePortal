@@ -88,38 +88,34 @@ docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-cand
 echo "✅ Portal initial data imported"
 
 echo ""
-echo "🏗️  Creating 100 tenant databases..."
-echo "⚠️  This will take several minutes. Please wait..."
+echo "🏗️  Creating 50 tenant databases with empty schema..."
+echo "⚠️  This will take a few minutes. Please wait..."
 echo ""
 
 # Tenant configuration
-TENANT_COUNT=100
-SAAS_SCHEMA="../../CandyHire/Backend/migration/04_candyhire_schema.sql"
-SAAS_DATA="../../CandyHire/Backend/migration/05_candyhire_initial_data.sql"
+TENANT_COUNT=50
+SAAS_SCHEMA="../migration/tenant_schema/schema.sql"
 
-# Check if SaaS schema files exist
+# Check if SaaS schema file exists
 if [ ! -f "$SAAS_SCHEMA" ]; then
-    echo "⚠️  Warning: SaaS schema file not found at $SAAS_SCHEMA"
-    echo "   Skipping tenant creation. Make sure CandyHire Backend migration files exist."
+    echo "⚠️  Warning: Tenant schema file not found at $SAAS_SCHEMA"
+    echo "   Skipping tenant creation."
 else
-    # Create 100 tenant databases
+    # Create 50 tenant databases
     success_count=0
     for i in $(seq 1 $TENANT_COUNT); do
         DB_NAME="candyhire_tenant_$i"
 
         # Show progress every 10 databases
         if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
-            echo "  📦 Processing tenant $i/$TENANT_COUNT..."
+            echo "  📦 Creating tenant $i/$TENANT_COUNT..."
         fi
 
         # Create database
         docker exec candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 
-        # Apply schema
+        # Apply schema (empty tables)
         docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} $DB_NAME < $SAAS_SCHEMA 2>/dev/null
-
-        # Apply initial data
-        docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} $DB_NAME < $SAAS_DATA 2>/dev/null
 
         success_count=$((success_count + 1))
     done
@@ -127,6 +123,7 @@ else
     echo ""
     echo "✅ Successfully created $success_count/$TENANT_COUNT tenant databases"
 fi
+echo ""
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
