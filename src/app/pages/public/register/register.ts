@@ -158,16 +158,28 @@ export class Register implements OnInit {
           false
         ).toPromise();
 
+        console.log('Email check response:', response);
         this.isLoading.set(false);
 
-        if (response && response.exists) {
+        if (!response) {
+          this.errorMessage.set('Unable to verify email. Please try again.');
+          return;
+        }
+
+        if (response.exists) {
           this.errorMessage.set('This email is already registered. Please use a different email or sign in.');
           return;
         }
-      } catch (error) {
+      } catch (error: any) {
         this.isLoading.set(false);
-        this.errorMessage.set('Unable to verify email. Please try again.');
         console.error('Email check error:', error);
+
+        // Check if it's a server error with a message
+        if (error?.error?.message) {
+          this.errorMessage.set(error.error.message);
+        } else {
+          this.errorMessage.set('Unable to verify email. Please try again.');
+        }
         return;
       }
     }
@@ -184,17 +196,28 @@ export class Register implements OnInit {
           false
         ).toPromise();
 
+        console.log('VAT check response:', response);
         this.isLoading.set(false);
 
-        if (response && response.exists) {
+        if (!response) {
+          this.errorMessage.set('Unable to verify VAT number. Please try again.');
+          return;
+        }
+
+        if (response.exists) {
           const companyName = response.company_name ? ` (${response.company_name})` : '';
           this.errorMessage.set(`This VAT number is already registered${companyName}. Please use a different VAT number.`);
           return;
         }
-      } catch (error) {
+      } catch (error: any) {
         this.isLoading.set(false);
-        this.errorMessage.set('Unable to verify VAT number. Please try again.');
         console.error('VAT check error:', error);
+
+        if (error?.error?.message) {
+          this.errorMessage.set(error.error.message);
+        } else {
+          this.errorMessage.set('Unable to verify VAT number. Please try again.');
+        }
         return;
       }
     }
@@ -352,6 +375,8 @@ export class Register implements OnInit {
       privacy_accepted: true,
     };
 
+    console.log('Starting registration with data:', registrationData);
+
     this.apiService.post<RegisterResponse>(
       API_ENDPOINTS.PUBLIC_REGISTER,
       registrationData,
@@ -359,27 +384,45 @@ export class Register implements OnInit {
       false // No credentials needed for registration
     ).subscribe({
       next: (response) => {
-        console.log('Registration response:', response);
+        console.log('=== REGISTRATION RESPONSE ===');
+        console.log('Full response:', response);
+        console.log('Success:', response?.success);
+        console.log('PayPal URL:', response?.paypal_approval_url);
+        console.log('Message:', response?.message);
+        console.log('===========================');
+
+        if (!response) {
+          console.error('Response is null or undefined');
+          this.errorMessage.set('Invalid server response');
+          this.isLoading.set(false);
+          return;
+        }
 
         if (response.success) {
           if (response.paypal_approval_url) {
             // Redirect to PayPal - don't reset loading, page will navigate away
-            console.log('Redirecting to PayPal:', response.paypal_approval_url);
+            console.log('✅ Redirecting to PayPal:', response.paypal_approval_url);
             window.location.href = response.paypal_approval_url;
           } else {
             // Registration successful without payment (shouldn't happen normally)
+            console.warn('⚠️ Registration successful but no PayPal URL provided');
             this.isLoading.set(false);
-            alert('Registration completed! Please check your email to verify your account.');
-            this.router.navigate(['/login']);
+            this.errorMessage.set('Registration completed but payment setup failed. Please contact support.');
           }
         } else {
           // Error from backend
+          console.error('❌ Registration failed:', response.message);
           this.errorMessage.set(response.message || 'Registration failed');
           this.isLoading.set(false);
         }
       },
       error: (err) => {
-        console.error('Registration error:', err);
+        console.error('=== REGISTRATION ERROR ===');
+        console.error('Full error:', err);
+        console.error('Status:', err.status);
+        console.error('Error message:', err.error?.message);
+        console.error('Error object:', err.error);
+        console.error('========================');
 
         // Show more detailed error message
         let errorMsg = 'Connection error. Please try again.';
@@ -387,6 +430,8 @@ export class Register implements OnInit {
           errorMsg = err.error.message;
         } else if (err.status === 0) {
           errorMsg = 'Cannot connect to server. Please check if the backend is running.';
+        } else if (err.status === 500) {
+          errorMsg = 'Server error. Please try again or contact support.';
         }
 
         this.errorMessage.set(errorMsg);
