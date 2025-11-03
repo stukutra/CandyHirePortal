@@ -80,76 +80,15 @@
       </div>
 
       <!-- Tenant Pool Table -->
-      <div class="card">
-        <div class="card-header">
-          <h5 class="mb-0">
-            <i class="bi bi-database me-2"></i>
-            Tenant Databases
-          </h5>
-        </div>
-        <div class="card-body p-0">
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Tenant ID</th>
-                  <th>Status</th>
-                  <th>Company</th>
-                  <th>Email</th>
-                  <th>Assigned At</th>
-                  <th>Payment Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (tenant of tenants(); track tenant.id) {
-                  <tr>
-                    <td><strong>{{ tenant.id }}</strong></td>
-                    <td>
-                      <span class="badge bg-primary fs-6">{{ tenant.tenant_id }}</span>
-                    </td>
-                    <td>
-                      <span [class]="getStatusBadgeClass(tenant)">
-                        {{ getStatusText(tenant) }}
-                      </span>
-                    </td>
-                    <td>
-                      @if (tenant.company) {
-                        <strong>{{ tenant.company.name }}</strong>
-                      } @else {
-                        <span class="text-muted">-</span>
-                      }
-                    </td>
-                    <td>
-                      @if (tenant.company) {
-                        {{ tenant.company.email }}
-                      } @else {
-                        <span class="text-muted">-</span>
-                      }
-                    </td>
-                    <td>
-                      <small class="text-muted">{{ formatDate(tenant.assigned_at) }}</small>
-                    </td>
-                    <td>
-                      @if (tenant.company) {
-                        @if (tenant.company.payment_status === 'completed') {
-                          <span class="badge bg-success">Paid</span>
-                        } @else if (tenant.company.payment_status === 'pending') {
-                          <span class="badge bg-warning">Pending</span>
-                        } @else {
-                          <span class="badge bg-danger">{{ tenant.company.payment_status }}</span>
-                        }
-                      } @else {
-                        <span class="text-muted">-</span>
-                      }
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
+      <app-data-table
+        [config]="tableConfig"
+        [data]="tenants()"
+        [pagination]="pagination()"
+        [loading]="isLoading()"
+        (pageChange)="onPageChange($event)"
+        (itemsPerPageChange)="onItemsPerPageChange($event)"
+        (sortChange)="onSortChange($event)"
+      ></app-data-table>
     }
   </div>
 </div>

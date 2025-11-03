@@ -187,6 +187,12 @@ export class DataTableComponent {
    * Ottiene il valore formattato di una cella
    */
   getCellValue(row: any, column: TableColumn): any {
+    // Use custom formatter if provided
+    if (column.formatter) {
+      const formatted = column.formatter(row);
+      return formatted === null || formatted === undefined ? '-' : formatted;
+    }
+
     const value = row[column.key];
 
     if (value === null || value === undefined) {
@@ -199,8 +205,12 @@ export class DataTableComponent {
   /**
    * Ottiene la classe CSS per un badge
    */
-  getBadgeClass(column: TableColumn, value: string): string {
+  getBadgeClass(column: TableColumn, row: any): string {
     if (!column.badgeClasses) return 'badge-secondary';
+
+    // Get formatted value if formatter exists
+    const value = column.formatter ? column.formatter(row) : row[column.key];
+
     return column.badgeClasses[value] || 'badge-secondary';
   }
 

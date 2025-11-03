@@ -9,4 +9,5 @@ export interface TableColumn {
   align?: 'left' | 'center' | 'right';  // Allineamento testo
   badgeClasses?: Record<string, string>;  // Mapping valore → classe CSS per type='badge'
   dateFormat?: string;            // Formato custom per date (default: 'dd/MM/yyyy HH:mm')
+  formatter?: (row: any) => any;  // Funzione per formattare il valore della cella
 }

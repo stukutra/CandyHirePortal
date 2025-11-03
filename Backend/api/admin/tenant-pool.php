@@ -42,7 +42,7 @@ try {
             cr.payment_status
         FROM tenant_pool tp
         LEFT JOIN companies_registered cr ON tp.company_id = cr.id
-        ORDER BY tp.schema_name ASC
+        ORDER BY tp.id ASC
     ";
 
     $stmt = $db->prepare($query);

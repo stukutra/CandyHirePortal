@@ -100,13 +100,17 @@
                 >
                   @switch (column.type) {
                     @case ('date') {
-                      {{ getCellValue(row, column) | date: getDateFormat(column) }}
+                      @if (getCellValue(row, column) !== '-' && getCellValue(row, column)) {
+                        {{ getCellValue(row, column) | date: getDateFormat(column) }}
+                      } @else {
+                        -
+                      }
                     }
                     @case ('currency') {
                       {{ getCellValue(row, column) | currency: 'EUR':'symbol':'1.2-2':'it-IT' }}
                     }
                     @case ('badge') {
-                      <span [class]="'badge ' + getBadgeClass(column, getCellValue(row, column))">
+                      <span [class]="'badge ' + getBadgeClass(column, row)">
                         {{ getCellValue(row, column) }}
                       </span>
                     }
