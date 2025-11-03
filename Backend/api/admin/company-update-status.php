@@ -102,8 +102,8 @@ try {
     $updateStmt->execute();
 
     // Log activity
-    $logQuery = "INSERT INTO activity_logs (entity_type, entity_id, action, user_id, user_type, metadata)
-                 VALUES ('company', :entity_id, 'status_updated', :user_id, 'admin', :metadata)";
+    $logQuery = "INSERT INTO activity_logs (tenant_id, entity_type, entity_id, action, user_id, user_email, metadata)
+                 VALUES (:tenant_id, 'company', :entity_id, 'status_updated', :user_id, :user_email, :metadata)";
 
     $logStmt = $db->prepare($logQuery);
     $metadata = json_encode([
@@ -112,8 +112,13 @@ try {
         'admin_email' => $decoded->data->email
     ]);
 
+    // For admin actions on the portal, we use 'portal' as tenant_id
+    $tenant_id = 'portal';
+
+    $logStmt->bindParam(':tenant_id', $tenant_id);
     $logStmt->bindParam(':entity_id', $company_id);
     $logStmt->bindParam(':user_id', $admin_id);
+    $logStmt->bindParam(':user_email', $decoded->data->email);
     $logStmt->bindParam(':metadata', $metadata);
     $logStmt->execute();
 

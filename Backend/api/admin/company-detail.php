@@ -116,7 +116,7 @@ try {
     $logsQuery = "SELECT
                     action,
                     user_id,
-                    user_type,
+                    user_email,
                     ip_address,
                     metadata,
                     created_at
