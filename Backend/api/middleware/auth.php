@@ -21,20 +21,27 @@ class AuthMiddleware {
      * @return object|null User data from token or null if authentication fails
      */
     public function authenticate() {
+        error_log("authenticate: Getting bearer token");
         $token = $this->jwt_handler->getBearerToken();
+        error_log("authenticate: Token: " . ($token ? substr($token, 0, 20) . '...' : 'NULL'));
 
         if (!$token) {
+            error_log("authenticate: No token, sending 401");
             $this->sendUnauthorized("Access token is missing");
             return null;
         }
 
+        error_log("authenticate: Validating token");
         $decoded = $this->jwt_handler->validateToken($token);
+        error_log("authenticate: Decoded: " . ($decoded ? 'YES' : 'NO'));
 
         if (!$decoded) {
+            error_log("authenticate: Invalid token, sending 401");
             $this->sendUnauthorized("Invalid or expired token");
             return null;
         }
 
+        error_log("authenticate: Returning user data");
         // Return user/company data from token
         return $decoded->data;
     }
@@ -80,12 +87,21 @@ class AuthMiddleware {
      * @return object Admin data
      */
     public function requireAdmin() {
+        error_log("requireAdmin: Calling authenticate");
         $user = $this->authenticate();
+        error_log("requireAdmin: User returned: " . ($user ? json_encode($user) : 'NULL'));
 
-        if (!$user || !$this->isAdmin($user)) {
-            $this->sendForbidden("Admin access required");
+        if (!$user) {
+            error_log("requireAdmin: User is null, sending forbidden");
+            $this->sendForbidden("Admin access required - no user");
         }
 
+        if (!$this->isAdmin($user)) {
+            error_log("requireAdmin: User is not admin, type: " . (isset($user->type) ? $user->type : 'NO TYPE'));
+            $this->sendForbidden("Admin access required - not admin");
+        }
+
+        error_log("requireAdmin: Success, returning user");
         return $user;
     }
 
@@ -153,6 +169,9 @@ function requireCompanyAuth() {
  * @return object Admin data from token
  */
 function requireAdminAuth() {
+    error_log("requireAdminAuth: Called");
     $auth = new AuthMiddleware();
-    return $auth->requireAdmin();
+    $result = $auth->requireAdmin();
+    error_log("requireAdminAuth: Returning admin: " . ($result ? $result->email : 'NULL'));
+    return $result;
 }

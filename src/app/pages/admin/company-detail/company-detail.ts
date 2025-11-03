@@ -75,9 +75,11 @@ export class CompanyDetail implements OnInit {
   private apiUrl = environment.apiUrl;
 
   company = signal<CompanyDetailData | null>(null);
+  editedCompany: CompanyDetailData | null = null;
   transactions = signal<Transaction[]>([]);
   isLoading = signal(true);
   errorMessage = signal('');
+  isSaving = signal(false);
 
   showStatusModal = signal(false);
   selectedStatus = signal('');
@@ -111,6 +113,7 @@ export class CompanyDetail implements OnInit {
       next: (response) => {
         if (response.success) {
           this.company.set(response.company);
+          this.editedCompany = { ...response.company };
           this.transactions.set(response.transactions);
           this.selectedStatus.set(response.company.registration_status);
         } else {
@@ -151,6 +154,10 @@ export class CompanyDetail implements OnInit {
       next: (response) => {
         if (response.success) {
           this.toastService.success('Status Updated', `Company status changed to ${this.selectedStatus()}`);
+          // Update editedCompany as well
+          if (this.editedCompany) {
+            this.editedCompany.registration_status = this.selectedStatus();
+          }
           this.loadCompanyDetail(company.id);
           this.closeStatusModal();
         } else {
@@ -166,12 +173,42 @@ export class CompanyDetail implements OnInit {
     });
   }
 
-  goBack() {
-    this.router.navigate(['/admin/companies']);
+  saveChanges() {
+    if (!this.editedCompany) return;
+
+    this.isSaving.set(true);
+
+    const headers = this.authService.getAuthHeaders();
+
+    this.http.put<any>(`${this.apiUrl}/admin/company-update.php`, this.editedCompany, { headers }).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.toastService.success('Salvato', 'Modifiche salvate con successo');
+          // Reload data to get fresh data from server
+          this.loadCompanyDetail(this.editedCompany!.id);
+        } else {
+          this.toastService.error('Errore', response.message || 'Impossibile salvare le modifiche');
+        }
+        this.isSaving.set(false);
+      },
+      error: (err) => {
+        this.toastService.error('Errore', 'Impossibile salvare le modifiche');
+        this.isSaving.set(false);
+        console.error('Save error:', err);
+      }
+    });
   }
 
-  logout() {
-    this.authService.logout();
+  cancelChanges() {
+    const original = this.company();
+    if (original) {
+      this.editedCompany = { ...original };
+      this.toastService.info('Annullato', 'Modifiche annullate');
+    }
+  }
+
+  goBack() {
+    this.router.navigate(['/admin/dashboard']);
   }
 
   getStatusBadgeClass(status: string): string {

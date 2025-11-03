@@ -133,11 +133,25 @@ try {
     $token = $jwt->generateAdminToken($token_data);
     error_log("JWT generated: " . substr($token, 0, 20) . "...");
 
-    // Return success with token and user data
+    // Set JWT as httpOnly cookie for security (not accessible from JavaScript)
+    $is_production = getenv('APP_ENV') === 'production';
+    setcookie(
+        'portal_access_token',
+        $token,
+        [
+            'expires' => time() + 86400, // 24 hours
+            'path' => '/',
+            'domain' => $is_production ? '.candyhire.cloud' : 'localhost',
+            'secure' => $is_production, // HTTPS only in production
+            'httponly' => true, // Not accessible from JavaScript
+            'samesite' => 'Lax' // CSRF protection
+        ]
+    );
+
+    // Return success with user data (NO TOKEN in response for security)
     $response = [
         'success' => true,
         'message' => 'Login successful',
-        'token' => $token,
         'admin' => [
             'id' => $admin->id,
             'username' => $admin->username,

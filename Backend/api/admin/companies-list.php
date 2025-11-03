@@ -4,55 +4,23 @@
  * Returns all registered companies with filtering and pagination
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit();
-}
-
-// Load composer autoloader first
+// Load Composer autoloader FIRST to avoid conflicts
 require_once __DIR__ . '/../vendor/autoload.php';
 
+header('Content-Type: application/json');
+require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../utils/response.php';
+
+// Method validation
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    Response::error('Method not allowed', 405);
+}
 
 try {
-    // Verify JWT token
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authorization token required']);
-        exit();
-    }
-
-    $jwt = new JWTHandler();
-    $token = $matches[1];
-    $decoded = $jwt->validateToken($token);
-
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-        exit();
-    }
-
-    // Verify it's an admin token
-    if (!isset($decoded->data->type) || $decoded->data->type !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Admin access required']);
-        exit();
-    }
+    // Require admin authentication
+    $admin = requireAdminAuth();
 
     $database = new Database();
     $db = $database->getConnection();
@@ -142,9 +110,7 @@ try {
     // Calculate pagination
     $totalPages = ceil($totalRecords / $limit);
 
-    http_response_code(200);
-    echo json_encode([
-        'success' => true,
+    Response::success([
         'data' => $companies,
         'pagination' => [
             'current_page' => $page,
@@ -152,20 +118,12 @@ try {
             'total_records' => (int)$totalRecords,
             'per_page' => $limit
         ]
-    ]);
+    ], 'Companies retrieved successfully');
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Database error in companies-list.php: " . $e->getMessage());
+    Response::serverError('Database error: ' . $e->getMessage());
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Error in companies-list.php: " . $e->getMessage());
+    Response::serverError('Server error: ' . $e->getMessage());
 }

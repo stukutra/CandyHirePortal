@@ -4,55 +4,23 @@
  * PUT /api/admin/companies/{id}/toggle-active
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: PUT, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit();
-}
-
-// Load composer autoloader first
+// Load Composer autoloader FIRST to avoid conflicts
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+header('Content-Type: application/json');
+require_once __DIR__ . '/../../config/cors.php';
 require_once __DIR__ . '/../../config/database.php';
-require_once __DIR__ . '/../../config/jwt.php';
+require_once __DIR__ . '/../../middleware/auth.php';
+require_once __DIR__ . '/../../utils/response.php';
+
+// Method validation
+if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+    Response::error('Method not allowed', 405);
+}
 
 try {
-    // Verify JWT token
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authorization token required']);
-        exit();
-    }
-
-    $jwt = new JWTHandler();
-    $token = $matches[1];
-    $decoded = $jwt->validateToken($token);
-
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-        exit();
-    }
-
-    // Verify it's an admin token
-    if (!isset($decoded->data->type) || $decoded->data->type !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Admin access required']);
-        exit();
-    }
+    // Require admin authentication
+    $admin = requireAdminAuth();
 
     // Get company ID from URL
     $requestUri = $_SERVER['REQUEST_URI'];
@@ -60,9 +28,7 @@ try {
     $companyId = $matches[1] ?? null;
 
     if (!$companyId) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Company ID required']);
-        exit();
+        Response::error('Company ID required', 400);
     }
 
     $database = new Database();
@@ -77,9 +43,7 @@ try {
     $company = $stmt->fetch(PDO::FETCH_OBJ);
 
     if (!$company) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Company not found']);
-        exit();
+        Response::notFound('Company not found');
     }
 
     // Toggle status
@@ -91,29 +55,17 @@ try {
     $updateStmt->bindParam(':id', $companyId);
 
     if ($updateStmt->execute()) {
-        http_response_code(200);
-        echo json_encode([
-            'success' => true,
-            'is_active' => $newStatus,
-            'message' => $newStatus ? 'Azienda attivata con successo' : 'Azienda disattivata con successo'
-        ]);
+        Response::success([
+            'is_active' => $newStatus
+        ], $newStatus ? 'Azienda attivata con successo' : 'Azienda disattivata con successo');
     } else {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Failed to update status']);
+        Response::serverError('Failed to update status');
     }
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Database error in toggle-active.php: " . $e->getMessage());
+    Response::serverError('Database error: ' . $e->getMessage());
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Error in toggle-active.php: " . $e->getMessage());
+    Response::serverError('Server error: ' . $e->getMessage());
 }

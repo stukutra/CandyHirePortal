@@ -4,65 +4,30 @@
  * Allows admin to change company registration status
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: PUT, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
-
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
-    http_response_code(405);
-    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
-    exit();
-}
-
-// Load composer autoloader first
+// Load Composer autoloader FIRST to avoid conflicts
 require_once __DIR__ . '/../vendor/autoload.php';
 
+header('Content-Type: application/json');
+require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../config/jwt.php';
+require_once __DIR__ . '/../middleware/auth.php';
+require_once __DIR__ . '/../utils/response.php';
+
+// Method validation
+if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+    Response::error('Method not allowed', 405);
+}
 
 try {
-    // Verify JWT token
-    $headers = getallheaders();
-    $authHeader = isset($headers['Authorization']) ? $headers['Authorization'] : '';
-
-    if (empty($authHeader) || !preg_match('/Bearer\s+(.*)$/i', $authHeader, $matches)) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Authorization token required']);
-        exit();
-    }
-
-    $jwt = new JWTHandler();
-    $token = $matches[1];
-    $decoded = $jwt->validateToken($token);
-
-    if (!$decoded) {
-        http_response_code(401);
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired token']);
-        exit();
-    }
-
-    // Verify it's an admin token
-    if (!isset($decoded->data->type) || $decoded->data->type !== 'admin') {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'message' => 'Admin access required']);
-        exit();
-    }
-
-    $admin_id = $decoded->data->id;
+    // Require admin authentication
+    $admin = requireAdminAuth();
+    $admin_id = $admin->id;
 
     // Get PUT data
     $data = json_decode(file_get_contents("php://input"));
 
     if (!isset($data->company_id) || !isset($data->status)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Company ID and status are required']);
-        exit();
+        Response::error('Company ID and status are required', 400);
     }
 
     $company_id = $data->company_id;
@@ -71,9 +36,7 @@ try {
     // Validate status
     $valid_statuses = ['pending', 'payment_pending', 'payment_completed', 'active', 'suspended', 'cancelled'];
     if (!in_array($new_status, $valid_statuses)) {
-        http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Invalid status value']);
-        exit();
+        Response::error('Invalid status value', 400);
     }
 
     $database = new Database();
@@ -86,9 +49,7 @@ try {
     $checkStmt->execute();
 
     if ($checkStmt->rowCount() === 0) {
-        http_response_code(404);
-        echo json_encode(['success' => false, 'message' => 'Company not found']);
-        exit();
+        Response::notFound('Company not found');
     }
 
     $company = $checkStmt->fetch(PDO::FETCH_OBJ);
@@ -109,7 +70,7 @@ try {
     $metadata = json_encode([
         'old_status' => $old_status,
         'new_status' => $new_status,
-        'admin_email' => $decoded->data->email
+        'admin_email' => $admin->email
     ]);
 
     // For admin actions on the portal, we use 'portal' as tenant_id
@@ -118,33 +79,22 @@ try {
     $logStmt->bindParam(':tenant_id', $tenant_id);
     $logStmt->bindParam(':entity_id', $company_id);
     $logStmt->bindParam(':user_id', $admin_id);
-    $logStmt->bindParam(':user_email', $decoded->data->email);
+    $logStmt->bindParam(':user_email', $admin->email);
     $logStmt->bindParam(':metadata', $metadata);
     $logStmt->execute();
 
-    http_response_code(200);
-    echo json_encode([
-        'success' => true,
-        'message' => 'Company status updated successfully',
+    Response::success([
         'company' => [
             'id' => $company_id,
             'old_status' => $old_status,
             'new_status' => $new_status
         ]
-    ]);
+    ], 'Company status updated successfully');
 
 } catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Database error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Database error in company-update-status.php: " . $e->getMessage());
+    Response::serverError('Database error: ' . $e->getMessage());
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Server error',
-        'error' => $e->getMessage()
-    ]);
+    error_log("Error in company-update-status.php: " . $e->getMessage());
+    Response::serverError('Server error: ' . $e->getMessage());
 }

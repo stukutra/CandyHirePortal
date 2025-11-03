@@ -8,6 +8,9 @@
  * Returns list of all registered companies with status
  */
 
+// Load Composer autoloader FIRST to avoid conflicts
+require_once __DIR__ . '/../vendor/autoload.php';
+
 header('Content-Type: application/json');
 
 require_once __DIR__ . '/../config/cors.php';

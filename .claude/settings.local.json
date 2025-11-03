@@ -24,7 +24,11 @@
       "Bash(awk:*)",
       "Bash(jobs:*)",
       "Bash(npm run build:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(php -l:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker-compose up:*)"
     ],
     "deny": [],
     "ask": []

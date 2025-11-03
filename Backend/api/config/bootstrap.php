@@ -4,8 +4,11 @@
  * Loads environment variables from .env file
  */
 
-// Load .env file
-$envFile = __DIR__ . '/../../.env';
+// Load .env file - try api folder first, then parent
+$envFile = __DIR__ . '/../.env';
+if (!file_exists($envFile)) {
+    $envFile = __DIR__ . '/../../.env'; // Fallback for when running outside Docker
+}
 
 if (file_exists($envFile)) {
     $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

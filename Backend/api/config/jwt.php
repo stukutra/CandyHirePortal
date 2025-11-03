@@ -101,11 +101,19 @@ class JWTHandler {
      * Validate and decode token
      */
     public function validateToken($token) {
+        error_log("validateToken: Starting, token length: " . strlen($token));
+        error_log("validateToken: Full token: " . $token);
+        error_log("validateToken: Secret length: " . strlen($this->secret_key));
+
         try {
+            error_log("validateToken: About to decode JWT");
             $decoded = JWT::decode($token, new Key($this->secret_key, $this->algorithm));
+            error_log("validateToken: JWT decoded successfully");
             return $decoded;
         } catch (Exception $e) {
             error_log("JWT validation error: " . $e->getMessage());
+            error_log("JWT validation error class: " . get_class($e));
+            error_log("JWT validation error trace: " . $e->getTraceAsString());
             return null;
         }
     }

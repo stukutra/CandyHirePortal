@@ -8,16 +8,27 @@
             <i class="bi bi-arrow-left"></i>
           </button>
           <div>
-            <h1 class="page-title">Company Details</h1>
+            <h1 class="page-title">Edit Company</h1>
             @if (company()) {
               <p class="page-subtitle">{{ company()!.company_name }}</p>
             }
           </div>
         </div>
-        <button class="btn btn-outline-danger" (click)="logout()">
-          <i class="bi bi-box-arrow-right me-2"></i>
-          Logout
-        </button>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-secondary" (click)="cancelChanges()" [disabled]="isSaving()">
+            <i class="bi bi-x-circle me-2"></i>
+            Annulla
+          </button>
+          <button class="btn btn-primary" (click)="saveChanges()" [disabled]="isSaving()">
+            @if (isSaving()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+              Salvataggio...
+            } @else {
+              <i class="bi bi-check-circle me-2"></i>
+              Salva Modifiche
+            }
+          </button>
+        </div>
       </div>
     </div>
   </header>
@@ -51,62 +62,64 @@
               </button>
             </div>
             <div class="card-body">
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Company Name</label>
-                    <p>{{ company()!.company_name }}</p>
+              @if (editedCompany) {
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Company Name</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.company_name">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">VAT Number</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.vat_number">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" [(ngModel)]="editedCompany.email">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="tel" class="form-control" [(ngModel)]="editedCompany.phone">
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group">
+                      <label class="form-label">Website</label>
+                      <input type="url" class="form-control" [(ngModel)]="editedCompany.website">
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <div class="form-group">
+                      <label class="form-label">Address</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.address">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <div class="form-group">
+                      <label class="form-label">City</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.city">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <div class="form-group">
+                      <label class="form-label">Province</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.province">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <div class="form-group">
+                      <label class="form-label">Country</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.country">
+                    </div>
                   </div>
                 </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>VAT Number</label>
-                    <p>{{ company()!.vat_number || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Email</label>
-                    <p>{{ company()!.email }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Phone</label>
-                    <p>{{ company()!.phone || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="info-item">
-                    <label>Website</label>
-                    <p>{{ company()!.website || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="info-item">
-                    <label>Address</label>
-                    <p>{{ company()!.address || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-4">
-                  <div class="info-item">
-                    <label>City</label>
-                    <p>{{ company()!.city || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-4">
-                  <div class="info-item">
-                    <label>Province</label>
-                    <p>{{ company()!.province || '-' }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-4">
-                  <div class="info-item">
-                    <label>Country</label>
-                    <p>{{ company()!.country }}</p>
-                  </div>
-                </div>
-              </div>
+              }
             </div>
           </div>
 
@@ -119,32 +132,34 @@
               </h5>
             </div>
             <div class="card-body">
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>First Name</label>
-                    <p>{{ company()!.legal_rep_first_name }}</p>
+              @if (editedCompany) {
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">First Name</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.legal_rep_first_name">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Last Name</label>
+                      <input type="text" class="form-control" [(ngModel)]="editedCompany.legal_rep_last_name">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Email</label>
+                      <input type="email" class="form-control" [(ngModel)]="editedCompany.legal_rep_email">
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="form-group">
+                      <label class="form-label">Phone</label>
+                      <input type="tel" class="form-control" [(ngModel)]="editedCompany.legal_rep_phone">
+                    </div>
                   </div>
                 </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Last Name</label>
-                    <p>{{ company()!.legal_rep_last_name }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Email</label>
-                    <p>{{ company()!.legal_rep_email }}</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="info-item">
-                    <label>Phone</label>
-                    <p>{{ company()!.legal_rep_phone || '-' }}</p>
-                  </div>
-                </div>
-              </div>
+              }
             </div>
           </div>
 
@@ -241,18 +256,25 @@
               </h5>
             </div>
             <div class="card-body">
-              <div class="info-item-sm">
-                <label>Plan</label>
-                <p>{{ company()!.subscription_plan || '-' }}</p>
-              </div>
-              <div class="info-item-sm">
-                <label>Start Date</label>
-                <p>{{ formatDate(company()!.subscription_start_date) }}</p>
-              </div>
-              <div class="info-item-sm">
-                <label>End Date</label>
-                <p>{{ formatDate(company()!.subscription_end_date) }}</p>
-              </div>
+              @if (editedCompany) {
+                <div class="form-group mb-3">
+                  <label class="form-label">Plan</label>
+                  <select class="form-select" [(ngModel)]="editedCompany.subscription_plan">
+                    <option value="">Nessuno</option>
+                    <option value="Basic">Basic</option>
+                    <option value="Pro">Pro</option>
+                    <option value="Enterprise">Enterprise</option>
+                  </select>
+                </div>
+                <div class="form-group mb-3">
+                  <label class="form-label">Start Date</label>
+                  <input type="date" class="form-control" [(ngModel)]="editedCompany.subscription_start_date">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">End Date</label>
+                  <input type="date" class="form-control" [(ngModel)]="editedCompany.subscription_end_date">
+                </div>
+              }
             </div>
           </div>
 
