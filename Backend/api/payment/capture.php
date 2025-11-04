@@ -80,13 +80,18 @@ try {
 
         // Get company and tenant info
         $stmt = $db->prepare("
-            SELECT c.id, c.company_name, c.tenant_id, t.schema_name
+            SELECT c.id, c.company_name, c.tenant_id, t.tenant_id as pool_tenant_id
             FROM companies_registered c
-            LEFT JOIN tenant_pool t ON c.tenant_id = t.id
+            LEFT JOIN tenant_pool t ON c.tenant_id = t.tenant_id
             WHERE c.id = ?
         ");
         $stmt->execute([$transaction['company_id']]);
         $company = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Build tenant schema name if tenant is assigned
+        if ($company['tenant_id']) {
+            $company['schema_name'] = 'candyhire_tenant_' . $company['tenant_id'];
+        }
 
         $saas_url = getenv('SAAS_URL') ?: 'http://localhost:4202';
 
@@ -300,7 +305,7 @@ try {
             'amount' => $transaction['amount'],
             'currency' => $transaction['currency'],
             'tenant_assigned' => true,
-            'tenant_schema' => $tenant['schema_name'],
+            'tenant_schema' => $tenant_db_name,
             'tenant_id' => $tenant_init_result['tenant_id'],
             'user_id' => $tenant_init_result['user_id'],
             'redirect_url' => $saas_url,
