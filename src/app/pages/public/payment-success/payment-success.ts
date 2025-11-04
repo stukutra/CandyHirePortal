@@ -83,7 +83,12 @@ export class PaymentSuccess implements OnInit {
 
             // Redirect after 5 seconds
             setTimeout(() => {
-              const redirectUrl = response.data.redirect_url || 'http://localhost:4202';
+              let redirectUrl = response.data.redirect_url || 'http://localhost:4202';
+
+              // Add 'from=portal' parameter to indicate the user is coming from Portal
+              const separator = redirectUrl.includes('?') ? '&' : '?';
+              redirectUrl = `${redirectUrl}${separator}from=portal`;
+
               console.log('Redirecting to SaaS:', redirectUrl);
               window.location.href = redirectUrl;
             }, 5000);
