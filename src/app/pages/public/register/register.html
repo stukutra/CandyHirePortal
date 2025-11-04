@@ -366,7 +366,7 @@
             </div>
           }
 
-          <!-- Payment Security Section -->
+          <!-- Payment Methods -->
           <div class="payment-section">
             <div class="payment-cards-row">
               <div class="payment-card-badge">
@@ -386,13 +386,14 @@
                 <span>PayPal</span>
               </div>
             </div>
-
-            <div class="payment-info">
-              <p><i class="bi bi-lock-fill"></i> Pagamento sicuro SSL • Certificato PCI DSS</p>
-              <p><i class="bi bi-shield-fill-check"></i> I tuoi dati non vengono memorizzati sui nostri server</p>
-              <p><i class="bi bi-arrow-right-circle-fill"></i> Sarai reindirizzato su PayPal per completare il pagamento in totale sicurezza</p>
-            </div>
           </div>
+
+          @if (!selectedPlan()) {
+            <div class="alert alert-warning text-center mb-3">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              Seleziona un piano per continuare con la registrazione
+            </div>
+          }
 
           <div class="button-group">
             <button type="button" class="btn btn-secondary" (click)="previousStep()">
@@ -403,7 +404,7 @@
               type="button"
               class="btn btn-primary btn-paypal"
               (click)="processPayPalPayment()"
-              [disabled]="isLoading()"
+              [disabled]="isLoading() || !selectedPlan()"
             >
               @if (isLoading()) {
                 <span class="spinner-border spinner-border-sm me-2"></span>

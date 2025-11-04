@@ -66,7 +66,7 @@ export class Register implements OnInit {
   });
 
   // Step 3: Subscription Plan
-  selectedPlan = signal('professional'); // Default to professional
+  selectedPlan = signal(''); // No default selection
   tiers = signal<SubscriptionTier[]>([]);
   loadingTiers = signal(true);
 
