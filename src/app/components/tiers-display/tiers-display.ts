@@ -64,7 +64,12 @@ export class TiersDisplay implements OnInit {
   }
 
   formatPrice(tier: SubscriptionTier): string {
-    return `€${tier.price.toFixed(2)}`;
+    return `€${tier.price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  formatOriginalPrice(tier: SubscriptionTier): string {
+    if (!tier.original_price) return '';
+    return `€${tier.original_price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   formatPeriod(tier: SubscriptionTier): string {
@@ -88,7 +93,7 @@ export class TiersDisplay implements OnInit {
     if (!this.hasDiscount(tier) || !tier.original_price) return '';
     const savings = tier.original_price - tier.price;
     const percentage = Math.round((savings / tier.original_price) * 100);
-    return `Risparmi €${savings.toFixed(2)} (${percentage}%)`;
+    return `Risparmi €${savings.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (${percentage}%)`;
   }
 
   t(key: string): string {

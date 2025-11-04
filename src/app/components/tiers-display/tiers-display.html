@@ -54,7 +54,7 @@
 
             @if (hasDiscount(tier)) {
               <p class="price-original">
-                <del>€{{ tier.original_price!.toFixed(2) }}</del>
+                <del>{{ formatOriginalPrice(tier) }}</del>
               </p>
               <p class="price-subtext">{{ calculateSavings(tier) }}</p>
             }
