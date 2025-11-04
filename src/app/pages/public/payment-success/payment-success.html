@@ -24,19 +24,13 @@
 
         <div class="payment-details">
           <div class="detail-item">
-            <span class="detail-label">Transaction ID:</span>
+            <span class="detail-label">Transaction ID</span>
             <span class="detail-value">{{ paymentDetails()?.transaction_id }}</span>
           </div>
           @if (paymentDetails()?.amount) {
             <div class="detail-item">
-              <span class="detail-label">Amount:</span>
+              <span class="detail-label">Amount</span>
               <span class="detail-value">{{ paymentDetails()?.amount }} {{ paymentDetails()?.currency?.toUpperCase() }}</span>
-            </div>
-          }
-          @if (paymentDetails()?.tenant_schema) {
-            <div class="detail-item">
-              <span class="detail-label">Your Tenant:</span>
-              <span class="detail-value">{{ paymentDetails()?.tenant_schema }}</span>
             </div>
           }
         </div>
