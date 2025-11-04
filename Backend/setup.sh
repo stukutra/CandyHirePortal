@@ -143,6 +143,24 @@ else
     echo "✅ Permissions granted successfully"
 fi
 
+# Start SaaS Backend
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 Starting SaaS Backend..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+SAAS_BACKEND_PATH="../../CandyHire/Backend"
+
+if [ -d "$SAAS_BACKEND_PATH" ] && [ -f "$SAAS_BACKEND_PATH/docker-compose.yml" ]; then
+    cd "$SAAS_BACKEND_PATH"
+    $DOCKER_COMPOSE up -d
+    cd - > /dev/null
+    echo "✅ SaaS Backend started successfully"
+else
+    echo "⚠️  Warning: SaaS Backend not found at $SAAS_BACKEND_PATH"
+fi
+
 echo ""
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
