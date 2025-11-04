@@ -34,7 +34,7 @@ else
 fi
 
 echo ""
-echo "🐳 Starting Docker containers (Portal MySQL + PHP + PHPMyAdmin)..."
+echo "🐳 Starting Docker containers (MySQL + Portal PHP + SaaS PHP + PHPMyAdmin)..."
 echo ""
 
 # Start Portal services
@@ -143,24 +143,6 @@ else
     echo "✅ Permissions granted successfully"
 fi
 
-# Start SaaS Backend
-echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "🚀 Starting SaaS Backend..."
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo ""
-
-SAAS_BACKEND_PATH="../../CandyHire/Backend"
-
-if [ -d "$SAAS_BACKEND_PATH" ] && [ -f "$SAAS_BACKEND_PATH/docker-compose.yml" ]; then
-    cd "$SAAS_BACKEND_PATH"
-    $DOCKER_COMPOSE up -d
-    cd - > /dev/null
-    echo "✅ SaaS Backend started successfully"
-else
-    echo "⚠️  Warning: SaaS Backend not found at $SAAS_BACKEND_PATH"
-fi
-
 echo ""
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
@@ -171,17 +153,23 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo "📡 PORTAL - Registration & Payment"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
+echo "Frontend:           http://localhost:4200"
 echo "API Backend:        http://localhost:8082"
-echo "PHPMyAdmin:         http://localhost:8081"
-echo "MySQL Port:         localhost:3306 (SHARED)"
+echo "PHPMyAdmin:         http://localhost:8083"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📡 SAAS - Multi-Tenant Application"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
+echo "Frontend:           http://localhost:4202"
 echo "API Backend:        http://localhost:8080"
-echo "MySQL Port:         localhost:3306 (SHARED)"
-echo "Tenant Databases:   50 databases created (candyhire_tenant_1 to 50)"
+echo "Tenant Databases:   50 databases (candyhire_tenant_1 to candyhire_tenant_50)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🗄️  SHARED MYSQL DATABASE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "MySQL Port:         localhost:3306"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔐 CREDENZIALI DATABASE (SHARED MySQL)"

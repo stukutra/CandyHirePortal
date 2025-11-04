@@ -84,6 +84,59 @@ services:
         condition: service_healthy
 
   # ============================================
+  # SaaS Backend PHP
+  # ============================================
+  saas-php:
+    build:
+      context: ../../CandyHire/Backend
+      dockerfile: Dockerfile
+    container_name: candyhire-saas-php
+    restart: unless-stopped
+    environment:
+      # Database - connects to Portal MySQL
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: candyhire_user
+      DB_PASSWORD: CandyH1re_S3cur3P@ss!
+      DB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}
+      # Portal DB (for multi-tenant login)
+      PORTAL_DB_HOST: mysql
+      PORTAL_DB_PORT: 3306
+      PORTAL_DB_NAME: CandyHirePortal
+      PORTAL_DB_USER: candyhire_portal_user
+      PORTAL_DB_PASSWORD: candyhire_portal_pass
+      # JWT
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production-min-32-chars
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRATION: 86400
+      JWT_REFRESH_EXPIRATION: 604800
+      # Password Security
+      PASSWORD_PEPPER: change-this-pepper-secret-never-modify-after-first-use-min-32-chars
+      PASSWORD_HASH_COST: 12
+      # CORS
+      CORS_ALLOWED_ORIGINS: http://localhost:4202,http://localhost:4200
+      CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,OPTIONS,PATCH
+      CORS_ALLOWED_HEADERS: Content-Type,Authorization,X-Requested-With
+      CORS_ALLOW_CREDENTIALS: true
+      # App
+      APP_NAME: CandyHire
+      APP_ENV: development
+      APP_DEBUG: true
+      APP_URL: http://localhost:8080
+      LOG_LEVEL: debug
+      TZ: Europe/Rome
+    ports:
+      - "8080:80"
+    volumes:
+      - ../../CandyHire/Backend/api:/var/www/html
+      - ../../CandyHire/Backend/logs:/var/www/html/logs
+    networks:
+      - candyhire-portal-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ============================================
   # PHPMyAdmin
   # ============================================
   phpmyadmin:
