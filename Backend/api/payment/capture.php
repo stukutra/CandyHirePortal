@@ -223,6 +223,17 @@ try {
         $stmt->execute([$tenant['tenant_id'], $transaction['company_id']]);
         error_log("Step 5.3.3 Complete: Company assigned to tenant (tenant_id: " . $tenant['tenant_id'] . ") and status set to active");
 
+        // Step 5.3.3.1: Add company admin to user_directory for O(1) login lookup
+        error_log("Step 5.3.3.1: Adding company admin to user_directory");
+        $stmt = $db->prepare("
+            INSERT INTO user_directory (email, tenant_id, user_type, user_id, is_active)
+            SELECT email, tenant_id, 'company_admin', id, is_active
+            FROM companies_registered
+            WHERE id = ?
+        ");
+        $stmt->execute([$transaction['company_id']]);
+        error_log("Step 5.3.3.1 Complete: Company admin added to user_directory");
+
         // Step 5.3.4: Initialize tenant database with company data and first admin user
         error_log("Step 5.3.4: Initializing tenant database with first admin user");
 

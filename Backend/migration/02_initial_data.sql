@@ -105,3 +105,19 @@ INSERT INTO countries (code, name, name_it, name_es, name_en, has_vat, vat_label
 ('BR', 'Brazil', 'Brasile', 'Brasil', 'Brazil', TRUE, 'CNPJ', FALSE, 'BRL', '+55', FALSE),
 ('IN', 'India', 'India', 'India', 'India', TRUE, 'GST Number', FALSE, 'INR', '+91', FALSE),
 ('MX', 'Mexico', 'Messico', 'México', 'Mexico', TRUE, 'RFC', FALSE, 'MXN', '+52', FALSE);
+
+-- ============================================
+-- Populate User Directory with Company Admins
+-- ============================================
+-- This ensures that company admins from companies_registered
+-- are automatically added to user_directory for O(1) login lookup
+-- ============================================
+
+-- Clean user_directory table to ensure fresh start
+TRUNCATE TABLE `user_directory`;
+
+-- Populate user_directory with existing company admins that have been assigned a tenant
+INSERT INTO user_directory (email, tenant_id, user_type, user_id, is_active)
+SELECT email, tenant_id, 'company_admin', id, is_active
+FROM companies_registered
+WHERE tenant_id IS NOT NULL AND registration_status = 'active';
