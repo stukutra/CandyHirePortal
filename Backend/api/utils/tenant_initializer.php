@@ -75,9 +75,9 @@ class TenantInitializer {
 
             $this->tenant_db->beginTransaction();
 
-            // Step 1: Create Super Admin role
-            $role_id = $this->createSuperAdminRole();
-            error_log("TenantInit: Super Admin role created with ID: $role_id");
+            // Step 1: Create all default roles
+            $role_id = $this->createDefaultRoles();
+            error_log("TenantInit: Default roles created, Super Admin role ID: $role_id");
 
             // Step 2: Insert company data
             $company_id = $this->insertCompany($company_data);
@@ -107,38 +107,69 @@ class TenantInitializer {
     }
 
     /**
-     * Create Super Admin role with all permissions
+     * Create all default roles for the tenant
+     * Returns the Super Admin role ID
      */
-    private function createSuperAdminRole() {
-        $role_id = 'role-' . uniqid();
+    private function createDefaultRoles() {
+        $super_admin_role_id = 'role-' . uniqid();
+
+        // Define all default roles with their permissions
+        $default_roles = [
+            [
+                'id' => $super_admin_role_id,
+                'name' => 'Super Admin',
+                'description' => 'Full system access with all permissions',
+                'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics', 'system-users', 'roles']
+            ],
+            [
+                'id' => 'role-' . uniqid(),
+                'name' => 'Admin',
+                'description' => 'Administrative access with most permissions',
+                'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics', 'system-users']
+            ],
+            [
+                'id' => 'role-' . uniqid(),
+                'name' => 'Manager',
+                'description' => 'Manager with access to core recruiting functions',
+                'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics']
+            ],
+            [
+                'id' => 'role-' . uniqid(),
+                'name' => 'Recruiter',
+                'description' => 'Recruiter with access to candidates and jobs',
+                'permissions' => ['jobs', 'candidates', 'interviews', 'analytics']
+            ],
+            [
+                'id' => 'role-' . uniqid(),
+                'name' => 'HR',
+                'description' => 'HR personnel with limited access',
+                'permissions' => ['candidates', 'interviews', 'analytics']
+            ],
+            [
+                'id' => 'role-' . uniqid(),
+                'name' => 'Viewer',
+                'description' => 'Read-only access to analytics',
+                'permissions' => ['analytics']
+            ]
+        ];
 
         $stmt = $this->tenant_db->prepare("
             INSERT INTO roles (id, tenant_id, name, description, permissions)
             VALUES (?, ?, ?, ?, ?)
         ");
 
-        $permissions = json_encode([
-            'users' => ['create', 'read', 'update', 'delete'],
-            'companies' => ['create', 'read', 'update', 'delete'],
-            'candidates' => ['create', 'read', 'update', 'delete'],
-            'jobs' => ['create', 'read', 'update', 'delete'],
-            'applications' => ['create', 'read', 'update', 'delete'],
-            'interviews' => ['create', 'read', 'update', 'delete'],
-            'documents' => ['create', 'read', 'update', 'delete'],
-            'settings' => ['read', 'update'],
-            'reports' => ['read'],
-            'all' => true // Super admin has all permissions
-        ]);
+        foreach ($default_roles as $role) {
+            $stmt->execute([
+                $role['id'],
+                $this->tenant_id,
+                $role['name'],
+                $role['description'],
+                json_encode($role['permissions'])
+            ]);
+            error_log("TenantInit: Created role '{$role['name']}' with ID: {$role['id']}");
+        }
 
-        $stmt->execute([
-            $role_id,
-            $this->tenant_id,
-            'Super Admin',
-            'Full system access with all permissions',
-            $permissions
-        ]);
-
-        return $role_id;
+        return $super_admin_role_id;
     }
 
     /**

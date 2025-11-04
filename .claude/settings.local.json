@@ -39,7 +39,16 @@
       "Bash(timeout 5 docker exec:*)",
       "Bash(grep:*)",
       "Bash(timeout 30 npm run build)",
-      "Bash(tee:*)"
+      "Bash(tee:*)",
+      "Bash(docker port:*)",
+      "Bash(PORTAL_DB_HOST=127.0.0.1 PORTAL_DB_PORT=3308 php:*)",
+      "Bash(timeout 60 npm run build:*)",
+      "Bash(docker volume:*)",
+      "Bash(docker network prune:*)",
+      "Bash(for:*)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(do docker exec candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! -e \"CREATE DATABASE IF NOT EXISTS candyhire_tenant_$i CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")"
     ],
     "deny": [],
     "ask": []

@@ -14,17 +14,17 @@ SET NAMES utf8mb4;
 -- Clean tenant_pool table to ensure fresh start
 TRUNCATE TABLE `tenant_pool`;
 
-INSERT INTO `tenant_pool` (`schema_name`, `is_available`) VALUES
-('candyhire_tenant_1', TRUE), ('candyhire_tenant_2', TRUE), ('candyhire_tenant_3', TRUE), ('candyhire_tenant_4', TRUE), ('candyhire_tenant_5', TRUE),
-('candyhire_tenant_6', TRUE), ('candyhire_tenant_7', TRUE), ('candyhire_tenant_8', TRUE), ('candyhire_tenant_9', TRUE), ('candyhire_tenant_10', TRUE),
-('candyhire_tenant_11', TRUE), ('candyhire_tenant_12', TRUE), ('candyhire_tenant_13', TRUE), ('candyhire_tenant_14', TRUE), ('candyhire_tenant_15', TRUE),
-('candyhire_tenant_16', TRUE), ('candyhire_tenant_17', TRUE), ('candyhire_tenant_18', TRUE), ('candyhire_tenant_19', TRUE), ('candyhire_tenant_20', TRUE),
-('candyhire_tenant_21', TRUE), ('candyhire_tenant_22', TRUE), ('candyhire_tenant_23', TRUE), ('candyhire_tenant_24', TRUE), ('candyhire_tenant_25', TRUE),
-('candyhire_tenant_26', TRUE), ('candyhire_tenant_27', TRUE), ('candyhire_tenant_28', TRUE), ('candyhire_tenant_29', TRUE), ('candyhire_tenant_30', TRUE),
-('candyhire_tenant_31', TRUE), ('candyhire_tenant_32', TRUE), ('candyhire_tenant_33', TRUE), ('candyhire_tenant_34', TRUE), ('candyhire_tenant_35', TRUE),
-('candyhire_tenant_36', TRUE), ('candyhire_tenant_37', TRUE), ('candyhire_tenant_38', TRUE), ('candyhire_tenant_39', TRUE), ('candyhire_tenant_40', TRUE),
-('candyhire_tenant_41', TRUE), ('candyhire_tenant_42', TRUE), ('candyhire_tenant_43', TRUE), ('candyhire_tenant_44', TRUE), ('candyhire_tenant_45', TRUE),
-('candyhire_tenant_46', TRUE), ('candyhire_tenant_47', TRUE), ('candyhire_tenant_48', TRUE), ('candyhire_tenant_49', TRUE), ('candyhire_tenant_50', TRUE);
+INSERT INTO `tenant_pool` (`tenant_id`, `is_available`) VALUES
+(1, TRUE), (2, TRUE), (3, TRUE), (4, TRUE), (5, TRUE),
+(6, TRUE), (7, TRUE), (8, TRUE), (9, TRUE), (10, TRUE),
+(11, TRUE), (12, TRUE), (13, TRUE), (14, TRUE), (15, TRUE),
+(16, TRUE), (17, TRUE), (18, TRUE), (19, TRUE), (20, TRUE),
+(21, TRUE), (22, TRUE), (23, TRUE), (24, TRUE), (25, TRUE),
+(26, TRUE), (27, TRUE), (28, TRUE), (29, TRUE), (30, TRUE),
+(31, TRUE), (32, TRUE), (33, TRUE), (34, TRUE), (35, TRUE),
+(36, TRUE), (37, TRUE), (38, TRUE), (39, TRUE), (40, TRUE),
+(41, TRUE), (42, TRUE), (43, TRUE), (44, TRUE), (45, TRUE),
+(46, TRUE), (47, TRUE), (48, TRUE), (49, TRUE), (50, TRUE);
 
 -- ============================================
 -- Insert Default Admin User
