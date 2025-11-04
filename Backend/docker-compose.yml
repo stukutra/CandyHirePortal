@@ -96,6 +96,7 @@ services:
       # Database - connects to Portal MySQL
       DB_HOST: mysql
       DB_PORT: 3306
+      DB_DATABASE: CandyHirePortal
       DB_USERNAME: candyhire_user
       DB_PASSWORD: CandyH1re_S3cur3P@ss!
       DB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}
