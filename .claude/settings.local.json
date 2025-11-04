@@ -52,7 +52,11 @@
       "Bash(/Users/guidosalzano/Documents/MyProject/CandyHireSuite/CandyHirePortal/Backend/migration/04_subscription_tiers.sql)",
       "Bash(docker compose:*)",
       "Bash(docker-compose.yml)",
-      "Bash(docker network:*)"
+      "Bash(docker network:*)",
+      "Bash(if [ -f \"$file\" ])",
+      "Bash(then)",
+      "Bash(fi)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
