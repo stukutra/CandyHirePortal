@@ -79,11 +79,9 @@ class TenantInitializer {
             $role_id = $this->createDefaultRoles();
             error_log("TenantInit: Default roles created, Super Admin role ID: $role_id");
 
-            // Step 2: Insert company data
-            $company_id = $this->insertCompany($company_data);
-            error_log("TenantInit: Company inserted with ID: $company_id");
-
-            // Step 3: Create first admin user (legal representative)
+            // Step 2: Create first admin user (legal representative)
+            // NOTE: We do NOT insert the tenant's own company into the companies table
+            // The companies table is for CLIENT companies that the tenant manages
             $user_id = $this->createFirstAdmin($company_data, $role_id);
             error_log("TenantInit: First admin user created with ID: $user_id");
 
@@ -93,7 +91,6 @@ class TenantInitializer {
             return [
                 'user_id' => $user_id,
                 'tenant_id' => $this->tenant_id,
-                'company_id' => $company_id,
                 'role_id' => $role_id
             ];
 
