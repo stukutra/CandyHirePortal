@@ -31,7 +31,7 @@ try {
     $query = "
         SELECT
             tp.id,
-            tp.schema_name,
+            tp.tenant_id,
             tp.is_available,
             tp.company_id,
             tp.assigned_at,
@@ -52,7 +52,8 @@ try {
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $tenants[] = [
             'id' => (int)$row['id'],
-            'schema_name' => $row['schema_name'],
+            'tenant_id' => (int)$row['tenant_id'],
+            'schema_name' => 'candyhire_tenant_' . $row['tenant_id'],
             'is_available' => (bool)$row['is_available'],
             'company_id' => $row['company_id'],
             'assigned_at' => $row['assigned_at'],
