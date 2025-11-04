@@ -1,5 +1,5 @@
 <div class="register-container">
-  <div class="register-content">
+  <div class="register-content" [class.step-3]="currentStep() === 3">
     <!-- Header -->
     <div class="register-header">
       <img src="/logo.png" alt="CandyHire Logo" class="logo" />
@@ -346,10 +346,12 @@
                     @for (feature of tier.features; track $index) {
                       <li [class.feature-bonus]="feature.isBonus">
                         <i class="bi {{ feature.icon || 'bi-check-circle-fill' }}"></i>
-                        <strong>{{ feature.title }}</strong>
-                        @if (feature.description) {
-                          <br><small>{{ feature.description }}</small>
-                        }
+                        <div>
+                          <strong>{{ feature.title }}</strong>
+                          @if (feature.description) {
+                            <small>{{ feature.description }}</small>
+                          }
+                        </div>
                       </li>
                     }
                   </ul>
@@ -364,23 +366,31 @@
             </div>
           }
 
-          <!-- PayPal Payment Section -->
+          <!-- Payment Security Section -->
           <div class="payment-section">
-            <h3 class="payment-title">
-              <i class="bi bi-credit-card me-2"></i>
-              Payment Method
-            </h3>
-            <p class="payment-info">
-              You'll be redirected to PayPal to complete your payment securely.
-            </p>
-
-            <!-- PayPal Button Placeholder -->
-            <div class="paypal-button-container">
-              <div class="paypal-placeholder">
-                <i class="bi bi-paypal"></i>
-                <p>PayPal Button Will Appear Here</p>
-                <small>Click below to complete registration</small>
+            <div class="payment-cards-row">
+              <div class="payment-card-badge">
+                <i class="bi bi-credit-card"></i>
+                <span>Visa</span>
               </div>
+              <div class="payment-card-badge">
+                <i class="bi bi-credit-card-fill"></i>
+                <span>Mastercard</span>
+              </div>
+              <div class="payment-card-badge">
+                <i class="bi bi-credit-card-2-front"></i>
+                <span>Maestro</span>
+              </div>
+              <div class="payment-card-badge paypal">
+                <i class="bi bi-paypal"></i>
+                <span>PayPal</span>
+              </div>
+            </div>
+
+            <div class="payment-info">
+              <p><i class="bi bi-lock-fill"></i> Pagamento sicuro SSL • Certificato PCI DSS</p>
+              <p><i class="bi bi-shield-fill-check"></i> I tuoi dati non vengono memorizzati sui nostri server</p>
+              <p><i class="bi bi-arrow-right-circle-fill"></i> Sarai reindirizzato su PayPal per completare il pagamento in totale sicurezza</p>
             </div>
           </div>
 
@@ -412,11 +422,6 @@
         <span>Already have an account?</span>
         <a [href]="saasUrl" class="link-login">Sign in</a>
       </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="register-footer">
-      <p>&copy; 2024 CandyHire Portal. All rights reserved.</p>
     </div>
   </div>
 </div>

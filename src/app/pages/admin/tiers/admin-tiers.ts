@@ -171,7 +171,7 @@ export class AdminTiers implements OnInit {
         label: 'Price',
         sortable: true,
         type: 'string',
-        formatter: (row: SubscriptionTier) => `€${row.price.toFixed(2)}/${row.billing_period === 'yearly' ? 'year' : 'month'}`
+        formatter: (row: SubscriptionTier) => `€${row.price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}/${row.billing_period === 'yearly' ? 'year' : 'month'}`
       },
       {
         key: 'is_featured',

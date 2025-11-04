@@ -33,6 +33,7 @@ export class Register implements OnInit {
   errorMessage = signal('');
   saasUrl = environment.saasUrl || 'http://localhost:4202';
   passwordStrength = signal<{level: number, text: string, color: string}>({level: 0, text: '', color: ''});
+  currentYear = new Date().getFullYear();
 
   // Countries list
   countries = signal<Country[]>([]);
@@ -164,7 +165,12 @@ export class Register implements OnInit {
   }
 
   formatTierPrice(tier: SubscriptionTier): string {
-    return `€${tier.price.toFixed(2)}`;
+    return `€${tier.price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+
+  formatTierOriginalPrice(tier: SubscriptionTier): string {
+    if (!tier.original_price) return '';
+    return `€${tier.original_price.toLocaleString('it-IT', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
 
   formatTierPeriod(tier: SubscriptionTier): string {
