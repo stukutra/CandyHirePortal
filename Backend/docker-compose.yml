@@ -1,0 +1,121 @@
+services:
+  # ============================================
+  # Portal MySQL Database
+  # ============================================
+  mysql:
+    image: mysql:8.0
+    container_name: candyhire-portal-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-CandyHirePortal}
+      MYSQL_USER: ${MYSQL_USER:-candyhire_portal_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-candyhire_portal_pass}
+      TZ: Europe/Rome
+    ports:
+      - "${MYSQL_PORT_EXTERNAL:-3308}:3306"
+    volumes:
+      - candyhire-portal-mysql-data:/var/lib/mysql
+    networks:
+      - candyhire-portal-network
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --default-authentication-plugin=mysql_native_password
+      --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ============================================
+  # Portal Backend PHP
+  # ============================================
+  portal-php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: candyhire-portal-php
+    restart: unless-stopped
+    environment:
+      # Database
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-CandyHirePortal}
+      DB_USERNAME: ${DB_USERNAME:-candyhire_portal_user}
+      DB_PASSWORD: ${DB_PASSWORD:-candyhire_portal_pass}
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-CandyHire2024Root}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-key-minimum-32-characters-long-please}
+      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400}
+      JWT_REFRESH_EXPIRATION: ${JWT_REFRESH_EXPIRATION:-604800}
+      # Password Security
+      PASSWORD_PEPPER: ${PASSWORD_PEPPER:-change-this-pepper-secret-never-modify-after-first-use-min-32-chars}
+      PASSWORD_HASH_COST: ${PASSWORD_HASH_COST:-12}
+      # SaaS Connection
+      SAAS_DB_HOST: ${SAAS_DB_HOST:-mysql}
+      SAAS_DB_PORT: ${SAAS_DB_PORT:-3306}
+      SAAS_DB_USER: ${SAAS_DB_USER:-candyhire_user}
+      SAAS_DB_PASSWORD: ${SAAS_DB_PASSWORD:-CandyH1re_S3cur3P@ss!}
+      SAAS_URL: ${SAAS_URL:-http://localhost:4202}
+      # PayPal
+      PAYPAL_MODE: ${PAYPAL_MODE:-sandbox}
+      PAYPAL_CLIENT_ID: ${PAYPAL_CLIENT_ID:-your-paypal-client-id}
+      PAYPAL_CLIENT_SECRET: ${PAYPAL_CLIENT_SECRET:-your-paypal-client-secret}
+      # App
+      APP_NAME: ${APP_NAME:-CandyHire Portal}
+      APP_ENV: ${APP_ENV:-development}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:4200}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+      TZ: Europe/Rome
+    ports:
+      - "${PHP_PORT_EXTERNAL:-8082}:80"
+    volumes:
+      - ./api:/var/www/html
+      - ./logs:/var/www/html/logs
+    networks:
+      - candyhire-portal-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  # ============================================
+  # PHPMyAdmin
+  # ============================================
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: candyhire-portal-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: ${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}
+      UPLOAD_LIMIT: 50M
+    ports:
+      - "8083:80"
+    networks:
+      - candyhire-portal-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  candyhire-portal-network:
+    driver: bridge
+    name: candyhire-portal-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  candyhire-portal-mysql-data:
+    name: candyhire-portal-mysql-data
+    driver: local
