@@ -9,6 +9,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Drop all tables first
 DROP TABLE IF EXISTS `payment_transactions`;
 DROP TABLE IF EXISTS `activity_logs`;
+DROP TABLE IF EXISTS `user_directory`;
 DROP TABLE IF EXISTS `companies_registered`;
 DROP TABLE IF EXISTS `admin_users`;
 DROP TABLE IF EXISTS `tenant_pool`;
@@ -153,6 +154,27 @@ CREATE TABLE `payment_transactions` (
   INDEX idx_transaction_company (`company_id`),
   INDEX idx_transaction_status (`status`),
   INDEX idx_paypal_order (`paypal_order_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
+-- Table: user_directory
+-- Multi-Tenant User Directory for O(1) Authentication Lookup
+-- Ensures globally unique emails across all tenants
+-- ============================================
+CREATE TABLE `user_directory` (
+    `id` CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    `email` VARCHAR(255) NOT NULL UNIQUE COMMENT 'Globally unique email across all tenants',
+    `tenant_id` INT NOT NULL COMMENT 'Tenant ID this user belongs to',
+    `user_type` ENUM('company_admin', 'internal_user') NOT NULL DEFAULT 'internal_user',
+    `user_id` CHAR(36) NOT NULL COMMENT 'User ID in tenant or company database',
+    `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    INDEX idx_email (`email`),
+    INDEX idx_tenant_id (`tenant_id`),
+    INDEX idx_user_type (`user_type`),
+    INDEX idx_is_active (`is_active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
