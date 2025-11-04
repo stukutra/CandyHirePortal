@@ -57,7 +57,8 @@
       "Bash(then)",
       "Bash(fi)",
       "Bash(find:*)",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(docker cp:*)"
     ],
     "deny": [],
     "ask": []
