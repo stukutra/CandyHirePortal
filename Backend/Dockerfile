@@ -45,6 +45,12 @@ RUN echo "upload_max_filesize = 20M" > /usr/local/etc/php/conf.d/uploads.ini \
     && echo "memory_limit = 256M" >> /usr/local/etc/php/conf.d/uploads.ini \
     && echo "max_execution_time = 300" >> /usr/local/etc/php/conf.d/uploads.ini
 
+# Enable error logging
+RUN echo "log_errors = On" >> /usr/local/etc/php/conf.d/error-logging.ini \
+    && echo "error_log = /proc/self/fd/2" >> /usr/local/etc/php/conf.d/error-logging.ini \
+    && echo "display_errors = Off" >> /usr/local/etc/php/conf.d/error-logging.ini \
+    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/error-logging.ini
+
 # Configure Apache DocumentRoot
 ENV APACHE_DOCUMENT_ROOT=/var/www/html
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf

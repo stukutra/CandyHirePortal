@@ -10,6 +10,10 @@ SET NAMES utf8mb4;
 -- 50 tenant databases are pre-created with empty schema during setup.
 -- When a company completes payment, one tenant is assigned from the pool.
 -- ============================================
+
+-- Clean tenant_pool table to ensure fresh start
+TRUNCATE TABLE `tenant_pool`;
+
 INSERT INTO `tenant_pool` (`schema_name`, `is_available`) VALUES
 ('candyhire_tenant_1', TRUE), ('candyhire_tenant_2', TRUE), ('candyhire_tenant_3', TRUE), ('candyhire_tenant_4', TRUE), ('candyhire_tenant_5', TRUE),
 ('candyhire_tenant_6', TRUE), ('candyhire_tenant_7', TRUE), ('candyhire_tenant_8', TRUE), ('candyhire_tenant_9', TRUE), ('candyhire_tenant_10', TRUE),
@@ -20,14 +24,17 @@ INSERT INTO `tenant_pool` (`schema_name`, `is_available`) VALUES
 ('candyhire_tenant_31', TRUE), ('candyhire_tenant_32', TRUE), ('candyhire_tenant_33', TRUE), ('candyhire_tenant_34', TRUE), ('candyhire_tenant_35', TRUE),
 ('candyhire_tenant_36', TRUE), ('candyhire_tenant_37', TRUE), ('candyhire_tenant_38', TRUE), ('candyhire_tenant_39', TRUE), ('candyhire_tenant_40', TRUE),
 ('candyhire_tenant_41', TRUE), ('candyhire_tenant_42', TRUE), ('candyhire_tenant_43', TRUE), ('candyhire_tenant_44', TRUE), ('candyhire_tenant_45', TRUE),
-('candyhire_tenant_46', TRUE), ('candyhire_tenant_47', TRUE), ('candyhire_tenant_48', TRUE), ('candyhire_tenant_49', TRUE), ('candyhire_tenant_50', TRUE)
-ON DUPLICATE KEY UPDATE `schema_name` = VALUES(`schema_name`);
+('candyhire_tenant_46', TRUE), ('candyhire_tenant_47', TRUE), ('candyhire_tenant_48', TRUE), ('candyhire_tenant_49', TRUE), ('candyhire_tenant_50', TRUE);
 
 -- ============================================
 -- Insert Default Admin User
 -- Username: admin
 -- Password: Admin123! (CHANGE THIS IN PRODUCTION!)
 -- ============================================
+
+-- Clean admin_users table to ensure fresh start
+TRUNCATE TABLE `admin_users`;
+
 INSERT INTO `admin_users`
 (`id`, `username`, `email`, `password_hash`, `first_name`, `last_name`, `role`, `is_active`)
 VALUES
@@ -41,14 +48,17 @@ VALUES
   'Administrator',
   'super_admin',
   TRUE
-)
-ON DUPLICATE KEY UPDATE `username` = VALUES(`username`);
+);
 
 -- Note: In production, change the admin password immediately!
 
 -- ============================================
 -- Insert Countries with VAT information
 -- ============================================
+
+-- Clean countries table to ensure fresh start
+TRUNCATE TABLE `countries`;
+
 INSERT INTO countries (code, name, name_it, name_es, name_en, has_vat, vat_label, requires_sdi, currency, phone_prefix, is_eu) VALUES
 -- Italy
 ('IT', 'Italy', 'Italia', 'Italia', 'Italy', TRUE, 'Partita IVA', TRUE, 'EUR', '+39', TRUE),
@@ -94,5 +104,4 @@ INSERT INTO countries (code, name, name_it, name_es, name_en, has_vat, vat_label
 ('CN', 'China', 'Cina', 'China', 'China', TRUE, '纳税人识别号', FALSE, 'CNY', '+86', FALSE),
 ('BR', 'Brazil', 'Brasile', 'Brasil', 'Brazil', TRUE, 'CNPJ', FALSE, 'BRL', '+55', FALSE),
 ('IN', 'India', 'India', 'India', 'India', TRUE, 'GST Number', FALSE, 'INR', '+91', FALSE),
-('MX', 'Mexico', 'Messico', 'México', 'Mexico', TRUE, 'RFC', FALSE, 'MXN', '+52', FALSE)
-ON DUPLICATE KEY UPDATE name = VALUES(name);
+('MX', 'Mexico', 'Messico', 'México', 'Mexico', TRUE, 'RFC', FALSE, 'MXN', '+52', FALSE);

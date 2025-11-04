@@ -48,19 +48,20 @@ class Database {
     /**
      * Get connection to a specific tenant database
      *
-     * Tenant databases are in the same MySQL server as Portal
+     * Tenant databases are in the SaaS MySQL server (not Portal server)
      *
      * @param string $tenant_schema Tenant schema name
      * @return PDO|null
      */
     public function getTenantConnection($tenant_schema) {
-        // Tenant databases are in the same MySQL server as Portal
-        $host = getenv('DB_HOST') ?: 'portal-mysql';
-        $username = getenv('DB_ROOT_USER') ?: 'root';
-        $password = getenv('DB_ROOT_PASSWORD') ?: 'candyhire_portal_root_pass';
+        // Tenant databases are in the SaaS MySQL server
+        $host = getenv('SAAS_DB_HOST') ?: 'host.docker.internal';
+        $port = getenv('SAAS_DB_PORT') ?: '3307';
+        $username = getenv('SAAS_DB_USER') ?: 'candyhire_user';
+        $password = getenv('SAAS_DB_PASSWORD') ?: 'CandyH1re_S3cur3P@ss!';
 
         try {
-            $dsn = "mysql:host={$host};dbname={$tenant_schema};charset=utf8mb4";
+            $dsn = "mysql:host={$host};port={$port};dbname={$tenant_schema};charset=utf8mb4";
             $conn = new PDO($dsn, $username, $password);
 
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

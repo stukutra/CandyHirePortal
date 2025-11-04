@@ -35,7 +35,8 @@
       "Bash(done)",
       "Bash(php generate_tenant_sql.php:*)",
       "Bash(ng serve:*)",
-      "Bash(timeout 5 curl:*)"
+      "Bash(timeout 5 curl:*)",
+      "Bash(timeout 5 docker exec:*)"
     ],
     "deny": [],
     "ask": []

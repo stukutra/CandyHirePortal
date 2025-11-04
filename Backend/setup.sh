@@ -43,19 +43,42 @@ else
 fi
 
 echo ""
-echo "🐳 Starting Docker containers..."
+echo "🗑️  Cleaning up existing data and containers..."
 echo ""
 
-# Stop only Portal containers (not CandyHire containers)
-echo "🛑 Stopping existing Portal containers..."
+# Stop ALL containers (Portal and SaaS)
+echo "🛑 Stopping all CandyHire containers..."
 docker stop candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
-docker rm candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
+docker stop candyhire-mysql candyhire-php candyhire-phpmyadmin 2>/dev/null || true
 
-# Build and start containers
+# Remove ALL containers
+echo "🗑️  Removing all CandyHire containers..."
+docker rm candyhire-portal-mysql candyhire-portal-php candyhire-portal-phpmyadmin 2>/dev/null || true
+docker rm candyhire-mysql candyhire-php candyhire-phpmyadmin 2>/dev/null || true
+
+# Remove ALL volumes (this deletes ALL data)
+echo "💥 Deleting all database volumes (ALL DATA WILL BE LOST)..."
+docker volume rm candyhire-portal-mysql-data 2>/dev/null || true
+docker volume rm candyhire-mysql-data 2>/dev/null || true
+docker volume rm candyhire-uploads 2>/dev/null || true
+
+echo "✅ All data cleaned successfully"
+echo ""
+echo "🐳 Starting fresh Docker containers..."
+echo ""
+
+# Start SaaS Backend first (MySQL + PHP needed for tenant creation and login)
+echo "🚀 Starting SaaS Backend (MySQL + PHP)..."
+cd ../../CandyHire/Backend
+$DOCKER_COMPOSE up -d --build
+cd ../../CandyHirePortal/Backend
+sleep 5
+
+# Build and start Portal containers
 $DOCKER_COMPOSE up -d --build
 
 echo ""
-echo "⏳ Waiting for MySQL to be ready..."
+echo "⏳ Waiting for Portal MySQL to be ready..."
 echo ""
 
 # Wait for MySQL to be healthy
@@ -88,56 +111,88 @@ docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-cand
 echo "✅ Portal initial data imported"
 
 echo ""
-echo "🏗️  Creating 50 tenant databases with empty schema..."
+echo "🏗️  Creating 50 tenant databases on SaaS MySQL server..."
 echo "⚠️  This will take a few minutes. Please wait..."
 echo ""
 
-# Tenant configuration
-TENANT_COUNT=50
-SAAS_SCHEMA="../migration/tenant_schema/schema.sql"
+# Wait for SaaS MySQL to be ready
+echo "⏳ Waiting for SaaS MySQL to be ready..."
+max_attempts=30
+attempt=0
+while [ $attempt -lt $max_attempts ]; do
+    if docker exec candyhire-mysql mysqladmin ping -h localhost -uroot -pR00t_P@ssw0rd_2024! --silent 2>/dev/null; then
+        echo "✅ SaaS MySQL is ready!"
+        break
+    fi
+    attempt=$((attempt + 1))
+    echo "   Attempt $attempt/$max_attempts - SaaS MySQL not ready yet..."
+    sleep 2
+done
 
-# Check if SaaS schema file exists
-if [ ! -f "$SAAS_SCHEMA" ]; then
-    echo "⚠️  Warning: Tenant schema file not found at $SAAS_SCHEMA"
-    echo "   Skipping tenant creation."
+if [ $attempt -eq $max_attempts ]; then
+    echo "⚠️  Warning: SaaS MySQL not accessible. Skipping tenant creation."
 else
-    # Create 50 tenant databases
-    success_count=0
-    for i in $(seq 1 $TENANT_COUNT); do
-        DB_NAME="candyhire_tenant_$i"
+    # Tenant configuration
+    TENANT_COUNT=50
+    SAAS_SCHEMA="../../CandyHire/Backend/migration/04_candyhire_schema.sql"
 
-        # Show progress every 10 databases
-        if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
-            echo "  📦 Creating tenant $i/$TENANT_COUNT..."
-        fi
+    # Check if SaaS schema file exists
+    if [ ! -f "$SAAS_SCHEMA" ]; then
+        echo "⚠️  Warning: Tenant schema file not found at $SAAS_SCHEMA"
+        echo "   Skipping tenant creation."
+    else
+        # Create 50 tenant databases on SaaS MySQL
+        success_count=0
+        for i in $(seq 1 $TENANT_COUNT); do
+            DB_NAME="candyhire_tenant_$i"
 
-        # Create database
-        docker exec candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+            # Show progress every 10 databases
+            if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
+                echo "  📦 Creating tenant $i/$TENANT_COUNT on SaaS MySQL..."
+            fi
 
-        # Apply schema (empty tables)
-        docker exec -i candyhire-portal-mysql mysql -uroot -p${MYSQL_ROOT_PASSWORD:-candyhire_portal_root_pass} $DB_NAME < $SAAS_SCHEMA 2>/dev/null
+            # Create database on SaaS MySQL
+            docker exec candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 
-        success_count=$((success_count + 1))
-    done
+            # Apply schema (empty tables)
+            docker exec -i candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! $DB_NAME < $SAAS_SCHEMA 2>/dev/null
 
-    echo ""
-    echo "✅ Successfully created $success_count/$TENANT_COUNT tenant databases"
+            success_count=$((success_count + 1))
+        done
+
+        echo ""
+        echo "✅ Successfully created $success_count/$TENANT_COUNT tenant databases on SaaS MySQL"
+
+        # Grant permissions to candyhire_user on all tenant databases
+        echo ""
+        echo "🔐 Granting permissions to candyhire_user on tenant databases..."
+        docker exec candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! -e "GRANT ALL PRIVILEGES ON \`candyhire_tenant_%\`.* TO 'candyhire_user'@'%'; FLUSH PRIVILEGES;" 2>/dev/null
+        echo "✅ Permissions granted successfully"
+    fi
 fi
 echo ""
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
-echo "║                CandyHire Portal Backend                       ║"
-echo "║                  SETUP COMPLETATO!                            ║"
+echo "║          CandyHire Platform - SETUP COMPLETATO!               ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "📡 ACCESSO BROWSER"
+echo "📡 PORTAL - Registration & Payment"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "API Backend:        http://localhost:8082"
 echo "PHPMyAdmin:         http://localhost:8083"
 echo "MySQL Port:         localhost:3308"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📡 SAAS - Multi-Tenant Application"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "API Backend:        http://localhost:8080"
+echo "PHPMyAdmin:         http://localhost:8081"
+echo "MySQL Port:         localhost:3307"
+echo "Tenant Databases:   50 databases created (candyhire_tenant_1 to 50)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🔐 CREDENZIALI DATABASE"
