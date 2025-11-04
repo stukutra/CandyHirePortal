@@ -15,6 +15,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/jwt.php';
 require_once __DIR__ . '/../config/paypal.php';
 require_once __DIR__ . '/../models/Company.php';
+require_once __DIR__ . '/../models/SubscriptionTier.php';
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../utils/logger.php';
 
@@ -208,16 +209,33 @@ try {
         $paypal = new PayPalClient();
         error_log("PayPalClient instantiated successfully");
 
-        // Define plan prices (in EUR)
-        $plan_prices = [
-            'ultimate' => 1500.00
-        ];
+        // Fetch tier details from database
+        $tierModel = new SubscriptionTier($db);
+        $tier_found = $tierModel->findBySlug($company->subscription_plan);
 
-        $amount = $plan_prices[$company->subscription_plan] ?? 1500.00;
-        $currency = 'EUR';
-        $description = "CandyHire {$company->subscription_plan} Plan - Annual Subscription";
+        if (!$tier_found) {
+            error_log("ERROR: Subscription tier not found for slug: " . $company->subscription_plan);
+            Response::validationError(
+                ['subscription_plan' => 'Invalid subscription plan selected'],
+                'Invalid subscription plan'
+            );
+        }
 
-        error_log("Creating PayPal order - Amount: $amount, Currency: $currency");
+        $amount = $tierModel->price;
+        $currency = $tierModel->currency ?? 'EUR';
+        $tier_name = $tierModel->name;
+        $billing_period = $tierModel->billing_period;
+
+        $period_label = match($billing_period) {
+            'yearly' => 'Annual',
+            'monthly' => 'Monthly',
+            'one_time' => 'One-time',
+            default => ''
+        };
+
+        $description = "CandyHire {$tier_name} Plan" . ($period_label ? " - {$period_label} Subscription" : "");
+
+        error_log("Creating PayPal order - Tier: {$tier_name}, Amount: {$amount}, Currency: {$currency}");
 
         // Create PayPal order with company metadata
         $order = $paypal->createOrder($amount, $currency, $description, [

@@ -86,10 +86,17 @@ class PayPalClient {
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
 
+        error_log("PayPal getAccessToken - HTTP Code: {$httpCode}");
+        error_log("PayPal getAccessToken - Response: " . substr($response, 0, 500));
+        if ($curlError) {
+            error_log("PayPal getAccessToken - cURL Error: {$curlError}");
+        }
+
         if ($httpCode !== 200) {
-            throw new Exception('Failed to get PayPal access token');
+            throw new Exception("Failed to get PayPal access token (HTTP {$httpCode}): " . substr($response, 0, 200));
         }
 
         $data = json_decode($response, true);

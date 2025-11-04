@@ -19,28 +19,6 @@
     margin-top: 75px;
     min-height: calc(100vh - 75px);
   }
-
-  // &::before {
-  //   content: '';
-  //   position: absolute;
-  //   top: -50%;
-  //   right: -50%;
-  //   width: 100%;
-  //   height: 100%;
-  //   background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  //   animation: float 15s ease-in-out infinite;
-  // }
-
-  // &::after {
-  //   content: '';
-  //   position: absolute;
-  //   bottom: -50%;
-  //   left: -50%;
-  //   width: 100%;
-  //   height: 100%;
-  //   background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-  //   animation: float 20s ease-in-out infinite reverse;
-  // }
 }
 
 @keyframes float {
@@ -270,14 +248,28 @@
     font-size: 1.25rem;
     font-weight: 700;
     color: var(--ch-ink);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     margin-top: 0.25rem;
     text-align: center;
 
     @media (max-width: 576px) {
       font-size: 1rem;
-      margin-bottom: 0.875rem;
+      margin-bottom: 0.4rem;
       margin-top: 0;
+    }
+  }
+
+  .plan-tagline {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--ch-ink-light);
+    text-align: center;
+    margin-bottom: 1.25rem;
+    line-height: 1.5;
+
+    @media (max-width: 576px) {
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
     }
   }
 }
@@ -460,15 +452,81 @@
   }
 }
 
+.plan-reassurance {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin: 1.25rem 0 1.5rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(247, 199, 217, 0.15) 0%, rgba(216, 204, 240, 0.15) 100%);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(247, 199, 217, 0.4);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    margin: 1rem 0 1.25rem;
+  }
+
+  .reassurance-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--ch-ink);
+
+    @media (max-width: 768px) {
+      font-size: 0.75rem;
+    }
+
+    i {
+      color: var(--ch-candy);
+      font-size: 1rem;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        font-size: 0.9rem;
+      }
+    }
+
+    span {
+      white-space: nowrap;
+
+      @media (max-width: 768px) {
+        white-space: normal;
+        text-align: center;
+      }
+    }
+  }
+}
+
+.plan-trust-block {
+  text-align: center;
+  margin: 1.5rem 0 0;
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ch-ink-light);
+  font-style: italic;
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    margin: 1.25rem 0 0;
+  }
+}
+
 .plans-grid {
   display: flex;
   justify-content: center;
   align-items: stretch;
   flex-wrap: nowrap;
-  gap: 1rem;
+  gap: 1.5rem;
   margin-bottom: 1.5rem;
   overflow-x: auto;
-  padding: 1rem;
+  width: 100%;
 
   @media (max-width: 1200px) {
     flex-wrap: wrap;
@@ -482,32 +540,29 @@
 
 .plan-card {
   position: relative;
-  padding: 1rem 1rem 1rem;
+  padding: 2rem 1.25rem 1.5rem;
+  margin-top: 22px;
   border: 1px solid var(--ch-border);
   border-radius: var(--ch-radius);
   cursor: pointer;
   transition: all 0.3s ease;
   background: var(--ch-white);
-  flex: 1 1 300px;
-  min-width: 280px;
-  max-width: 380px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-
-  @media (max-width: 1200px) {
-    flex: 0 1 350px;
-    min-width: 260px;
-  }
+  min-height: auto;
 
   @media (max-width: 768px) {
     flex: 1 1 100%;
     max-width: 100%;
-    min-width: auto;
+    min-height: auto;
   }
 
   @media (max-width: 576px) {
-    padding: 1rem 0.875rem 0.875rem;
+    padding: 1.5rem 1rem 1.25rem;
   }
 
   &:hover {
@@ -557,13 +612,14 @@
     color: var(--ch-ink-light);
     text-align: center;
     margin-bottom: 1rem;
-    line-height: 1.4;
+    line-height: 1.5;
+    min-height: 2.5rem;
   }
 
   .plan-price {
     text-align: center;
-    margin-bottom: 0.5rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.875rem;
+    padding-bottom: 0.875rem;
     border-bottom: 2px solid var(--ch-border);
 
     .price-amount {
@@ -589,8 +645,9 @@
   .plan-features {
     list-style: none;
     padding: 0;
-    margin: 0;
-    max-height: 300px;
+    margin: 0 0 1rem 0;
+    flex-grow: 1;
+    max-height: 280px;
     overflow-y: auto;
     padding-right: 0.5rem;
 
@@ -613,8 +670,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.75rem;
-      margin-bottom: 0.5rem;
-      padding: 0.6rem 0.75rem;
+      margin-bottom: 0.625rem;
+      padding: 0.75rem 0.875rem;
       border-radius: var(--ch-radius);
       background: var(--ch-surface);
       transition: all 0.3s ease;
@@ -692,6 +749,77 @@
     i {
       font-size: 1rem;
     }
+  }
+}
+
+.plan-micro-reassurance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1.25rem 0 1.5rem;
+  padding: 0;
+
+  @media (max-width: 768px) {
+    gap: 0.4rem;
+    margin: 1rem 0 1.25rem;
+  }
+
+  .micro-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(247, 199, 217, 0.2);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ch-ink);
+    transition: all 0.2s ease;
+    text-align: center;
+
+    @media (max-width: 768px) {
+      font-size: 0.7rem;
+      padding: 0.4rem 0.625rem;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(247, 199, 217, 0.35);
+    }
+
+    i {
+      color: var(--ch-candy);
+      font-size: 0.875rem;
+      flex-shrink: 0;
+
+      @media (max-width: 768px) {
+        font-size: 0.8rem;
+      }
+    }
+
+    span {
+      line-height: 1.3;
+      text-align: center;
+    }
+  }
+}
+
+.payment-reassurance {
+  text-align: center;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--ch-ink-light);
+  font-style: italic;
+  background: linear-gradient(135deg, rgba(247, 199, 217, 0.08) 0%, rgba(216, 204, 240, 0.08) 100%);
+  border-radius: 0.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    padding: 0.625rem 0.75rem;
   }
 }
 

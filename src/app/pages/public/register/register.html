@@ -303,7 +303,24 @@
       <!-- Step 3: Choose Plan & Payment -->
       @if (currentStep() === 3) {
         <div class="step-content">
-          <h2 class="card-title">Choose Your Plan</h2>
+          <h2 class="card-title">Rendi il Recruiting Più Semplice, Velocissimo e Creativo.</h2>
+          <p class="plan-tagline">Scegli il piano che ti fa risparmiare tempo, mente e caos nel recruiting.</p>
+
+          <!-- Micro Reassurance -->
+          <div class="plan-reassurance">
+            <div class="reassurance-item">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span>Attivazione in 48h</span>
+            </div>
+            <div class="reassurance-item">
+              <i class="bi bi-gear-fill"></i>
+              <span>Nessuna configurazione tecnica necessaria</span>
+            </div>
+            <div class="reassurance-item">
+              <i class="bi bi-tag-fill"></i>
+              <span>Prezzo fisso e chiaro</span>
+            </div>
+          </div>
 
           @if (loadingTiers()) {
             <div class="text-center py-4">
@@ -364,7 +381,28 @@
                 </div>
               }
             </div>
+
+            <!-- Trust Block -->
+            <div class="plan-trust-block">
+              Già adottato da recruiter e HR professionisti
+            </div>
           }
+
+          <!-- Micro Reassurance Bottom -->
+          <div class="plan-micro-reassurance">
+            <div class="micro-item">
+              <i class="bi bi-clock-fill"></i>
+              <span>Attivazione entro 48h e puoi iniziare subito</span>
+            </div>
+            <div class="micro-item">
+              <i class="bi bi-lightbulb-fill"></i>
+              <span>Nessun onboarding tecnico, è già pronto da usare</span>
+            </div>
+            <div class="micro-item">
+              <i class="bi bi-lock-fill"></i>
+              <span>Il prezzo Early Bird rimane bloccato per il futuro</span>
+            </div>
+          </div>
 
           <!-- Payment Methods -->
           <div class="payment-section">
@@ -411,9 +449,14 @@
                 Processing...
               } @else {
                 <i class="bi bi-paypal me-2"></i>
-                Complete Registration
+                Attiva CandyHire adesso →
               }
             </button>
+          </div>
+
+          <!-- Reassurance Text -->
+          <div class="payment-reassurance">
+            Nessun vincolo nascosto. Nessuna sorpresa. Prezzo trasparente.
           </div>
         </div>
       }
