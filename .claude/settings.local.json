@@ -48,7 +48,8 @@
       "Bash(for:*)",
       "Bash(do)",
       "Bash(echo:*)",
-      "Bash(do docker exec candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! -e \"CREATE DATABASE IF NOT EXISTS candyhire_tenant_$i CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")"
+      "Bash(do docker exec candyhire-mysql mysql -uroot -pR00t_P@ssw0rd_2024! -e \"CREATE DATABASE IF NOT EXISTS candyhire_tenant_$i CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\")",
+      "Bash(/Users/guidosalzano/Documents/MyProject/CandyHireSuite/CandyHirePortal/Backend/migration/04_subscription_tiers.sql)"
     ],
     "deny": [],
     "ask": []

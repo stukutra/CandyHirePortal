@@ -93,6 +93,14 @@ docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql 
 
 echo "✅ Portal initial data imported"
 echo ""
+echo "💎 Creating subscription tiers..."
+echo ""
+
+# Run Subscription Tiers migration
+docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal < migration/04_subscription_tiers.sql 2>/dev/null || echo "⚠️  Subscription tiers already exist or failed to insert"
+
+echo "✅ Subscription tiers created"
+echo ""
 echo "🏗️  Creating 50 tenant databases..."
 echo "⚠️  This will take a few minutes. Please wait..."
 echo ""

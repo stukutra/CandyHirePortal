@@ -183,7 +183,7 @@ try {
 
         // Find available tenant from pool
         $stmt = $db->prepare("
-            SELECT id, schema_name
+            SELECT id, tenant_id
             FROM tenant_pool
             WHERE is_available = TRUE
             ORDER BY id ASC
@@ -198,7 +198,7 @@ try {
             throw new Exception("No available tenant databases. Please contact support.");
         }
 
-        error_log("Step 5.3.1: Tenant found - ID: " . $tenant['id'] . ", Schema: " . $tenant['schema_name']);
+        error_log("Step 5.3.1: Tenant found - Pool ID: " . $tenant['id'] . ", Tenant ID: " . $tenant['tenant_id']);
 
         // Assign tenant to company
         $stmt = $db->prepare("
@@ -212,11 +212,11 @@ try {
         // Update company with tenant info
         $stmt = $db->prepare("
             UPDATE companies_registered
-            SET tenant_id = ?, tenant_schema = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
+            SET tenant_id = ?, tenant_assigned_at = NOW(), registration_status = 'active', is_active = TRUE
             WHERE id = ?
         ");
-        $stmt->execute([$tenant['id'], $tenant['schema_name'], $transaction['company_id']]);
-        error_log("Step 5.3.3 Complete: Company assigned to tenant (schema: " . $tenant['schema_name'] . ") and status set to active");
+        $stmt->execute([$tenant['tenant_id'], $transaction['company_id']]);
+        error_log("Step 5.3.3 Complete: Company assigned to tenant (tenant_id: " . $tenant['tenant_id'] . ") and status set to active");
 
         // Step 5.3.4: Initialize tenant database with company data and first admin user
         error_log("Step 5.3.4: Initializing tenant database with first admin user");
@@ -232,9 +232,13 @@ try {
             throw new Exception("Company data not found for tenant initialization");
         }
 
+        // Build tenant database name
+        $tenant_db_name = 'candyhire_tenant_' . $tenant['tenant_id'];
+        error_log("Step 5.3.4.1: Tenant database name: " . $tenant_db_name);
+
         require_once __DIR__ . '/../utils/tenant_initializer.php';
 
-        $tenant_initializer = new TenantInitializer($tenant['schema_name'], (string)$tenant['id']);
+        $tenant_initializer = new TenantInitializer($tenant_db_name, (string)$tenant['tenant_id']);
         $tenant_init_result = $tenant_initializer->initializeTenant($company_full_data);
 
         error_log("Step 5.3.4 Complete: Tenant initialized - User ID: " . $tenant_init_result['user_id']);
@@ -250,7 +254,7 @@ try {
             'email' => $company_full_data['email'],
             'company_name' => $company_full_data['company_name'],
             'tenant_id' => $tenant_init_result['tenant_id'],
-            'tenant_schema' => $tenant['schema_name'],
+            'tenant_schema' => $tenant_db_name,
             'user_id' => $tenant_init_result['user_id'],
             'role_id' => $tenant_init_result['role_id'],
             'type' => 'company_admin'
