@@ -305,39 +305,64 @@
         <div class="step-content">
           <h2 class="card-title">Choose Your Plan</h2>
 
-          <div class="plans-grid">
-            @for (plan of plans; track plan.id) {
-              <div
-                class="plan-card"
-                [class.selected]="selectedPlan() === plan.id"
-                [class.highlighted]="plan.highlighted"
-                (click)="selectPlan(plan.id)"
-              >
-                @if (plan.highlighted) {
-                  <div class="plan-badge">Full Premium</div>
-                }
-                <h3 class="plan-name">{{ plan.name }}</h3>
-                <div class="plan-price">
-                  <span class="price-amount">€{{ plan.price }}</span>
-                  <span class="price-period">/{{ plan.period || 'month' }}</span>
-                </div>
-                <ul class="plan-features">
-                  @for (feature of plan.features; track feature) {
-                    <li>
-                      <i class="bi bi-check-circle-fill"></i>
-                      {{ feature }}
-                    </li>
-                  }
-                </ul>
-                @if (selectedPlan() === plan.id) {
-                  <div class="selected-indicator">
-                    <i class="bi bi-check-circle-fill"></i>
-                    Selected
-                  </div>
-                }
+          @if (loadingTiers()) {
+            <div class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading plans...</span>
               </div>
-            }
-          </div>
+              <p class="mt-2">Loading subscription plans...</p>
+            </div>
+          } @else if (tiers().length === 0) {
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              No subscription plans available at the moment. Please contact support.
+            </div>
+          } @else {
+            <div class="plans-grid">
+              @for (tier of tiers(); track tier.id) {
+                <div
+                  class="plan-card"
+                  [class.selected]="selectedPlan() === tier.slug"
+                  [class.highlighted]="tier.is_featured"
+                  (click)="selectPlan(tier.slug)"
+                >
+                  @if (tier.badge_text) {
+                    <div class="plan-badge">
+                      @if (tier.badge_icon) {
+                        <i class="bi {{ tier.badge_icon }} me-1"></i>
+                      }
+                      {{ tier.badge_text }}
+                    </div>
+                  }
+                  <h3 class="plan-name">{{ tier.name }}</h3>
+                  <div class="plan-price">
+                    <span class="price-amount">{{ formatTierPrice(tier) }}</span>
+                    <span class="price-period">{{ formatTierPeriod(tier) }}</span>
+                  </div>
+                  @if (tier.description) {
+                    <p class="plan-description">{{ tier.description }}</p>
+                  }
+                  <ul class="plan-features">
+                    @for (feature of tier.features; track $index) {
+                      <li [class.feature-bonus]="feature.isBonus">
+                        <i class="bi {{ feature.icon || 'bi-check-circle-fill' }}"></i>
+                        <strong>{{ feature.title }}</strong>
+                        @if (feature.description) {
+                          <br><small>{{ feature.description }}</small>
+                        }
+                      </li>
+                    }
+                  </ul>
+                  @if (selectedPlan() === tier.slug) {
+                    <div class="selected-indicator">
+                      <i class="bi bi-check-circle-fill"></i>
+                      Selected
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          }
 
           <!-- PayPal Payment Section -->
           <div class="payment-section">

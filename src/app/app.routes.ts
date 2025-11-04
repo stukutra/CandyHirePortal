@@ -16,6 +16,7 @@ import { AdminDashboard } from './pages/admin/dashboard/admin-dashboard';
 import { AdminCompanies } from './pages/admin/companies/admin-companies';
 import { CompanyDetail } from './pages/admin/company-detail/company-detail';
 import { TenantPool } from './pages/admin/tenant-pool/tenant-pool';
+import { AdminTiers } from './pages/admin/tiers/admin-tiers';
 import { adminGuard, adminLoginGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
@@ -53,6 +54,11 @@ export const routes: Routes = [
   {
     path: 'admin/tenant-pool',
     component: TenantPool,
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'admin/tiers',
+    component: AdminTiers,
     canActivate: [adminGuard]
   },
 

@@ -1,9 +1,10 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService, API_ENDPOINTS } from '../../../core/services/api.service';
 import { Country, CountryListResponse } from '../../../models/country.model';
+import { SubscriptionTier, SubscriptionTiersResponse } from '../../../models';
 import { environment } from '../../../../environments/environment';
 
 interface RegisterResponse {
@@ -23,6 +24,7 @@ interface RegisterResponse {
 export class Register implements OnInit {
   private apiService = inject(ApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   currentStep = signal(1);
   isLoading = signal(false);
@@ -63,29 +65,9 @@ export class Register implements OnInit {
   });
 
   // Step 3: Subscription Plan
-  selectedPlan = signal('ultimate');
-
-  plans = [
-    {
-      id: 'ultimate',
-      name: 'Ultimate',
-      price: 1500,
-      period: 'year',
-      features: [
-        'Unlimited active jobs',
-        'AI-powered candidate matching',
-        'Advanced analytics & insights',
-        '24/7 premium support',
-        'Unlimited users',
-        'Full API access',
-        'Custom integrations',
-        'White-label branding',
-        'Dedicated account manager',
-        'Priority feature requests',
-      ],
-      highlighted: true,
-    },
-  ];
+  selectedPlan = signal('professional'); // Default to professional
+  tiers = signal<SubscriptionTier[]>([]);
+  loadingTiers = signal(true);
 
   companySizeOptions = [
     '1-10 employees',
@@ -97,6 +79,15 @@ export class Register implements OnInit {
 
   ngOnInit() {
     this.loadCountries();
+    this.loadTiers();
+
+    // Check for tier query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['tier']) {
+        this.selectedPlan.set(params['tier']);
+        console.log('Tier selected from URL:', params['tier']);
+      }
+    });
   }
 
   loadCountries() {
@@ -121,6 +112,31 @@ export class Register implements OnInit {
       });
   }
 
+  loadTiers() {
+    this.loadingTiers.set(true);
+    this.apiService.get<SubscriptionTiersResponse>(API_ENDPOINTS.PUBLIC_TIERS_LIST, undefined, undefined, false)
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Support both data wrapper and flat structure
+            const tiers = response.data?.tiers || response.tiers || [];
+            this.tiers.set(tiers);
+            console.log('Loaded tiers:', tiers.length);
+
+            // If no tier selected yet and tiers available, select first one
+            if (!this.selectedPlan() && tiers.length > 0) {
+              this.selectedPlan.set(tiers[0].slug);
+            }
+          }
+          this.loadingTiers.set(false);
+        },
+        error: (err) => {
+          console.error('Failed to load tiers:', err);
+          this.loadingTiers.set(false);
+        }
+      });
+  }
+
   onCountryChange(countryCode: string) {
     const country = this.countries().find(c => c.code === countryCode);
     if (country) {
@@ -141,6 +157,27 @@ export class Register implements OnInit {
 
   isItalySelected(): boolean {
     return this.companyInfo().countryCode === 'IT';
+  }
+
+  getSelectedTier(): SubscriptionTier | undefined {
+    return this.tiers().find(t => t.slug === this.selectedPlan());
+  }
+
+  formatTierPrice(tier: SubscriptionTier): string {
+    return `€${tier.price.toFixed(2)}`;
+  }
+
+  formatTierPeriod(tier: SubscriptionTier): string {
+    switch (tier.billing_period) {
+      case 'yearly':
+        return '/anno';
+      case 'monthly':
+        return '/mese';
+      case 'one_time':
+        return 'una tantum';
+      default:
+        return '';
+    }
   }
 
   async nextStep() {

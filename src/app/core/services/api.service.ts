@@ -26,6 +26,16 @@ export const API_ENDPOINTS = {
   // Tenant Pool
   ADMIN_TENANT_POOL: '/admin/tenant-pool.php',
 
+  // Subscription Tiers Management
+  ADMIN_TIERS_LIST: '/admin/tiers/list.php',
+  ADMIN_TIERS_GET: '/admin/tiers/get.php',
+  ADMIN_TIERS_CREATE: '/admin/tiers/create.php',
+  ADMIN_TIERS_UPDATE: '/admin/tiers/update.php',
+  ADMIN_TIERS_DELETE: '/admin/tiers/delete.php',
+  ADMIN_TIERS_DUPLICATE: '/admin/tiers/duplicate.php',
+  ADMIN_TIERS_TOGGLE_STATUS: '/admin/tiers/toggle-status.php',
+  PUBLIC_TIERS_LIST: '/tiers/list.php',
+
   // Public Auth
   PUBLIC_LOGIN: '/auth/login.php',
   PUBLIC_REGISTER: '/auth/register.php',

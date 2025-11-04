@@ -33,7 +33,9 @@
       "Bash(for i in {1..100})",
       "Bash(do docker exec candyhire-portal-mysql mysql -uroot -pcandyhire_portal_root_pass -e \"DROP DATABASE IF EXISTS candyhire_tenant_$i;\")",
       "Bash(done)",
-      "Bash(php generate_tenant_sql.php:*)"
+      "Bash(php generate_tenant_sql.php:*)",
+      "Bash(ng serve:*)",
+      "Bash(timeout 5 curl:*)"
     ],
     "deny": [],
     "ask": []

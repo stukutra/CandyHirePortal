@@ -1,0 +1,144 @@
+<div class="pricing-container">
+  <h2 class="pricing-title">{{ t('pricing.title') }}</h2>
+  <p class="pricing-subtitle">
+    {{ t('pricing.subtitle') }}
+  </p>
+
+  @if (isLoading()) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Caricamento piani...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="alert alert-warning text-center">
+      <i class="bi bi-exclamation-triangle me-2"></i>
+      {{ errorMessage() }}
+    </div>
+  } @else if (tiers().length === 0) {
+    <div class="alert alert-info text-center">
+      <i class="bi bi-info-circle me-2"></i>
+      Nessun piano disponibile al momento. Contattaci per maggiori informazioni.
+    </div>
+  } @else {
+    <!-- Tiers Grid -->
+    <div class="pricing-tiers" [class.pricing-single]="tiers().length === 1">
+      @for (tier of tiers(); track tier.id) {
+        <div
+          class="pricing-card"
+          [class.early-bird]="tier.is_featured"
+          [class.pricing-featured]="tier.is_featured"
+        >
+          <!-- Badge -->
+          @if (tier.badge_text) {
+            <div class="card-badge">
+              @if (tier.badge_icon) {
+                <i class="bi {{ tier.badge_icon }}"></i>
+              }
+              {{ tier.badge_text }}
+            </div>
+          }
+
+          <!-- Header -->
+          <div class="card-header">
+            <h3 class="card-title">{{ tier.name }}</h3>
+            @if (tier.description) {
+              <p class="card-subtitle">{{ tier.description }}</p>
+            }
+
+            <div class="card-price">
+              <span class="price-amount">{{ formatPrice(tier) }}</span>
+              <span class="price-period">{{ formatPeriod(tier) }}</span>
+            </div>
+
+            @if (hasDiscount(tier)) {
+              <p class="price-original">
+                <del>€{{ tier.original_price!.toFixed(2) }}</del>
+              </p>
+              <p class="price-subtext">{{ calculateSavings(tier) }}</p>
+            }
+          </div>
+
+          <!-- Features -->
+          <div class="card-body">
+            <ul class="features-list">
+              @for (feature of tier.features; track $index) {
+                <li
+                  class="feature-item"
+                  [class.feature-bonus]="feature.isBonus"
+                >
+                  @if (feature.icon) {
+                    <i class="bi {{ feature.icon }}"></i>
+                  }
+                  <div>
+                    <strong>{{ feature.title }}</strong>
+                    <p>{{ feature.description }}</p>
+                  </div>
+                </li>
+              }
+            </ul>
+          </div>
+
+          <!-- Footer -->
+          <div class="card-footer">
+            <button
+              type="button"
+              (click)="goToRegister(tier)"
+              class="btn btn-candy btn-lg btn-block"
+            >
+              <i class="bi bi-rocket-takeoff-fill me-2"></i>
+              Inizia Ora
+            </button>
+            <p class="footer-note">
+              <i class="bi bi-play-circle-fill text-primary"></i>
+              Demo gratuita disponibile
+            </p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- How It Works -->
+    <div class="what-happens-next">
+      <h3 class="next-title">{{ t('pricing.howItWorks.title') }}</h3>
+      <p class="next-subtitle">{{ t('pricing.howItWorks.subtitle') }}</p>
+
+      <div class="demo-notice">
+        <i class="bi bi-star-fill"></i>
+        <span><strong>{{ t('pricing.howItWorks.demoNotice') }}</strong> {{ t('pricing.howItWorks.demoNoticeDetail') }}</span>
+      </div>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-number">1</div>
+          <div class="timeline-content">
+            <h4>{{ t('pricing.howItWorks.step1.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step1.description') }}</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-number">2</div>
+          <div class="timeline-content">
+            <h4>{{ t('pricing.howItWorks.step2.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step2.description') }}</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-number">3</div>
+          <div class="timeline-content">
+            <h4>{{ t('pricing.howItWorks.step3.title') }}</h4>
+            <p>{{ t('pricing.howItWorks.step3.description') }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legal Notes -->
+    <div class="legal-notes">
+      <p class="vat-note">
+        {{ t('pricing.legal.vatNote') }}
+      </p>
+    </div>
+  }
+</div>

@@ -61,10 +61,10 @@ export const it: Translations = {
     },
     cta: {
       title: 'Smetti di perdere tempo, inizia a crescere',
-      description: '€1.900/anno per un recruiting finalmente professionale. Nessun limite, nessun costo nascosto.',
+      description: 'Un recruiting finalmente professionale con un unico piano completo. Nessun limite, nessun costo nascosto.',
       investment: 'Un investimento che si ripaga da solo',
       investmentDetail: 'in tempo risparmiato e assunzioni di qualità.',
-      button: 'Inizia Subito - Solo €1.900/anno',
+      button: 'Inizia Subito',
       login: 'Accedi',
       setup: 'Setup in 5 minuti',
       securePayment: 'Pagamento sicuro',
@@ -132,7 +132,7 @@ export const it: Translations = {
       }
     },
     cta: {
-      button: 'Inizia Ora - €1.900/anno',
+      button: 'Inizia Ora',
       demoNote: 'Demo gratuita sempre disponibile - Provala subito!'
     },
     value: {
@@ -165,7 +165,7 @@ export const it: Translations = {
       },
       step2: {
         title: 'Completa il pagamento',
-        description: '€1.900/anno + IVA - Pagamento sicuro con fattura immediata'
+        description: 'Pagamento sicuro con fattura immediata e copertura IVA automatica'
       },
       step3: {
         title: 'Inizia subito',
@@ -177,7 +177,7 @@ export const it: Translations = {
     }
   },
   floating: {
-    cta: 'Inizia Ora - €1.900/anno'
+    cta: 'Inizia Ora'
   },
   footer: {
     trustBadges: {

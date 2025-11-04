@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { ScreenshotsCarousel } from '../../components/screenshots-carousel/screenshots-carousel';
-import { Pricing } from '../../components/pricing/pricing';
+import { TiersDisplay } from '../../components/tiers-display/tiers-display';
 import { RotatingPhrases } from '../../components/rotating-phrases/rotating-phrases';
 import { TranslationService } from '../../core/services/translation.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-home',
-  imports: [ScreenshotsCarousel, Pricing, RotatingPhrases],
+  imports: [ScreenshotsCarousel, TiersDisplay, RotatingPhrases],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

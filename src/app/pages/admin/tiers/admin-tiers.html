@@ -1,0 +1,381 @@
+<div class="admin-tiers-page">
+  <!-- Header -->
+  <header class="page-header">
+    <div class="container-fluid">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="page-title">
+            <i class="bi bi-star-fill me-2"></i>
+            Subscription Tiers Management
+          </h1>
+          <p class="page-subtitle">Manage subscription plans and pricing</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-secondary" (click)="goToDashboard()">
+            <i class="bi bi-arrow-left me-2"></i>
+            Dashboard
+          </button>
+          <button class="btn btn-primary" (click)="refresh()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Refresh
+          </button>
+          <button class="btn btn-success" (click)="addTier()">
+            <i class="bi bi-plus-circle me-2"></i>
+            Add Tier
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container-fluid py-4">
+    @if (isLoading()) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {{ errorMessage() }}
+      </div>
+    } @else {
+      <!-- Stats Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-12 col-sm-6 col-xl-4">
+          <div class="stat-card stat-card-primary">
+            <div class="stat-icon">
+              <i class="bi bi-star"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ allTiers().length }}</h3>
+              <p class="stat-label">Total Tiers</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+          <div class="stat-card stat-card-success">
+            <div class="stat-icon">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ enabledCount() }}</h3>
+              <p class="stat-label">Enabled</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-4">
+          <div class="stat-card stat-card-warning">
+            <div class="stat-icon">
+              <i class="bi bi-star-fill"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-value">{{ featuredCount() }}</h3>
+              <p class="stat-label">Featured</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tiers Table -->
+      <app-data-table
+        [config]="tableConfig"
+        [data]="tiers()"
+        [pagination]="pagination()"
+        [loading]="isLoading()"
+        (actionClick)="onTableAction($event)"
+        (pageChange)="onPageChange($event)"
+        (itemsPerPageChange)="onItemsPerPageChange($event)"
+        (sortChange)="onSortChange($event)"
+        (searchChange)="onSearchChange($event)"
+        (filterChange)="onFilterChange($event)"
+      ></app-data-table>
+    }
+  </div>
+
+  <!-- Tier Modal -->
+  @if (showModal()) {
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              @if (modalMode() === 'add') {
+                <i class="bi bi-plus-circle me-2"></i>Add New Tier
+              } @else if (modalMode() === 'edit') {
+                <i class="bi bi-pencil me-2"></i>Edit Tier
+              } @else {
+                <i class="bi bi-eye me-2"></i>View Tier
+              }
+            </h5>
+            <button type="button" class="btn-close" (click)="closeModal()"></button>
+          </div>
+          <div class="modal-body">
+            @if (modalMode() === 'view' && selectedTier()) {
+              <!-- View Mode -->
+              <div class="tier-view">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Name:</label>
+                    <p>{{ selectedTier()!.name }}</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Category:</label>
+                    <p>{{ selectedTier()!.category }}</p>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Price:</label>
+                    <p>€{{ selectedTier()!.price }} / {{ selectedTier()!.billing_period }}</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Status:</label>
+                    <p>
+                      <span class="badge" [class]="selectedTier()!.is_enabled ? 'badge-success' : 'badge-danger'">
+                        {{ selectedTier()!.is_enabled ? 'Enabled' : 'Disabled' }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Features:</label>
+                  <ul class="list-group">
+                    @for (feature of selectedTier()!.features; track $index) {
+                      <li class="list-group-item">
+                        <i class="bi {{ feature.icon }} me-2"></i>
+                        <strong>{{ feature.title }}</strong><br>
+                        <small class="text-muted">{{ feature.description }}</small>
+                      </li>
+                    }
+                  </ul>
+                </div>
+              </div>
+            } @else {
+              <!-- Add/Edit Form -->
+              <form>
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Name *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="tierForm().name"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="e.g., CandyHire Professional"
+                    >
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Slug *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="tierForm().slug"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="e.g., professional"
+                    >
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Category *</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="tierForm().category"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="e.g., Professional"
+                    >
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Sort Order</label>
+                    <input
+                      type="number"
+                      class="form-control"
+                      [(ngModel)]="tierForm().sort_order"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Description</label>
+                  <textarea
+                    class="form-control"
+                    rows="2"
+                    [(ngModel)]="tierForm().description"
+                    [ngModelOptions]="{standalone: true}"
+                    placeholder="Short description of the tier"
+                  ></textarea>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Price *</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      class="form-control"
+                      [(ngModel)]="tierForm().price"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Original Price</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      class="form-control"
+                      [(ngModel)]="tierForm().original_price"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                  </div>
+                  <div class="col-md-4 mb-3">
+                    <label class="form-label">Billing Period</label>
+                    <select
+                      class="form-select"
+                      [(ngModel)]="tierForm().billing_period"
+                      [ngModelOptions]="{standalone: true}"
+                    >
+                      <option value="yearly">Yearly</option>
+                      <option value="monthly">Monthly</option>
+                      <option value="one_time">One Time</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Badge Text</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="tierForm().badge_text"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="e.g., Early Bird Special"
+                    >
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Badge Icon (Bootstrap Icon)</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      [(ngModel)]="tierForm().badge_icon"
+                      [ngModelOptions]="{standalone: true}"
+                      placeholder="e.g., bi-star-fill"
+                    >
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [(ngModel)]="tierForm().is_featured"
+                        [ngModelOptions]="{standalone: true}"
+                      >
+                      <label class="form-check-label">Featured Tier</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [(ngModel)]="tierForm().is_enabled"
+                        [ngModelOptions]="{standalone: true}"
+                      >
+                      <label class="form-check-label">Enabled</label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Features Management -->
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Features</label>
+                  <div class="features-list">
+                    @for (feature of tierForm().features; track $index) {
+                      <div class="feature-item card mb-2">
+                        <div class="card-body">
+                          <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0">Feature {{ $index + 1 }}</h6>
+                            <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeFeature($index)">
+                              <i class="bi bi-trash"></i>
+                            </button>
+                          </div>
+                          <div class="row">
+                            <div class="col-md-4 mb-2">
+                              <label class="form-label">Icon (Bootstrap)</label>
+                              <input
+                                type="text"
+                                class="form-control form-control-sm"
+                                [(ngModel)]="feature.icon"
+                                [ngModelOptions]="{ standalone: true }"
+                                placeholder="bi-check-circle"
+                              >
+                            </div>
+                            <div class="col-md-8 mb-2">
+                              <label class="form-label">Title</label>
+                              <input
+                                type="text"
+                                class="form-control form-control-sm"
+                                [(ngModel)]="feature.title"
+                                [ngModelOptions]="{ standalone: true }"
+                                placeholder="Feature title"
+                              >
+                            </div>
+                          </div>
+                          <div class="mb-2">
+                            <label class="form-label">Description</label>
+                            <textarea
+                              class="form-control form-control-sm"
+                              rows="2"
+                              [(ngModel)]="feature.description"
+                              [ngModelOptions]="{ standalone: true }"
+                              placeholder="Feature description"
+                            ></textarea>
+                          </div>
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              [(ngModel)]="feature.isBonus"
+                              [ngModelOptions]="{ standalone: true }"
+                            >
+                            <label class="form-check-label">Mark as BONUS</label>
+                          </div>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-primary" (click)="addFeature()">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Add Feature
+                  </button>
+                </div>
+              </form>
+            }
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">
+              @if (modalMode() === 'view') { Close } @else { Cancel }
+            </button>
+            @if (modalMode() !== 'view') {
+              <button type="button" class="btn btn-primary" (click)="saveTier()">
+                <i class="bi bi-check-circle me-2"></i>
+                {{ modalMode() === 'add' ? 'Create Tier' : 'Update Tier' }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+  }
+</div>

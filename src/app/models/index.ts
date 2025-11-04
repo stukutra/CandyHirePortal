@@ -18,5 +18,8 @@ export * from './dashboard.model';
 // Country models
 export * from './country.model';
 
+// Subscription Tier models
+export * from './subscription-tier.model';
+
 // API Response models
 export * from './api-response.model';
