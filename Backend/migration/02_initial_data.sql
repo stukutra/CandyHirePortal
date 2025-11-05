@@ -208,6 +208,6 @@ TRUNCATE TABLE `user_directory`;
 
 -- Populate user_directory with existing company admins that have been assigned a tenant
 INSERT INTO user_directory (email, tenant_id, user_type, user_id, is_active)
-SELECT email, tenant_id, 'company_admin', id, is_active
+SELECT legal_rep_email, tenant_id, 'company_admin', id, is_active
 FROM companies_registered
 WHERE tenant_id IS NOT NULL AND registration_status = 'active';

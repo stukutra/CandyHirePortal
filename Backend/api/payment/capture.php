@@ -224,10 +224,11 @@ try {
         error_log("Step 5.3.3 Complete: Company assigned to tenant (tenant_id: " . $tenant['tenant_id'] . ") and status set to active");
 
         // Step 5.3.3.1: Add company admin to user_directory for O(1) login lookup
-        error_log("Step 5.3.3.1: Adding company admin to user_directory");
+        // IMPORTANT: use legal_rep_email as the admin login identity
+        error_log("Step 5.3.3.1: Adding company admin to user_directory (using legal_rep_email)");
         $stmt = $db->prepare("
             INSERT INTO user_directory (email, tenant_id, user_type, user_id, is_active)
-            SELECT email, tenant_id, 'company_admin', id, is_active
+            SELECT legal_rep_email, tenant_id, 'company_admin', id, is_active
             FROM companies_registered
             WHERE id = ?
         ");
