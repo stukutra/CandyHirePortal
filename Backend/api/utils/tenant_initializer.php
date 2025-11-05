@@ -108,42 +108,34 @@ class TenantInitializer {
      * Returns the Super Admin role ID
      */
     private function createDefaultRoles() {
-        $super_admin_role_id = 'role-' . uniqid();
-
-        // Define all default roles with their permissions
+        // Define all default roles with their permissions (without IDs - let AUTO_INCREMENT handle it)
         $default_roles = [
             [
-                'id' => $super_admin_role_id,
                 'name' => 'Super Admin',
                 'description' => 'Full system access with all permissions',
                 'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics', 'system-users', 'roles']
             ],
             [
-                'id' => 'role-' . uniqid(),
                 'name' => 'Admin',
                 'description' => 'Administrative access with most permissions',
                 'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics', 'system-users']
             ],
             [
-                'id' => 'role-' . uniqid(),
                 'name' => 'Manager',
                 'description' => 'Manager with access to core recruiting functions',
                 'permissions' => ['jobs', 'candidates', 'recruiters', 'companies', 'referents', 'interviews', 'analytics']
             ],
             [
-                'id' => 'role-' . uniqid(),
                 'name' => 'Recruiter',
                 'description' => 'Recruiter with access to candidates and jobs',
                 'permissions' => ['jobs', 'candidates', 'interviews', 'analytics']
             ],
             [
-                'id' => 'role-' . uniqid(),
                 'name' => 'HR',
                 'description' => 'HR personnel with limited access',
                 'permissions' => ['candidates', 'interviews', 'analytics']
             ],
             [
-                'id' => 'role-' . uniqid(),
                 'name' => 'Viewer',
                 'description' => 'Read-only access to analytics',
                 'permissions' => ['analytics']
@@ -151,19 +143,29 @@ class TenantInitializer {
         ];
 
         $stmt = $this->tenant_db->prepare("
-            INSERT INTO roles (id, tenant_id, name, description, permissions)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO roles (tenant_id, name, description, permissions)
+            VALUES (?, ?, ?, ?)
         ");
+
+        $super_admin_role_id = null;
 
         foreach ($default_roles as $role) {
             $stmt->execute([
-                $role['id'],
                 $this->tenant_id,
                 $role['name'],
                 $role['description'],
                 json_encode($role['permissions'])
             ]);
-            error_log("TenantInit: Created role '{$role['name']}' with ID: {$role['id']}");
+
+            // Get the auto-generated ID
+            $role_id = $this->tenant_db->lastInsertId();
+
+            // Save Super Admin role ID (first one)
+            if ($role['name'] === 'Super Admin') {
+                $super_admin_role_id = $role_id;
+            }
+
+            error_log("TenantInit: Created role '{$role['name']}' with ID: {$role_id}");
         }
 
         return $super_admin_role_id;
@@ -205,14 +207,12 @@ class TenantInitializer {
      * Create first admin user (legal representative)
      */
     private function createFirstAdmin($company_data, $role_id) {
-        $user_id = 'user-' . uniqid();
-
         $stmt = $this->tenant_db->prepare("
             INSERT INTO system_users (
-                id, tenant_id, email, password_hash,
+                tenant_id, email, password_hash,
                 first_name, last_name, username,
                 role_id, is_active, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, 1, NOW())
         ");
 
         // Username is first initial + last name (e.g., "jsmith")
@@ -224,7 +224,6 @@ class TenantInitializer {
         $username = preg_replace('/[^a-z0-9]/', '', $username);
 
         $stmt->execute([
-            $user_id,
             $this->tenant_id,
             $company_data['legal_rep_email'],
             $company_data['password_hash'], // Already hashed during registration
@@ -233,6 +232,9 @@ class TenantInitializer {
             $username,
             $role_id
         ]);
+
+        // Get the auto-generated ID
+        $user_id = $this->tenant_db->lastInsertId();
 
         return $user_id;
     }

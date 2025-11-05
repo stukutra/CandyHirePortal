@@ -107,14 +107,14 @@ echo "   Generating admin password hash..."
 ADMIN_PASSWORD_HASH=$(docker exec candyhire-portal-php php -r "echo password_hash('Admin123!', PASSWORD_BCRYPT);")
 echo "   ✓ Password hash generated"
 
-# Run Portal initial data insertion (without admin user first)
+# Run Portal initial data insertion (admin, countries - WITHOUT tenant pool yet)
 docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal < migration/02_initial_data.sql 2>/dev/null || echo "⚠️  Initial data already exists or failed to insert"
 
 # Update admin user with freshly generated password hash
 echo "   Updating admin password with fresh hash..."
 docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal -e "UPDATE admin_users SET password_hash = '$ADMIN_PASSWORD_HASH' WHERE email = 'admin@candyhire.com';" 2>/dev/null
 
-echo "✅ Portal initial data imported"
+echo "✅ Portal initial data imported (admin and countries)"
 echo ""
 echo "💎 Creating subscription tiers..."
 echo ""
@@ -124,31 +124,98 @@ docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql 
 
 echo "✅ Subscription tiers created"
 echo ""
-echo "🏗️  Creating 1000 tenant databases..."
-echo "⚠️  This will take 10-15 minutes. Please wait..."
+echo "🏗️  Tenant Database Configuration"
 echo ""
 
+# Ask user for tenant count with 5 second timeout
+read -t 5 -p "How many tenant databases do you want to create? (1-1000, default: 10): " TENANT_COUNT
+timeout_exit=$?
+
+# If timeout occurred or no input, use default
+if [ $timeout_exit -ne 0 ] || [ -z "$TENANT_COUNT" ]; then
+    TENANT_COUNT=10
+    echo ""
+    echo "   ⏱️  Timeout or no input - using default: $TENANT_COUNT tenants"
+elif ! [[ "$TENANT_COUNT" =~ ^[0-9]+$ ]] || [ "$TENANT_COUNT" -lt 1 ] || [ "$TENANT_COUNT" -gt 1000 ]; then
+    echo "❌ Invalid number. Must be between 1 and 1000."
+    exit 1
+fi
+
+echo ""
+echo "📋 Generating tenant pool SQL for $TENANT_COUNT tenants..."
+
 # Tenant configuration
-TENANT_COUNT=1000
 TENANT_SCHEMA="migration/tenant_schema/schema.sql"
+TENANT_POOL_SQL="migration/generated_tenant_pool.sql"
+
+# Generate tenant pool SQL
+docker exec candyhire-portal-php php -r "
+\$tenantCount = $TENANT_COUNT;
+\$itemsPerLine = 10;
+
+echo \"-- ============================================\\n\";
+echo \"-- Tenant Pool - \$tenantCount Pre-allocated Tenants\\n\";
+echo \"-- Generated on \" . date('Y-m-d H:i:s') . \"\\n\";
+echo \"-- ============================================\\n\\n\";
+
+echo \"-- Clean tenant_pool table to ensure fresh start\\n\";
+echo \"TRUNCATE TABLE \\\`tenant_pool\\\`;\\n\\n\";
+
+echo \"INSERT INTO \\\`tenant_pool\\\` (\\\`tenant_id\\\`, \\\`is_available\\\`) VALUES\\n\";
+
+for (\$i = 1; \$i <= \$tenantCount; \$i++) {
+    echo \"(\$i, TRUE)\";
+
+    if (\$i < \$tenantCount) {
+        echo \",\";
+        if (\$i % \$itemsPerLine === 0) {
+            echo \"\\n\";
+        } else {
+            echo \" \";
+        }
+    } else {
+        echo \";\\n\";
+    }
+}
+
+echo \"\\n-- ✅ \$tenantCount tenant pool entries created\\n\";
+" > $TENANT_POOL_SQL
+
+echo "✅ Tenant pool SQL generated"
 
 # Check if Tenant schema file exists
 if [ ! -f "$TENANT_SCHEMA" ]; then
     echo "⚠️  Warning: Tenant schema file not found at $TENANT_SCHEMA"
     echo "   Skipping tenant creation."
 else
-    # Create 50 tenant databases
+    # Clean up ALL existing tenant databases first
+    echo "🧹 Cleaning up existing tenant databases..."
+    existing_dbs=$(docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "SHOW DATABASES LIKE 'candyhire_tenant_%';" | grep candyhire_tenant || true)
+
+    if [ ! -z "$existing_dbs" ]; then
+        echo "$existing_dbs" | while read db_name; do
+            echo "   Dropping old database: $db_name"
+            docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS \`$db_name\`;" 2>/dev/null
+        done
+        echo "✅ All old tenant databases dropped"
+    else
+        echo "   No existing tenant databases found"
+    fi
+
+    echo ""
+    echo "📦 Creating $TENANT_COUNT new tenant databases..."
+
+    # Create tenant databases
     success_count=0
     for i in $(seq 1 $TENANT_COUNT); do
         DB_NAME="candyhire_tenant_$i"
 
         # Show progress every 10 databases
         if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
-            echo "  📦 Creating tenant $i/$TENANT_COUNT (cleaning old data)..."
+            echo "  📦 Creating tenant $i/$TENANT_COUNT..."
         fi
 
-        # Drop and recreate database to ensure clean state
-        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS \`$DB_NAME\`;" 2>/dev/null
+        # Create database
         docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 
         # Apply schema with AUTO_INCREMENT
@@ -165,6 +232,12 @@ else
     echo "🔐 Granting permissions to candyhire_user on tenant databases..."
     docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT ALL PRIVILEGES ON \`candyhire_tenant_%\`.* TO 'candyhire_user'@'%'; FLUSH PRIVILEGES;" 2>/dev/null
     echo "✅ Permissions granted successfully"
+
+    # Insert tenant pool data
+    echo ""
+    echo "📊 Populating tenant pool with $TENANT_COUNT entries..."
+    docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal < $TENANT_POOL_SQL 2>/dev/null
+    echo "✅ Tenant pool populated successfully"
 fi
 
 echo ""
@@ -187,7 +260,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "Frontend:           http://localhost:4202"
 echo "API Backend:        http://localhost:8080"
-echo "Tenant Databases:   1000 databases (candyhire_tenant_1 to candyhire_tenant_1000)"
+echo "Tenant Databases:   $TENANT_COUNT databases (candyhire_tenant_1 to candyhire_tenant_$TENANT_COUNT)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🗄️  SHARED MYSQL DATABASE"
