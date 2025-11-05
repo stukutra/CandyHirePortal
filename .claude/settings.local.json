@@ -58,7 +58,8 @@
       "Bash(fi)",
       "Bash(find:*)",
       "Bash(xargs:*)",
-      "Bash(docker cp:*)"
+      "Bash(docker cp:*)",
+      "Bash(php generate_tenant_pool_sql.php:*)"
     ],
     "deny": [],
     "ask": []
