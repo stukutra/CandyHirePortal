@@ -7,7 +7,7 @@ SET NAMES utf8mb4;
 -- ============================================
 -- Tenant Pool - PRE-CREATED TENANTS
 -- ============================================
--- 50 tenant databases are pre-created with empty schema during setup.
+-- 100 tenant databases are pre-created with empty schema during setup.
 -- When a company completes payment, one tenant is assigned from the pool.
 -- ============================================
 
@@ -24,7 +24,17 @@ INSERT INTO `tenant_pool` (`tenant_id`, `is_available`) VALUES
 (31, TRUE), (32, TRUE), (33, TRUE), (34, TRUE), (35, TRUE),
 (36, TRUE), (37, TRUE), (38, TRUE), (39, TRUE), (40, TRUE),
 (41, TRUE), (42, TRUE), (43, TRUE), (44, TRUE), (45, TRUE),
-(46, TRUE), (47, TRUE), (48, TRUE), (49, TRUE), (50, TRUE);
+(46, TRUE), (47, TRUE), (48, TRUE), (49, TRUE), (50, TRUE),
+(51, TRUE), (52, TRUE), (53, TRUE), (54, TRUE), (55, TRUE),
+(56, TRUE), (57, TRUE), (58, TRUE), (59, TRUE), (60, TRUE),
+(61, TRUE), (62, TRUE), (63, TRUE), (64, TRUE), (65, TRUE),
+(66, TRUE), (67, TRUE), (68, TRUE), (69, TRUE), (70, TRUE),
+(71, TRUE), (72, TRUE), (73, TRUE), (74, TRUE), (75, TRUE),
+(76, TRUE), (77, TRUE), (78, TRUE), (79, TRUE), (80, TRUE),
+(81, TRUE), (82, TRUE), (83, TRUE), (84, TRUE), (85, TRUE),
+(86, TRUE), (87, TRUE), (88, TRUE), (89, TRUE), (90, TRUE),
+(91, TRUE), (92, TRUE), (93, TRUE), (94, TRUE), (95, TRUE),
+(96, TRUE), (97, TRUE), (98, TRUE), (99, TRUE), (100, TRUE);
 
 -- ============================================
 -- Insert Default Admin User

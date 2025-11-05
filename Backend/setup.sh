@@ -15,7 +15,7 @@ echo "========================================"
 echo ""
 echo "⚠️  WARNING: This will DROP and recreate ALL databases!"
 echo "   - CandyHirePortal database"
-echo "   - All 50 tenant databases (candyhire_tenant_1 to candyhire_tenant_50)"
+echo "   - All 100 tenant databases (candyhire_tenant_1 to candyhire_tenant_100)"
 echo "   - All existing data will be PERMANENTLY DELETED"
 echo ""
 read -p "Continue? (y/N): " -n 1 -r
@@ -115,12 +115,12 @@ docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql 
 
 echo "✅ Subscription tiers created"
 echo ""
-echo "🏗️  Creating 50 tenant databases..."
+echo "🏗️  Creating 100 tenant databases..."
 echo "⚠️  This will take a few minutes. Please wait..."
 echo ""
 
 # Tenant configuration
-TENANT_COUNT=50
+TENANT_COUNT=100
 TENANT_SCHEMA="migration/tenant_schema/schema.sql"
 
 # Check if Tenant schema file exists
@@ -178,7 +178,7 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 echo "Frontend:           http://localhost:4202"
 echo "API Backend:        http://localhost:8080"
-echo "Tenant Databases:   50 databases (candyhire_tenant_1 to candyhire_tenant_50)"
+echo "Tenant Databases:   100 databases (candyhire_tenant_1 to candyhire_tenant_100)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🗄️  SHARED MYSQL DATABASE"
