@@ -397,8 +397,10 @@ CREATE TABLE `document_types` (
   `icon` VARCHAR(100),
   `accepted_formats` JSON NOT NULL COMMENT 'Array of MIME types',
   `max_size_mb` INT NOT NULL DEFAULT 10,
-  `is_required` BOOLEAN DEFAULT FALSE,
+  `required` BOOLEAN DEFAULT FALSE,
+  `is_active` BOOLEAN DEFAULT TRUE,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_document_types_tenant (`tenant_id`),
   INDEX idx_document_types_entity (`entity_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

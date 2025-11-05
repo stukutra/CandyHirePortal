@@ -146,6 +146,7 @@ echo "📋 Generating tenant pool SQL for $TENANT_COUNT tenants..."
 
 # Tenant configuration
 TENANT_SCHEMA="migration/tenant_schema/schema.sql"
+TENANT_INITIAL_DATA="migration/tenant_schema/initial_data.sql"
 TENANT_POOL_SQL="migration/generated_tenant_pool.sql"
 
 # Generate tenant pool SQL
@@ -220,6 +221,11 @@ else
 
         # Apply schema with AUTO_INCREMENT
         docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot $DB_NAME < $TENANT_SCHEMA 2>/dev/null
+
+        # Apply initial data if file exists (replace {{TENANT_ID}} with actual tenant ID)
+        if [ -f "$TENANT_INITIAL_DATA" ]; then
+            sed "s/{{TENANT_ID}}/$i/g" $TENANT_INITIAL_DATA | docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot $DB_NAME 2>/dev/null
+        fi
 
         success_count=$((success_count + 1))
     done
