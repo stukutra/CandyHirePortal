@@ -223,5 +223,27 @@ CREATE TABLE `activity_logs` (
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
+-- Triggers: Sync user_directory with company admin changes
+-- ============================================
+
+-- Trigger: Update user_directory when legal_rep_email changes
+DELIMITER $$
+CREATE TRIGGER trg_sync_user_directory_on_legal_email_update
+AFTER UPDATE ON companies_registered
+FOR EACH ROW
+BEGIN
+    -- Only update if legal_rep_email changed and tenant is assigned
+    IF OLD.legal_rep_email != NEW.legal_rep_email AND NEW.tenant_id IS NOT NULL THEN
+        UPDATE user_directory
+        SET email = NEW.legal_rep_email,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE tenant_id = NEW.tenant_id
+          AND user_type = 'company_admin'
+          AND user_id = NEW.id;
+    END IF;
+END$$
+DELIMITER ;
+
+-- ============================================
 -- End of Portal Schema
 -- ============================================
