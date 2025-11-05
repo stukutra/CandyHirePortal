@@ -4,7 +4,7 @@
  * Usage: php generate_tenant_pool_sql.php > tenant_pool.sql
  */
 
-$tenantCount = 1000;
+$tenantCount = 10;
 $itemsPerLine = 10;
 
 echo "-- ============================================\n";

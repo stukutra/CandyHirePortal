@@ -59,7 +59,8 @@
       "Bash(find:*)",
       "Bash(xargs:*)",
       "Bash(docker cp:*)",
-      "Bash(php generate_tenant_pool_sql.php:*)"
+      "Bash(php generate_tenant_pool_sql.php:*)",
+      "Bash(npx ng-lint-staged recruiter-modal.html)"
     ],
     "deny": [],
     "ask": []

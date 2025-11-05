@@ -102,8 +102,17 @@ echo ""
 echo "🎯 Inserting Portal initial data (admin, countries, tenant pool)..."
 echo ""
 
-# Run Portal initial data insertion
+# Generate fresh password hash for admin user
+echo "   Generating admin password hash..."
+ADMIN_PASSWORD_HASH=$(docker exec candyhire-portal-php php -r "echo password_hash('Admin123!', PASSWORD_BCRYPT);")
+echo "   ✓ Password hash generated"
+
+# Run Portal initial data insertion (without admin user first)
 docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal < migration/02_initial_data.sql 2>/dev/null || echo "⚠️  Initial data already exists or failed to insert"
+
+# Update admin user with freshly generated password hash
+echo "   Updating admin password with fresh hash..."
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal -e "UPDATE admin_users SET password_hash = '$ADMIN_PASSWORD_HASH' WHERE email = 'admin@candyhire.com';" 2>/dev/null
 
 echo "✅ Portal initial data imported"
 echo ""
