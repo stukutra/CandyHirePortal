@@ -13,6 +13,18 @@ echo "========================================"
 echo "CandyHire Portal Backend Setup"
 echo "========================================"
 echo ""
+echo "⚠️  WARNING: This will DROP and recreate ALL databases!"
+echo "   - CandyHirePortal database"
+echo "   - All 50 tenant databases (candyhire_tenant_1 to candyhire_tenant_50)"
+echo "   - All existing data will be PERMANENTLY DELETED"
+echo ""
+read -p "Continue? (y/N): " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Setup cancelled."
+    exit 0
+fi
+echo ""
 
 # Check if Docker is running
 if ! docker info > /dev/null 2>&1; then
@@ -68,8 +80,9 @@ echo ""
 echo "📊 Creating Portal database..."
 echo ""
 
-# Create Portal database and user
-docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE IF NOT EXISTS CandyHirePortal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+# Drop and recreate Portal database to ensure clean state
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS CandyHirePortal;" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE CandyHirePortal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE USER IF NOT EXISTS 'candyhire_portal_user'@'%' IDENTIFIED BY 'candyhire_portal_pass';" 2>/dev/null
 docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT ALL PRIVILEGES ON CandyHirePortal.* TO 'candyhire_portal_user'@'%';" 2>/dev/null
 docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE USER IF NOT EXISTS 'candyhire_user'@'%' IDENTIFIED BY 'CandyH1re_S3cur3P@ss!';" 2>/dev/null
@@ -108,11 +121,11 @@ echo ""
 
 # Tenant configuration
 TENANT_COUNT=50
-SAAS_SCHEMA="../../CandyHire/Backend/migration/04_candyhire_schema.sql"
+TENANT_SCHEMA="migration/tenant_schema/schema.sql"
 
-# Check if SaaS schema file exists
-if [ ! -f "$SAAS_SCHEMA" ]; then
-    echo "⚠️  Warning: Tenant schema file not found at $SAAS_SCHEMA"
+# Check if Tenant schema file exists
+if [ ! -f "$TENANT_SCHEMA" ]; then
+    echo "⚠️  Warning: Tenant schema file not found at $TENANT_SCHEMA"
     echo "   Skipping tenant creation."
 else
     # Create 50 tenant databases
@@ -122,14 +135,15 @@ else
 
         # Show progress every 10 databases
         if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
-            echo "  📦 Creating tenant $i/$TENANT_COUNT..."
+            echo "  📦 Creating tenant $i/$TENANT_COUNT (cleaning old data)..."
         fi
 
-        # Create database
-        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE IF NOT EXISTS \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+        # Drop and recreate database to ensure clean state
+        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS \`$DB_NAME\`;" 2>/dev/null
+        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
 
-        # Apply schema (empty tables)
-        docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot $DB_NAME < $SAAS_SCHEMA 2>/dev/null
+        # Apply schema with AUTO_INCREMENT
+        docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot $DB_NAME < $TENANT_SCHEMA 2>/dev/null
 
         success_count=$((success_count + 1))
     done

@@ -8,37 +8,12 @@ SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ============================================
--- Table: system_users
--- Users who can login to the system
--- ============================================
-DROP TABLE IF EXISTS `system_users`;
-CREATE TABLE `system_users` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
-  `tenant_id` VARCHAR(50) NOT NULL COMMENT 'Isolates user data per tenant',
-  `email` VARCHAR(255) NOT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `first_name` VARCHAR(100) NOT NULL,
-  `last_name` VARCHAR(100) NOT NULL,
-  `username` VARCHAR(100),
-  `avatar` TEXT,
-  `role_id` VARCHAR(50),
-  `is_active` BOOLEAN DEFAULT TRUE,
-  `last_login` TIMESTAMP NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY unique_email_per_tenant (`email`, `tenant_id`),
-  INDEX idx_system_users_tenant (`tenant_id`),
-  INDEX idx_system_users_email (`email`),
-  INDEX idx_system_users_role (`role_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- ============================================
 -- Table: roles
 -- User roles and permissions
 -- ============================================
 DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `name` VARCHAR(100) NOT NULL,
   `description` TEXT,
@@ -49,9 +24,31 @@ CREATE TABLE `roles` (
   INDEX idx_roles_tenant (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Add foreign key for system_users after roles table is created
-ALTER TABLE `system_users`
-  ADD FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+-- ============================================
+-- Table: system_users
+-- Users who can login to the system
+-- ============================================
+DROP TABLE IF EXISTS `system_users`;
+CREATE TABLE `system_users` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `tenant_id` VARCHAR(50) NOT NULL COMMENT 'Isolates user data per tenant',
+  `email` VARCHAR(255) NOT NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `first_name` VARCHAR(100) NOT NULL,
+  `last_name` VARCHAR(100) NOT NULL,
+  `username` VARCHAR(100),
+  `avatar` TEXT,
+  `role_id` BIGINT UNSIGNED,
+  `is_active` BOOLEAN DEFAULT TRUE,
+  `last_login` TIMESTAMP NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_email_per_tenant (`email`, `tenant_id`),
+  INDEX idx_system_users_tenant (`tenant_id`),
+  INDEX idx_system_users_email (`email`),
+  INDEX idx_system_users_role (`role_id`),
+  FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
 -- Table: companies
@@ -59,7 +56,7 @@ ALTER TABLE `system_users`
 -- ============================================
 DROP TABLE IF EXISTS `companies`;
 CREATE TABLE `companies` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `logo` TEXT,
@@ -88,7 +85,7 @@ CREATE TABLE `companies` (
 -- ============================================
 DROP TABLE IF EXISTS `recruiters`;
 CREATE TABLE `recruiters` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
@@ -112,7 +109,7 @@ CREATE TABLE `recruiters` (
 -- ============================================
 DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE `jobs` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `title` VARCHAR(255) NOT NULL,
   `department` VARCHAR(100) NOT NULL,
@@ -131,14 +128,15 @@ CREATE TABLE `jobs` (
   `posted_date` DATE,
   `start_date` DATE,
   `end_date` DATE,
-  `company_id` VARCHAR(50),
-  `created_by` VARCHAR(50),
+  `company_id` BIGINT UNSIGNED,
+  `created_by` BIGINT UNSIGNED,
   `employment_type` VARCHAR(50),
   `work_location_type` VARCHAR(50),
   `experience_level` VARCHAR(50),
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`company_id`) REFERENCES `companies`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  FOREIGN KEY (`created_by`) REFERENCES `system_users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   INDEX idx_jobs_tenant (`tenant_id`),
   INDEX idx_jobs_company (`company_id`),
   INDEX idx_jobs_status (`status`),
@@ -153,8 +151,8 @@ CREATE TABLE `jobs` (
 -- ============================================
 DROP TABLE IF EXISTS `job_recruiters`;
 CREATE TABLE `job_recruiters` (
-  `job_id` VARCHAR(50) NOT NULL,
-  `recruiter_id` VARCHAR(50) NOT NULL,
+  `job_id` BIGINT UNSIGNED NOT NULL,
+  `recruiter_id` BIGINT UNSIGNED NOT NULL,
   `assigned_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`job_id`, `recruiter_id`),
   FOREIGN KEY (`job_id`) REFERENCES `jobs`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -169,7 +167,7 @@ CREATE TABLE `job_recruiters` (
 -- ============================================
 DROP TABLE IF EXISTS `candidates`;
 CREATE TABLE `candidates` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
@@ -190,7 +188,7 @@ CREATE TABLE `candidates` (
   `daily_rate` DECIMAL(10,2) COMMENT 'For freelancers in EUR',
   `annual_salary` DECIMAL(12,2) COMMENT 'For employees RAL in EUR',
   `expected_salary` DECIMAL(12,2) COMMENT 'Expected annual or daily rate',
-  `supplier_company_id` VARCHAR(50),
+  `supplier_company_id` BIGINT UNSIGNED,
   `supplier_company_name` VARCHAR(255),
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -208,14 +206,14 @@ CREATE TABLE `candidates` (
 -- ============================================
 DROP TABLE IF EXISTS `job_applications`;
 CREATE TABLE `job_applications` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
-  `candidate_id` VARCHAR(50) NOT NULL,
-  `job_id` VARCHAR(50) NOT NULL,
-  `company_id` VARCHAR(50),
+  `candidate_id` BIGINT UNSIGNED NOT NULL,
+  `job_id` BIGINT UNSIGNED NOT NULL,
+  `company_id` BIGINT UNSIGNED,
   `status` ENUM('New', 'Screening', 'Interview', 'Offer', 'Hired', 'Rejected') NOT NULL DEFAULT 'New',
   `applied_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  `referral_company_id` VARCHAR(50),
+  `referral_company_id` BIGINT UNSIGNED,
   `notes` TEXT,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -236,8 +234,8 @@ CREATE TABLE `job_applications` (
 -- ============================================
 DROP TABLE IF EXISTS `job_application_recruiters`;
 CREATE TABLE `job_application_recruiters` (
-  `job_application_id` VARCHAR(50) NOT NULL,
-  `recruiter_id` VARCHAR(50) NOT NULL,
+  `job_application_id` BIGINT UNSIGNED NOT NULL,
+  `recruiter_id` BIGINT UNSIGNED NOT NULL,
   `assigned_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`job_application_id`, `recruiter_id`),
   FOREIGN KEY (`job_application_id`) REFERENCES `job_applications`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -250,10 +248,10 @@ CREATE TABLE `job_application_recruiters` (
 -- ============================================
 DROP TABLE IF EXISTS `candidate_notes`;
 CREATE TABLE `candidate_notes` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
-  `candidate_id` VARCHAR(50) NOT NULL,
-  `recruiter_id` VARCHAR(50) NOT NULL,
+  `candidate_id` BIGINT UNSIGNED NOT NULL,
+  `recruiter_id` BIGINT UNSIGNED NOT NULL,
   `recruiter_name` VARCHAR(255) NOT NULL,
   `recruiter_avatar` TEXT,
   `content` TEXT NOT NULL,
@@ -272,13 +270,13 @@ CREATE TABLE `candidate_notes` (
 -- ============================================
 DROP TABLE IF EXISTS `interviews`;
 CREATE TABLE `interviews` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
-  `candidate_id` VARCHAR(50) NOT NULL,
+  `candidate_id` BIGINT UNSIGNED NOT NULL,
   `candidate_name` VARCHAR(255) NOT NULL,
-  `job_id` VARCHAR(50),
+  `job_id` BIGINT UNSIGNED,
   `job_title` VARCHAR(255),
-  `company_id` VARCHAR(50),
+  `company_id` BIGINT UNSIGNED,
   `company_name` VARCHAR(255),
   `type` ENUM('Phone', 'Video', 'In-person', 'Technical') NOT NULL DEFAULT 'Video',
   `status` ENUM('Scheduled', 'Completed', 'Cancelled', 'Rescheduled') NOT NULL DEFAULT 'Scheduled',
@@ -305,8 +303,8 @@ CREATE TABLE `interviews` (
 -- ============================================
 DROP TABLE IF EXISTS `interview_interviewers`;
 CREATE TABLE `interview_interviewers` (
-  `interview_id` VARCHAR(50) NOT NULL,
-  `recruiter_id` VARCHAR(50) NOT NULL,
+  `interview_id` BIGINT UNSIGNED NOT NULL,
+  `recruiter_id` BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (`interview_id`, `recruiter_id`),
   FOREIGN KEY (`interview_id`) REFERENCES `interviews`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (`recruiter_id`) REFERENCES `recruiters`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
@@ -318,10 +316,10 @@ CREATE TABLE `interview_interviewers` (
 -- ============================================
 DROP TABLE IF EXISTS `interview_feedback`;
 CREATE TABLE `interview_feedback` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
-  `interview_id` VARCHAR(50) NOT NULL,
-  `interviewer_id` VARCHAR(50) NOT NULL,
+  `interview_id` BIGINT UNSIGNED NOT NULL,
+  `interviewer_id` BIGINT UNSIGNED NOT NULL,
   `rating` TINYINT NOT NULL CHECK (`rating` >= 1 AND `rating` <= 5),
   `comments` TEXT NOT NULL,
   `recommendation` ENUM('Hire', 'Maybe', 'No Hire') NOT NULL,
@@ -339,9 +337,9 @@ CREATE TABLE `interview_feedback` (
 -- ============================================
 DROP TABLE IF EXISTS `referents`;
 CREATE TABLE `referents` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
-  `company_id` VARCHAR(50) NOT NULL,
+  `company_id` BIGINT UNSIGNED NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
   `role` ENUM('HR Manager', 'HR Director', 'Recruiting Manager', 'Talent Acquisition', 'Department Head', 'Account Manager', 'Sales Manager', 'Business Partner', 'Operations Manager') NOT NULL,
@@ -361,17 +359,18 @@ CREATE TABLE `referents` (
 -- ============================================
 DROP TABLE IF EXISTS `blacklist`;
 CREATE TABLE `blacklist` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `entity_type` ENUM('candidate', 'company', 'recruiter') NOT NULL,
-  `entity_id` VARCHAR(50) NOT NULL,
+  `entity_id` BIGINT UNSIGNED NOT NULL,
   `entity_name` VARCHAR(255) NOT NULL,
   `reason` TEXT NOT NULL,
-  `added_by` VARCHAR(50),
+  `added_by` BIGINT UNSIGNED,
   `added_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `is_permanent` BOOLEAN DEFAULT FALSE,
   `expires_at` TIMESTAMP NULL,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`added_by`) REFERENCES `system_users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   INDEX idx_blacklist_tenant (`tenant_id`),
   INDEX idx_blacklist_entity (`entity_type`, `entity_id`),
   INDEX idx_blacklist_added_by (`added_by`)
@@ -383,7 +382,7 @@ CREATE TABLE `blacklist` (
 -- ============================================
 DROP TABLE IF EXISTS `document_types`;
 CREATE TABLE `document_types` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `name` VARCHAR(100) NOT NULL,
   `entity_type` ENUM('candidate', 'company', 'job', 'interview', 'recruiter') NOT NULL,
@@ -403,22 +402,23 @@ CREATE TABLE `document_types` (
 -- ============================================
 DROP TABLE IF EXISTS `documents`;
 CREATE TABLE `documents` (
-  `id` VARCHAR(50) NOT NULL PRIMARY KEY,
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `entity_type` ENUM('candidate', 'company', 'job', 'interview', 'recruiter') NOT NULL,
-  `entity_id` VARCHAR(50) NOT NULL,
-  `document_type_id` VARCHAR(50) NOT NULL,
+  `entity_id` BIGINT UNSIGNED NOT NULL,
+  `document_type_id` BIGINT UNSIGNED NOT NULL,
   `document_type_name` VARCHAR(100) NOT NULL,
   `file_name` VARCHAR(500) NOT NULL,
   `file_size` BIGINT NOT NULL COMMENT 'Size in bytes',
   `file_type` VARCHAR(100) NOT NULL COMMENT 'MIME type',
   `file_url` TEXT NOT NULL,
-  `uploaded_by` VARCHAR(50) NOT NULL,
+  `uploaded_by` BIGINT UNSIGNED NOT NULL,
   `uploader_name` VARCHAR(255) NOT NULL,
   `notes` TEXT,
   `uploaded_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`document_type_id`) REFERENCES `document_types`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  FOREIGN KEY (`uploaded_by`) REFERENCES `system_users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   INDEX idx_documents_tenant (`tenant_id`),
   INDEX idx_documents_entity (`entity_type`, `entity_id`),
   INDEX idx_documents_type (`document_type_id`),
@@ -431,17 +431,18 @@ CREATE TABLE `documents` (
 -- ============================================
 DROP TABLE IF EXISTS `activity_logs`;
 CREATE TABLE `activity_logs` (
-  `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+  `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   `tenant_id` VARCHAR(50) NOT NULL,
   `entity_type` VARCHAR(50) NOT NULL,
-  `entity_id` VARCHAR(50),
+  `entity_id` BIGINT UNSIGNED,
   `action` VARCHAR(100) NOT NULL,
-  `user_id` VARCHAR(50),
+  `user_id` BIGINT UNSIGNED,
   `user_email` VARCHAR(255),
   `ip_address` VARCHAR(45),
   `user_agent` TEXT,
   `metadata` JSON,
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `system_users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   INDEX idx_activity_logs_tenant (`tenant_id`),
   INDEX idx_activity_logs_entity (`entity_type`, `entity_id`),
   INDEX idx_activity_logs_action (`action`),
