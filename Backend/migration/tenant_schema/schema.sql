@@ -82,10 +82,14 @@ CREATE TABLE `companies` (
 -- ============================================
 -- Table: recruiters
 -- Internal recruiters/HR staff
+-- NOTE: Recruiters are system_users with recruiter role
+--       Created automatically when system_user has recruiter role
+--       Use Recruiters page only for editing profile (avatar, jobs, etc.)
 -- ============================================
 DROP TABLE IF EXISTS `recruiters`;
 CREATE TABLE `recruiters` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `system_user_id` BIGINT UNSIGNED NULL COMMENT 'Link to system_users table',
   `tenant_id` VARCHAR(50) NOT NULL,
   `first_name` VARCHAR(100) NOT NULL,
   `last_name` VARCHAR(100) NOT NULL,
@@ -98,9 +102,12 @@ CREATE TABLE `recruiters` (
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY unique_recruiter_email_per_tenant (`email`, `tenant_id`),
+  UNIQUE KEY unique_recruiter_system_user (`system_user_id`),
   INDEX idx_recruiters_tenant (`tenant_id`),
   INDEX idx_recruiters_email (`email`),
-  INDEX idx_recruiters_role (`role`)
+  INDEX idx_recruiters_role (`role`),
+  INDEX idx_recruiters_system_user (`system_user_id`),
+  FOREIGN KEY (`system_user_id`) REFERENCES `system_users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
