@@ -62,7 +62,8 @@
       "Bash(php generate_tenant_pool_sql.php:*)",
       "Bash(npx ng-lint-staged recruiter-modal.html)",
       "Bash(killall:*)",
-      "Bash(npm run start)"
+      "Bash(npm run start)",
+      "Bash(npx ng build:*)"
     ],
     "deny": [],
     "ask": []
