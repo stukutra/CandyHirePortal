@@ -64,7 +64,9 @@
       "Bash(killall:*)",
       "Bash(npm run start)",
       "Bash(npx ng build:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES;\")",
+      "Bash(timeout 120 ./setup.sh:*)"
     ],
     "deny": [],
     "ask": []

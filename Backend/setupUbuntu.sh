@@ -1,0 +1,357 @@
+#!/bin/bash
+
+# ============================================
+# CandyHire Portal Backend Setup Script
+# ============================================
+
+set -e
+
+# MySQL Root Password (UPDATED for shared MySQL)
+MYSQL_ROOT_PASSWORD='CandyHire2024Root'
+
+# ============================================
+# Detect OS for compatibility
+# ============================================
+detect_os() {
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "macos"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        echo "linux"
+    else
+        echo "unknown"
+    fi
+}
+
+OS_TYPE=$(detect_os)
+
+# ============================================
+# Import SQL file into MySQL container
+# Cross-platform compatible function
+# ============================================
+import_sql_file() {
+    local sql_file=$1
+    local database=$2
+    local container_name="candyhire-portal-mysql"
+
+    if [ "$OS_TYPE" == "linux" ]; then
+        # Linux/Ubuntu: Use docker cp method (more reliable)
+        local temp_file="/tmp/$(basename $sql_file)"
+        docker cp "$sql_file" "$container_name:$temp_file" 2>/dev/null
+        docker exec "$container_name" bash -c "MYSQL_PWD=\"$MYSQL_ROOT_PASSWORD\" mysql -uroot $database < $temp_file" 2>/dev/null
+        docker exec "$container_name" rm -f "$temp_file" 2>/dev/null
+    else
+        # macOS: Use stdin redirect (traditional method)
+        docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" "$container_name" mysql -uroot "$database" < "$sql_file" 2>/dev/null
+    fi
+}
+
+echo "========================================"
+echo "CandyHire Portal Backend Setup"
+echo "========================================"
+echo ""
+echo "💻 Detected OS: $OS_TYPE"
+echo ""
+echo "⚠️  WARNING: This will DROP and recreate ALL databases!"
+echo "   - CandyHirePortal database"
+echo "   - All 1000 tenant databases (candyhire_tenant_1 to candyhire_tenant_1000)"
+echo "   - All existing data will be PERMANENTLY DELETED"
+echo ""
+read -p "Continue? (y/N): " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Setup cancelled."
+    exit 0
+fi
+echo ""
+
+# Check if Docker is running
+if ! docker info > /dev/null 2>&1; then
+    echo "❌ Error: Docker is not running. Please start Docker Desktop first."
+    exit 1
+fi
+
+echo "✅ Docker is running"
+echo ""
+
+# Detect docker-compose command (works for both Docker Desktop and Docker Engine)
+if command -v docker-compose &> /dev/null; then
+    DOCKER_COMPOSE="docker-compose"
+elif docker compose version &> /dev/null; then
+    DOCKER_COMPOSE="docker compose"
+else
+    echo "❌ Error: docker-compose or docker compose not found"
+    exit 1
+fi
+
+echo ""
+echo "🐳 Starting Docker containers (MySQL + Portal PHP + SaaS PHP + PHPMyAdmin)..."
+echo ""
+
+# Start Portal services
+$DOCKER_COMPOSE up -d --build
+
+echo ""
+echo "⏳ Waiting for MySQL to be ready..."
+echo ""
+sleep 5
+
+# Wait for MySQL to be healthy
+max_attempts=30
+attempt=0
+
+while [ $attempt -lt $max_attempts ]; do
+    if docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysqladmin ping -h localhost -uroot --silent 2>/dev/null; then
+        echo "✅ MySQL is ready!"
+        break
+    fi
+    attempt=$((attempt + 1))
+    echo "   Attempt $attempt/$max_attempts - MySQL not ready yet..."
+    sleep 2
+done
+
+if [ $attempt -eq $max_attempts ]; then
+    echo "❌ Error: MySQL failed to start properly"
+    exit 1
+fi
+
+echo ""
+echo "📊 Creating Portal database..."
+echo ""
+
+# Drop and recreate Portal database to ensure clean state
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS CandyHirePortal;" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE CandyHirePortal CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE USER IF NOT EXISTS 'candyhire_portal_user'@'%' IDENTIFIED BY 'candyhire_portal_pass';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT ALL PRIVILEGES ON CandyHirePortal.* TO 'candyhire_portal_user'@'%';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE USER IF NOT EXISTS 'candyhire_user'@'%' IDENTIFIED BY 'CandyH1re_S3cur3P@ss!';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT SELECT ON CandyHirePortal.* TO 'candyhire_user'@'%';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "FLUSH PRIVILEGES;" 2>/dev/null
+
+echo "✅ Portal database created"
+echo ""
+echo "🏗️  Creating Portal schema..."
+echo ""
+
+# Apply Portal schema
+import_sql_file "migration/01_schema.sql" "CandyHirePortal"
+
+echo "✅ Portal schema created"
+echo ""
+echo "🎯 Inserting Portal initial data (admin, countries, tenant pool)..."
+echo ""
+
+# Generate fresh password hash for admin user
+echo "   Generating admin password hash..."
+ADMIN_PASSWORD_HASH=$(docker exec candyhire-portal-php php -r "echo password_hash('Admin123!', PASSWORD_BCRYPT);")
+echo "   ✓ Password hash generated"
+
+# Run Portal initial data insertion (admin, countries - WITHOUT tenant pool yet)
+import_sql_file "migration/02_initial_data.sql" "CandyHirePortal" || echo "⚠️  Initial data already exists or failed to insert"
+
+# Update admin user with freshly generated password hash
+echo "   Updating admin password with fresh hash..."
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot CandyHirePortal -e "UPDATE admin_users SET password_hash = '$ADMIN_PASSWORD_HASH' WHERE email = 'admin@candyhire.com';" 2>/dev/null
+
+echo "✅ Portal initial data imported (admin and countries)"
+echo ""
+echo "💎 Creating subscription tiers..."
+echo ""
+
+# Run Subscription Tiers migration
+import_sql_file "migration/04_subscription_tiers.sql" "CandyHirePortal" || echo "⚠️  Subscription tiers already exist or failed to insert"
+
+echo "✅ Subscription tiers created"
+echo ""
+echo "🏗️  Tenant Database Configuration"
+echo ""
+
+# Ask user for tenant count with 5 second timeout
+read -t 5 -p "How many tenant databases do you want to create? (1-1000, default: 10): " TENANT_COUNT || true
+echo ""
+
+# If timeout occurred or no input, use default
+if [ -z "$TENANT_COUNT" ]; then
+    TENANT_COUNT=10
+    echo "   ⏱️  Timeout or no input - using default: $TENANT_COUNT tenants"
+elif ! [[ "$TENANT_COUNT" =~ ^[0-9]+$ ]] || [ "$TENANT_COUNT" -lt 1 ] || [ "$TENANT_COUNT" -gt 1000 ]; then
+    echo "❌ Invalid number. Must be between 1 and 1000."
+    exit 1
+else
+    echo "   ✅ Creating $TENANT_COUNT tenant databases"
+fi
+
+echo ""
+echo "📋 Generating tenant pool SQL for $TENANT_COUNT tenants..."
+
+# Tenant configuration
+TENANT_SCHEMA="migration/tenant_schema/schema.sql"
+TENANT_INITIAL_DATA="migration/tenant_schema/initial_data.sql"
+TENANT_POOL_SQL="migration/generated_tenant_pool.sql"
+
+# Generate tenant pool SQL using PHP (write directly to container then copy out)
+docker exec candyhire-portal-php php -r "
+\$tenantCount = $TENANT_COUNT;
+\$itemsPerLine = 10;
+\$output = '';
+
+\$output .= \"-- ============================================\\n\";
+\$output .= \"-- Tenant Pool - \$tenantCount Pre-allocated Tenants\\n\";
+\$output .= \"-- Generated on \" . date('Y-m-d H:i:s') . \"\\n\";
+\$output .= \"-- ============================================\\n\\n\";
+
+\$output .= \"-- Clean tenant_pool table to ensure fresh start\\n\";
+\$output .= \"TRUNCATE TABLE \\\`tenant_pool\\\`;\\n\\n\";
+
+\$output .= \"INSERT INTO \\\`tenant_pool\\\` (\\\`tenant_id\\\`, \\\`is_available\\\`) VALUES\\n\";
+
+for (\$i = 1; \$i <= \$tenantCount; \$i++) {
+    \$output .= \"(\$i, TRUE)\";
+
+    if (\$i < \$tenantCount) {
+        \$output .= \",\";
+        if (\$i % \$itemsPerLine === 0) {
+            \$output .= \"\\n\";
+        } else {
+            \$output .= \" \";
+        }
+    } else {
+        \$output .= \";\\n\";
+    }
+}
+
+\$output .= \"\\n-- ✅ \$tenantCount tenant pool entries created\\n\";
+
+file_put_contents('/tmp/tenant_pool.sql', \$output);
+" 2>/dev/null
+
+# Copy the file from container to host
+docker cp candyhire-portal-php:/tmp/tenant_pool.sql "$TENANT_POOL_SQL" 2>/dev/null
+docker exec candyhire-portal-php rm -f /tmp/tenant_pool.sql 2>/dev/null
+
+echo "✅ Tenant pool SQL generated"
+
+# Check if Tenant schema file exists
+if [ ! -f "$TENANT_SCHEMA" ]; then
+    echo "⚠️  Warning: Tenant schema file not found at $TENANT_SCHEMA"
+    echo "   Skipping tenant creation."
+else
+    # Clean up ALL existing tenant databases first
+    echo "🧹 Cleaning up existing tenant databases..."
+    existing_dbs=$(docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "SHOW DATABASES LIKE 'candyhire_tenant_%';" | grep candyhire_tenant || true)
+
+    if [ ! -z "$existing_dbs" ]; then
+        echo "$existing_dbs" | while read db_name; do
+            echo "   Dropping old database: $db_name"
+            docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS \`$db_name\`;" 2>/dev/null
+        done
+        echo "✅ All old tenant databases dropped"
+    else
+        echo "   No existing tenant databases found"
+    fi
+
+    echo ""
+    echo "📦 Creating $TENANT_COUNT new tenant databases..."
+
+    # Create tenant databases
+    success_count=0
+    for i in $(seq 1 $TENANT_COUNT); do
+        DB_NAME="candyhire_tenant_$i"
+
+        # Show progress every 10 databases
+        if [ $(($i % 10)) -eq 0 ] || [ $i -eq 1 ]; then
+            echo "  📦 Creating tenant $i/$TENANT_COUNT..."
+        fi
+
+        # Create database
+        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE \`$DB_NAME\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+
+        # Apply schema with AUTO_INCREMENT
+        import_sql_file "$TENANT_SCHEMA" "$DB_NAME"
+
+        # Apply initial data if file exists (replace {{TENANT_ID}} with actual tenant ID)
+        if [ -f "$TENANT_INITIAL_DATA" ]; then
+            # Create temporary file with tenant ID substitution
+            TEMP_INITIAL_DATA="migration/generated_tenant_${i}_initial_data.sql"
+            sed "s/{{TENANT_ID}}/$i/g" "$TENANT_INITIAL_DATA" > "$TEMP_INITIAL_DATA"
+            import_sql_file "$TEMP_INITIAL_DATA" "$DB_NAME"
+            rm -f "$TEMP_INITIAL_DATA"
+        fi
+
+        success_count=$((success_count + 1))
+    done
+
+    echo ""
+    echo "✅ Successfully created $success_count/$TENANT_COUNT tenant databases"
+
+    # Grant permissions to candyhire_user on all tenant databases
+    echo ""
+    echo "🔐 Granting permissions to candyhire_user on tenant databases..."
+    docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT ALL PRIVILEGES ON \`candyhire_tenant_%\`.* TO 'candyhire_user'@'%'; FLUSH PRIVILEGES;" 2>/dev/null
+    echo "✅ Permissions granted successfully"
+
+    # Insert tenant pool data
+    echo ""
+    echo "📊 Populating tenant pool with $TENANT_COUNT entries..."
+    import_sql_file "$TENANT_POOL_SQL" "CandyHirePortal"
+    echo "✅ Tenant pool populated successfully"
+fi
+
+echo ""
+echo ""
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║       CandyHire Portal Backend - SETUP COMPLETATO!            ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📡 PORTAL - Registration & Payment"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Frontend:           http://localhost:4200"
+echo "API Backend:        http://localhost:8082"
+echo "PHPMyAdmin:         http://localhost:8083"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "📡 SAAS - Multi-Tenant Application"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Frontend:           http://localhost:4202"
+echo "API Backend:        http://localhost:8080"
+echo "Tenant Databases:   $TENANT_COUNT databases (candyhire_tenant_1 to candyhire_tenant_$TENANT_COUNT)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🗄️  SHARED MYSQL DATABASE"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "MySQL Port:         localhost:3306"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔐 CREDENZIALI DATABASE (SHARED MySQL)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Host:               localhost:3306"
+echo "Database:           CandyHirePortal"
+echo "Username:           candyhire_portal_user"
+echo "Password:           candyhire_portal_pass"
+echo ""
+echo "Root Username:      root"
+echo "Root Password:      CandyHire2024Root"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "👤 UTENTE ADMIN DEMO"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Username:           admin"
+echo "Email:              admin@candyhire.com"
+echo "Password:           Admin123!"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🛠️  COMANDI UTILI"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "  docker compose up -d       → Avvia servizi"
+echo "  docker compose down        → Ferma servizi"
+echo "  docker compose logs -f     → Visualizza log"
+echo "  docker compose restart     → Riavvia servizi"
+echo ""
+echo "Happy coding! 🚀"
+echo ""
