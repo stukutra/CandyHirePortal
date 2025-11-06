@@ -63,7 +63,8 @@
       "Bash(npx ng-lint-staged recruiter-modal.html)",
       "Bash(killall:*)",
       "Bash(npm run start)",
-      "Bash(npx ng build:*)"
+      "Bash(npx ng build:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
