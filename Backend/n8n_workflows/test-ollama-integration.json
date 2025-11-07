@@ -1,5 +1,6 @@
 {
   "name": "Test Ollama Integration",
+  "active": false,
   "nodes": [
     {
       "parameters": {},

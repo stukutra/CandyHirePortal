@@ -29,9 +29,28 @@ Per esportare i workflow dopo averli modificati:
 
 ## Come importare workflow
 
+### Import automatico durante setup
+
 I workflow vengono importati automaticamente quando esegui:
 - `./setup.sh` (macOS)
 - `./setupUbuntu.sh` (Ubuntu/Linux)
+
+Lo script usa l'API REST di n8n per importare tutti i file JSON presenti in questa cartella.
+
+### Import manuale
+
+Se vuoi importare i workflow manualmente dopo il setup:
+
+```bash
+# Importa tutti i workflow dalla cartella n8n_workflows
+./import-n8n-workflows-api.sh
+```
+
+oppure dall'interfaccia web di n8n:
+1. Vai su http://localhost:5678
+2. Clicca sul menu (3 puntini) in alto a destra
+3. Seleziona "Import from file"
+4. Seleziona tutti i file JSON (Ctrl+Click per selezione multipla)
 
 ## Struttura
 

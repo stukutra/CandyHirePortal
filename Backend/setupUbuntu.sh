@@ -265,9 +265,9 @@ echo ""
 echo "✅ n8n setup completed"
 echo ""
 
-# Import n8n workflows from JSON files
-if [ -f "import-n8n-workflows.sh" ]; then
-    source ./import-n8n-workflows.sh
+# Import n8n workflows from JSON files via REST API
+if [ -f "import-n8n-workflows-api.sh" ]; then
+    source ./import-n8n-workflows-api.sh
 fi
 
 echo "🤖 Setting up Ollama (Local AI)..."
