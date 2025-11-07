@@ -205,6 +205,8 @@ services:
       # Logging
       N8N_LOG_LEVEL: ${N8N_LOG_LEVEL:-info}
       N8N_LOG_OUTPUT: console
+      # CORS
+      N8N_CORS_ALLOW_ORIGIN: "*"
     ports:
       - "${N8N_PORT_EXTERNAL:-5678}:5678"
     volumes:
