@@ -4,6 +4,13 @@
 # CandyHire Portal Backend Setup Script
 # ============================================
 
+
+# Ensure correct permissions for Docker bind mounts (Attach, logs)
+sudo chown -R neo:www-data /home/neo/Documenti/Candy/CandyHire/Backend/Attach
+sudo chmod -R 775 /home/neo/Documenti/Candy/CandyHire/Backend/Attach
+sudo chown -R neo:www-data /home/neo/Documenti/Candy/CandyHire/Backend/logs
+sudo chmod -R 775 /home/neo/Documenti/Candy/CandyHire/Backend/logs
+
 set -e
 
 # MySQL Root Password (UPDATED for shared MySQL)

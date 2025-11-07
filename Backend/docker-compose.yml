@@ -78,6 +78,7 @@ services:
     volumes:
       - ./api:/var/www/html
       - ./logs:/var/www/html/logs
+      - /home/neo/Documenti/Candy/CandyHire/Backend/Attach:/var/www/html/Attach
     networks:
       - candyhire-portal-network
     depends_on:
