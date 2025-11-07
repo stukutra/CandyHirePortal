@@ -25,7 +25,17 @@ services:
       --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
       --log-bin-trust-function-creators=1
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,7 +88,7 @@ services:
     volumes:
       - ./api:/var/www/html
       - ./logs:/var/www/html/logs
-      - /home/neo/Documenti/Candy/CandyHire/Backend/Attach:/var/www/html/Attach
+    # - /home/neo/Documenti/Candy/CandyHire/Backend/Attach:/var/www/html/Attach  # Disabilitato per macOS
     networks:
       - candyhire-portal-network
     depends_on:
