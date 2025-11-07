@@ -184,6 +184,7 @@ services:
       N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
       N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
       N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-candyhire_n8n_2024}
+      N8N_SECURE_COOKIE: false
       # Encryption
       N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-your-n8n-encryption-key-change-this-minimum-32-chars}
       # Execution
@@ -200,6 +201,8 @@ services:
       - n8n-files:/files
     networks:
       - candyhire-portal-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       mysql:
         condition: service_healthy

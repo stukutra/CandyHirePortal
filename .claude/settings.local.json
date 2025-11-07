@@ -68,7 +68,16 @@
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES;\")",
       "Bash(timeout 120 ./setup.sh:*)",
       "Bash(docker stop:*)",
-      "Bash(docker rm:*)"
+      "Bash(docker rm:*)",
+      "Bash(./setupUbuntu.sh)",
+      "Bash(bash:*)",
+      "Bash(pgrep:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Bash(systemctl --user cat:*)",
+      "Bash(systemctl cat:*)",
+      "Bash(sudo mkdir:*)",
+      "Bash(sudo tee:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,93 @@
+{
+  "name": "Test Ollama Integration",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "f6e0c3c1-8e5a-4d0e-9c3a-2b1f5a8e7d4c",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen2.5:7b\",\n  \"prompt\": \"Hello! Please introduce yourself and tell me what you can do. Keep it brief.\",\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "id": "a2b4c6d8-1e3f-5a7b-9c1d-3e5f7a9b1c3d",
+      "name": "Call Ollama API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the response from Ollama\nconst ollamaResponse = $input.item.json.response;\nconst model = $input.item.json.model;\nconst createdAt = $input.item.json.created_at;\n\n// Return formatted result\nreturn {\n  success: true,\n  model: model,\n  timestamp: createdAt,\n  response: ollamaResponse,\n  message: \"✅ Ollama is working correctly!\"\n};"
+      },
+      "id": "b3c5d7e9-2f4a-6b8c-0d2e-4f6a8b0c2d4e",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Call Ollama API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ollama API": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "1",
+      "name": "AI"
+    },
+    {
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-01T00:00:00.000Z",
+      "id": "2",
+      "name": "Test"
+    }
+  ],
+  "triggerCount": 0,
+  "updatedAt": "2024-01-01T00:00:00.000Z",
+  "versionId": "1"
+}

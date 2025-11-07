@@ -149,10 +149,71 @@ echo "   ✓ n8n database created (clean)"
 echo "   Starting n8n container..."
 $DOCKER_COMPOSE up -d n8n
 
-# Wait for n8n to be ready
-echo "   Waiting for n8n to initialize..."
-sleep 15
+# Wait for n8n to be ready and initialize database
+echo "   Waiting for n8n to initialize and complete migrations..."
 
+# Wait for n8n to be healthy (check logs for successful startup)
+for i in {1..60}; do
+    # Check if n8n has completed migrations and is ready
+    if docker logs candyhire-n8n 2>&1 | grep -q "Editor is now accessible"; then
+        echo "   ✓ n8n is ready"
+        break
+    fi
+
+    # Check for migration errors
+    if docker logs candyhire-n8n 2>&1 | grep -q "There was an error running database migrations"; then
+        echo "   ⚠️  n8n migration error detected, restarting container..."
+        docker stop candyhire-n8n 2>/dev/null
+        docker rm candyhire-n8n 2>/dev/null
+        # Clean database again
+        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS n8n;" 2>/dev/null
+        docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE n8n CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+        $DOCKER_COMPOSE up -d n8n
+        sleep 10
+        continue
+    fi
+
+    if [ $i -eq 60 ]; then
+        echo "   ⚠️  Warning: n8n taking longer than expected to start..."
+    fi
+    sleep 2
+done
+
+# Additional wait to ensure n8n is fully ready
+sleep 5
+
+# Create default n8n admin user via API
+echo "   Creating default n8n admin user..."
+N8N_ADMIN_EMAIL="admin@candyhire.local"
+N8N_ADMIN_PASSWORD="Admin123456"
+N8N_ADMIN_FIRSTNAME="Admin"
+N8N_ADMIN_LASTNAME="CandyHire"
+
+# Use n8n's official setup API endpoint (this is the proper way)
+response=$(curl -s -X POST http://localhost:5678/rest/owner/setup \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"$N8N_ADMIN_EMAIL\",\"password\":\"$N8N_ADMIN_PASSWORD\",\"firstName\":\"$N8N_ADMIN_FIRSTNAME\",\"lastName\":\"$N8N_ADMIN_LASTNAME\"}")
+
+if echo "$response" | grep -q "Instance owner already setup"; then
+    echo "   ℹ️  Owner already exists, resetting password..."
+    docker exec candyhire-n8n n8n user-management:reset \
+      --email="$N8N_ADMIN_EMAIL" \
+      --password="$N8N_ADMIN_PASSWORD" \
+      --firstName="$N8N_ADMIN_FIRSTNAME" \
+      --lastName="$N8N_ADMIN_LASTNAME" 2>&1 | grep -v "Permissions" | head -1
+elif echo "$response" | grep -q "email"; then
+    echo "   ✓ n8n admin user created successfully"
+else
+    echo "   ⚠️  Using CLI fallback..."
+    docker exec candyhire-n8n n8n user-management:reset \
+      --email="$N8N_ADMIN_EMAIL" \
+      --password="$N8N_ADMIN_PASSWORD" \
+      --firstName="$N8N_ADMIN_FIRSTNAME" \
+      --lastName="$N8N_ADMIN_LASTNAME" 2>&1 | grep -v "Permissions" | head -1
+fi
+
+echo "   ✓ n8n owner setup completed"
+echo ""
 echo "✅ n8n setup completed"
 echo ""
 
@@ -160,6 +221,105 @@ echo ""
 if [ -f "import-n8n-workflows.sh" ]; then
     source ./import-n8n-workflows.sh
 fi
+
+echo "🤖 Setting up Ollama (Local AI)..."
+echo ""
+
+# Install Ollama if not exists
+OLLAMA_INSTALLED=false
+if ! command -v ollama &> /dev/null; then
+    echo "   Installing Ollama (requires sudo password)..."
+    echo "   ⚠️  If you don't have sudo access or want to skip, press Ctrl+C within 5 seconds..."
+    sleep 5
+
+    # Try to install Ollama (allow it to fail)
+    if curl -fsSL https://ollama.com/install.sh | sh; then
+        echo "   ✓ Ollama installed"
+        OLLAMA_INSTALLED=true
+    else
+        echo "   ⚠️  Ollama installation failed or was cancelled"
+        echo "   You can install it manually later with:"
+        echo "   curl -fsSL https://ollama.com/install.sh | sh"
+        OLLAMA_INSTALLED=false
+    fi
+else
+    echo "   ✓ Ollama already installed"
+    OLLAMA_INSTALLED=true
+fi
+
+# Only proceed with Ollama setup if installation succeeded
+if [ "$OLLAMA_INSTALLED" = true ]; then
+    # Configure Ollama to listen on all interfaces (for Docker containers)
+    echo "   Configuring Ollama to listen on all interfaces..."
+
+    # On macOS, we need to set the environment variable for the Ollama service
+    # Create/update launchd plist if it exists
+    OLLAMA_PLIST="$HOME/Library/LaunchAgents/com.ollama.ollama.plist"
+
+    if [ -f "$OLLAMA_PLIST" ]; then
+        echo "   Configuring Ollama launchd service..."
+
+        # Backup existing plist
+        cp "$OLLAMA_PLIST" "$OLLAMA_PLIST.backup" 2>/dev/null || true
+
+        # Add OLLAMA_HOST environment variable to launchd plist
+        if ! grep -q "OLLAMA_HOST" "$OLLAMA_PLIST"; then
+            # Create EnvironmentVariables dict if it doesn't exist
+            if ! /usr/libexec/PlistBuddy -c "Print :EnvironmentVariables" "$OLLAMA_PLIST" > /dev/null 2>&1; then
+                /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables dict" "$OLLAMA_PLIST" 2>/dev/null || true
+            fi
+            # Add OLLAMA_HOST variable
+            /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables:OLLAMA_HOST string 0.0.0.0:11434" "$OLLAMA_PLIST" 2>/dev/null || true
+        fi
+
+        # Reload the service
+        launchctl unload "$OLLAMA_PLIST" 2>/dev/null || true
+        sleep 1
+        launchctl load "$OLLAMA_PLIST" 2>/dev/null || true
+        sleep 3
+        echo "   ✓ Ollama launchd service configured and restarted"
+    else
+        # If no launchd service, start manually with environment variable
+        echo "   ℹ️  No launchd service found, starting Ollama manually..."
+        killall ollama 2>/dev/null || true
+        sleep 2
+        OLLAMA_HOST=0.0.0.0:11434 ollama serve > /dev/null 2>&1 &
+        sleep 3
+        echo "   ✓ Ollama started on 0.0.0.0:11434"
+    fi
+
+    # Verify Ollama is listening on all interfaces (macOS uses lsof)
+    sleep 2
+    if lsof -i :11434 -P -n 2>/dev/null | grep -q "0.0.0.0:11434\|*:11434"; then
+        echo "   ✓ Ollama is listening on all interfaces (0.0.0.0:11434)"
+    else
+        echo "   ⚠️  Warning: Could not verify Ollama is listening on all interfaces"
+        echo "   Current binding:"
+        lsof -i :11434 -P -n 2>/dev/null || echo "   (Ollama may not be running)"
+        echo ""
+        echo "   If n8n workflows fail to connect to Ollama, you may need to:"
+        echo "   1. Stop Ollama: killall ollama"
+        echo "   2. Start with: OLLAMA_HOST=0.0.0.0:11434 ollama serve &"
+    fi
+
+    # Pull the AI model if not exists
+    echo "   Checking for AI model (qwen2.5:7b)..."
+    if ! ollama list | grep -q "qwen2.5:7b"; then
+        echo "   Downloading AI model (this may take a few minutes)..."
+        if ollama pull qwen2.5:7b; then
+            echo "   ✓ AI model downloaded"
+        else
+            echo "   ⚠️  Failed to download AI model"
+        fi
+    else
+        echo "   ✓ AI model already available"
+    fi
+
+    echo "✅ Ollama setup completed"
+else
+    echo "⏭️  Skipping Ollama setup - continuing with other services..."
+fi
+echo ""
 
 echo "🏗️  Tenant Database Configuration"
 echo ""
@@ -310,9 +470,17 @@ echo "🔄 n8n - Workflow Automation"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 echo "Web Interface:      http://localhost:5678"
-echo "Username:           admin"
-echo "Password:           candyhire_n8n_2024"
+echo "Email:              admin@candyhire.local"
+echo "Password:           Admin123456"
 echo "Database:           n8n (MySQL)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🤖 Ollama - Local AI"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "API Endpoint:       http://localhost:11434"
+echo "Model:              qwen2.5:7b"
+echo "Test command:       ollama list"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🗄️  SHARED MYSQL DATABASE"
