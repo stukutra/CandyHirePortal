@@ -66,7 +66,9 @@
       "Bash(npx ng build:*)",
       "Bash(npm install:*)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES;\")",
-      "Bash(timeout 120 ./setup.sh:*)"
+      "Bash(timeout 120 ./setup.sh:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)"
     ],
     "deny": [],
     "ask": []

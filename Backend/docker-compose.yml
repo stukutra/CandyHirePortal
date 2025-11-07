@@ -23,6 +23,7 @@ services:
       --collation-server=utf8mb4_unicode_ci
       --default-authentication-plugin=mysql_native_password
       --sql-mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION
+      --log-bin-trust-function-creators=1
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD:-CandyHire2024Root}"]
       interval: 10s
@@ -158,6 +159,51 @@ services:
       mysql:
         condition: service_healthy
 
+  # ============================================
+  # n8n - Workflow Automation
+  # ============================================
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: candyhire-n8n
+    restart: unless-stopped
+    environment:
+      # Database connection
+      DB_TYPE: mysqldb
+      DB_MYSQLDB_HOST: mysql
+      DB_MYSQLDB_PORT: 3306
+      DB_MYSQLDB_DATABASE: ${N8N_DB_NAME:-n8n}
+      DB_MYSQLDB_USER: ${N8N_DB_USER:-n8n_user}
+      DB_MYSQLDB_PASSWORD: ${N8N_DB_PASSWORD:-n8n_secure_pass}
+      # n8n configuration
+      N8N_HOST: ${N8N_HOST:-localhost}
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://localhost:5678/}
+      GENERIC_TIMEZONE: Europe/Rome
+      # Security
+      N8N_BASIC_AUTH_ACTIVE: ${N8N_BASIC_AUTH_ACTIVE:-true}
+      N8N_BASIC_AUTH_USER: ${N8N_BASIC_AUTH_USER:-admin}
+      N8N_BASIC_AUTH_PASSWORD: ${N8N_BASIC_AUTH_PASSWORD:-candyhire_n8n_2024}
+      # Encryption
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:-your-n8n-encryption-key-change-this-minimum-32-chars}
+      # Execution
+      EXECUTIONS_DATA_SAVE_ON_ERROR: all
+      EXECUTIONS_DATA_SAVE_ON_SUCCESS: all
+      EXECUTIONS_DATA_SAVE_MANUAL_EXECUTIONS: true
+      # Logging
+      N8N_LOG_LEVEL: ${N8N_LOG_LEVEL:-info}
+      N8N_LOG_OUTPUT: console
+    ports:
+      - "${N8N_PORT_EXTERNAL:-5678}:5678"
+    volumes:
+      - n8n-data:/home/node/.n8n
+      - n8n-files:/files
+    networks:
+      - candyhire-portal-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+
 # ============================================
 # Networks
 # ============================================
@@ -172,4 +218,10 @@ networks:
 volumes:
   candyhire-portal-mysql-data:
     name: candyhire-portal-mysql-data
+    driver: local
+  n8n-data:
+    name: candyhire-n8n-data
+    driver: local
+  n8n-files:
+    name: candyhire-n8n-files
     driver: local

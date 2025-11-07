@@ -1,0 +1,6 @@
+# Ignore all JSON files by default
+*.json
+
+# You can un-ignore specific workflow files you want to version
+# For example:
+# !important-workflow.json

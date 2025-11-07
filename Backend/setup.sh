@@ -124,6 +124,43 @@ docker exec -i -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql 
 
 echo "✅ Subscription tiers created"
 echo ""
+echo "🔧 Setting up n8n..."
+echo ""
+
+# Stop and remove n8n container and volumes if they exist
+echo "   Cleaning up old n8n data..."
+docker stop candyhire-n8n 2>/dev/null || true
+docker rm candyhire-n8n 2>/dev/null || true
+docker volume rm candyhire-n8n-data candyhire-n8n-files 2>/dev/null || true
+
+# Enable MySQL function creators (required for n8n migrations)
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "SET GLOBAL log_bin_trust_function_creators = 1;" 2>/dev/null
+
+# Drop and recreate n8n database
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "DROP DATABASE IF EXISTS n8n;" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE DATABASE n8n CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "CREATE USER IF NOT EXISTS 'n8n_user'@'%' IDENTIFIED BY 'n8n_secure_pass';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "GRANT ALL PRIVILEGES ON n8n.* TO 'n8n_user'@'%';" 2>/dev/null
+docker exec -e MYSQL_PWD="$MYSQL_ROOT_PASSWORD" candyhire-portal-mysql mysql -uroot -e "FLUSH PRIVILEGES;" 2>/dev/null
+
+echo "   ✓ n8n database created (clean)"
+
+# Start n8n container
+echo "   Starting n8n container..."
+$DOCKER_COMPOSE up -d n8n
+
+# Wait for n8n to be ready
+echo "   Waiting for n8n to initialize..."
+sleep 15
+
+echo "✅ n8n setup completed"
+echo ""
+
+# Import n8n workflows from JSON files
+if [ -f "import-n8n-workflows.sh" ]; then
+    source ./import-n8n-workflows.sh
+fi
+
 echo "🏗️  Tenant Database Configuration"
 echo ""
 
@@ -267,6 +304,15 @@ echo ""
 echo "Frontend:           http://localhost:4202"
 echo "API Backend:        http://localhost:8080"
 echo "Tenant Databases:   $TENANT_COUNT databases (candyhire_tenant_1 to candyhire_tenant_$TENANT_COUNT)"
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔄 n8n - Workflow Automation"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "Web Interface:      http://localhost:5678"
+echo "Username:           admin"
+echo "Password:           candyhire_n8n_2024"
+echo "Database:           n8n (MySQL)"
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "🗄️  SHARED MYSQL DATABASE"
