@@ -87,9 +87,8 @@ services:
       - "${PHP_PORT_EXTERNAL:-8082}:80"
     volumes:
       - ./api:/var/www/html
-      - ./logs:/var/www/html/
+      - ./logs:/var/www/html/logs
       - /home/neo/candyhire-data/attachments:/var/www/html/Attach
-    # - /home/neo/Documenti/Candy/CandyHire/Backend/Attach:/var/www/html/Attach  # Disabilitato per macOS
     networks:
       - candyhire-portal-network
     depends_on:
