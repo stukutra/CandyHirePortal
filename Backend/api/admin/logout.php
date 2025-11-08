@@ -5,8 +5,9 @@
  * Clears httpOnly authentication cookie
  */
 
-header('Content-Type: application/json');
 require_once __DIR__ . '/../config/cors.php';
+
+header('Content-Type: application/json');
 
 // Method validation
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
