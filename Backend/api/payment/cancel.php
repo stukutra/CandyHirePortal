@@ -8,9 +8,9 @@
  * Updates transaction status and allows user to retry
  */
 
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/cors.php';
+
+header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../utils/logger.php';

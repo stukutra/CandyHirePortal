@@ -8,9 +8,9 @@
  * Captures the approved PayPal order and updates company status
  */
 
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/cors.php';
+
+header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/paypal.php';
 require_once __DIR__ . '/../utils/response.php';

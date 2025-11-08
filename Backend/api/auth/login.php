@@ -6,9 +6,9 @@
  * Public endpoint - No authentication required
  */
 
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/cors.php';
+
+header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/jwt.php';
 require_once __DIR__ . '/../models/Company.php';

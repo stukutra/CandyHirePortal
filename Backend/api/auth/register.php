@@ -8,9 +8,9 @@
  * Creates company registration and returns JWT token
  */
 
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/cors.php';
+
+header('Content-Type: application/json');
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/jwt.php';
 require_once __DIR__ . '/../config/paypal.php';
