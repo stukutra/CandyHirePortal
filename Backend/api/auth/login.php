@@ -10,14 +10,14 @@
  * - Internal Users (user_type: internal_user)
  */
 
-header('Content-Type: application/json');
-
 require_once __DIR__ . '/../config/cors.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/jwt.php';
 require_once __DIR__ . '/../models/Company.php';
 require_once __DIR__ . '/../utils/response.php';
 require_once __DIR__ . '/../utils/logger.php';
+
+header('Content-Type: application/json');
 
 // Only accept POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
