@@ -11,7 +11,9 @@ set -e
 # Paths (dynamic to $HOME)
 # ------------------------------
 ATTACH_DIR="$HOME/candyhire-data/attachments"
-PROJECT_ROOT="$HOME/Documenti/Candy"
+# Usa la directory corrente dello script per determinare PROJECT_ROOT in modo dinamico
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 PORTAL_DIR="$PROJECT_ROOT/CandyHirePortal/Backend"
 SAAS_BACKEND_DIR="$PROJECT_ROOT/CandyHire/Backend"
 PROJECT_ATTACH_IN_REPO="$SAAS_BACKEND_DIR/Attach"   # non usata per runtime (solo compat)
