@@ -490,6 +490,7 @@ else
     echo "📊 Populating tenant pool with $TENANT_COUNT entries..."
     import_sql_file "$TENANT_POOL_SQL" "CandyHirePortal"
     echo "✅ Tenant pool populated successfully"
+    
 fi
 
 echo ""

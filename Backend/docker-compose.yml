@@ -144,6 +144,7 @@ services:
     volumes:
       - ../../CandyHire/Backend/api:/var/www/html
       - ../../CandyHire/Backend/logs:/var/www/html/logs
+      - /home/neo/candyhire-data/attachments:/var/www/html/Attach
     networks:
       - candyhire-portal-network
     depends_on:
