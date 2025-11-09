@@ -267,9 +267,15 @@ else
 fi
 echo "✅ n8n setup completed"
 
-# Optional workflow bulk import (kept)
-if [ -f "import-n8n-workflows-api.sh" ]; then
-  source ./import-n8n-workflows-api.sh
+# Import n8n workflow Ollama (automatic setup)
+echo ""
+echo "📋 Importing n8n Ollama workflow..."
+if [ -f "setup-n8n-complete.sh" ]; then
+  bash ./setup-n8n-complete.sh
+  echo "✅ n8n workflow imported and activated"
+else
+  echo "⚠️  setup-n8n-complete.sh not found, skipping workflow import"
+  echo "   You can manually run: ./setup-n8n-complete.sh"
 fi
 
 # ============================================

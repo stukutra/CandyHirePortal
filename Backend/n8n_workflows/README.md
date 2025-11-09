@@ -77,11 +77,18 @@ Questa cartella contiene i workflow n8n per l'automazione della piattaforma Cand
 4. Click **"Import"**
 5. **Attiva il workflow** (toggle in alto a destra)
 
-### Metodo 2: Via Script (Automatico)
+### Metodo 2: Via Script (Automatico) - CONSIGLIATO
 ```bash
 cd /path/to/CandyHirePortal/Backend
-./import-n8n-workflows-api.sh
+./setup-n8n-complete.sh
 ```
+
+Questo script:
+- Resetta completamente n8n (rimuove container e volumi)
+- Ricrea n8n pulito
+- Crea account owner automaticamente
+- Importa il workflow Ollama
+- Attiva automaticamente il workflow
 
 ---
 
