@@ -88,7 +88,9 @@
       "Bash(test:*)",
       "Bash(./reset-n8n.sh)",
       "Bash(./import-n8n-workflow-auto.sh)",
-      "Bash(./setup-n8n-complete.sh)"
+      "Bash(./setup-n8n-complete.sh)",
+      "Bash(wait)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

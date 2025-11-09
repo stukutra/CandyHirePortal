@@ -13,10 +13,7 @@
             "name": "Webhook CV Upload",
             "type": "n8n-nodes-base.webhook",
             "typeVersion": 1.1,
-            "position": [
-                240,
-                400
-            ],
+            "position": [240, 400],
             "webhookId": "upload-cv-ollama"
         },
         {
@@ -27,10 +24,7 @@
             "name": "Extract File Content",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [
-                460,
-                400
-            ]
+            "position": [460, 400]
         },
         {
             "parameters": {
@@ -40,10 +34,7 @@
             "name": "Prepare Ollama Payload",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [
-                680,
-                400
-            ]
+            "position": [680, 400]
         },
         {
             "parameters": {
@@ -61,23 +52,17 @@
             "name": "Call Ollama AI",
             "type": "n8n-nodes-base.httpRequest",
             "typeVersion": 4.1,
-            "position": [
-                900,
-                400
-            ]
+            "position": [900, 400]
         },
         {
             "parameters": {
-                "jsCode": "// Parse AI response\nconst aiResponse = $input.item.json.response;\nconst prevData = $('Prepare Ollama Payload').item.json;\nconst fileName = prevData.fileName || '';\n\n// Extract name from filename (e.g. \"Giuseppe Chiruzzi_Reactjs.pdf\" -> \"Giuseppe\" + \"Chiruzzi\")\nlet fileNameParts = fileName.replace(/\\.[^.]+$/, '').split(/[_\\s-]+/).filter(p => p.length > 2);\n\nlet extractedData = {};\n\ntry {\n  let jsonText = aiResponse.trim();\n  jsonText = jsonText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  extractedData = JSON.parse(jsonText);\n\n  // Use filename as fallback for missing/invalid names\n  let firstName = extractedData.first_name || fileNameParts[0] || 'Candidato';\n  let lastName = extractedData.last_name || fileNameParts[1] || 'DaCV';\n\n  // Validate names - ensure they're valid strings\n  if (!firstName || firstName.length < 2) {\n    firstName = fileNameParts[0] || 'Candidato';\n  }\n  if (!lastName || lastName.length < 3) {\n    lastName = fileNameParts[1] || 'DaCV';\n  }\n\n  extractedData = {\n    first_name: firstName,\n    last_name: lastName,\n    email: extractedData.email || 'candidato@temp.local',\n    phone: extractedData.phone || null,\n    linkedin: extractedData.linkedin || null,\n    current_position: extractedData.current_position || null,\n    current_company: extractedData.current_company || null,\n    experience: parseInt(extractedData.experience) || 0,\n    skills: Array.isArray(extractedData.skills) ? extractedData.skills : [],\n    location: extractedData.location || null,\n    expected_salary: extractedData.expected_salary || null,\n    status: 'New',\n    candidate_type: 'Employee'\n  };\n} catch (e) {\n  // On error, use filename for names\n  extractedData = {\n    first_name: fileNameParts[0] || 'Candidato',\n    last_name: fileNameParts[1] || 'DaCV',\n    email: 'candidato@temp.local',\n    phone: null,\n    linkedin: null,\n    current_position: null,\n    current_company: null,\n    experience: 0,\n    skills: [],\n    location: null,\n    expected_salary: null,\n    status: 'New',\n    candidate_type: 'Employee',\n    _error: e.message\n  };\n}\n\nreturn {\n  success: true,\n  message: 'CV processed successfully',\n  extractedData: extractedData,\n  fileInfo: {\n    fileName: prevData.fileName,\n    savedFileName: prevData.savedFileName,\n    savedFilePath: prevData.savedFilePath\n  }\n};\n"
+                "jsCode": "// Parse AI response\nconst aiResponse = $input.item.json.response;\nconst prevData = $('Prepare Ollama Payload').item.json;\nconst fileName = prevData.fileName || '';\n\n// Extract name from filename (e.g. \"Giuseppe Chiruzzi_Reactjs.pdf\" -> \"Giuseppe\" + \"Chiruzzi\")\nlet fileNameParts = fileName.replace(/\\.[^.]+$/, '').split(/[_\\s-]+/).filter(p => p.length > 2);\n\nlet extractedData = {};\n\ntry {\n  let jsonText = aiResponse.trim();\n  jsonText = jsonText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  extractedData = JSON.parse(jsonText);\n  \n  // Use filename as fallback for missing/invalid names\n  let firstName = extractedData.first_name || fileNameParts[0] || 'From';\n  let lastName = extractedData.last_name || fileNameParts[1] || 'CV';\n  \n  // Validate lastName length (min 3 chars)\n  if (lastName.length < 3) {\n    lastName = fileNameParts[1] || 'CV';\n  }\n  \n  extractedData = {\n    first_name: firstName,\n    last_name: lastName,\n    email: extractedData.email || null,\n    phone: extractedData.phone || null,\n    linkedin: extractedData.linkedin || null,\n    current_position: extractedData.current_position || null,\n    current_company: extractedData.current_company || null,\n    experience: parseInt(extractedData.experience) || 0,\n    skills: Array.isArray(extractedData.skills) ? extractedData.skills : [],\n    location: extractedData.location || null,\n    expected_salary: extractedData.expected_salary || null,\n    status: 'New',\n    candidate_type: 'Employee'\n  };\n} catch (e) {\n  // On error, use filename for names\n  extractedData = {\n    first_name: fileNameParts[0] || 'From',\n    last_name: fileNameParts[1] || 'CV',\n    email: null,\n    phone: null,\n    linkedin: null,\n    current_position: null,\n    current_company: null,\n    experience: 0,\n    skills: [],\n    location: null,\n    expected_salary: null,\n    status: 'New',\n    candidate_type: 'Employee',\n    _error: e.message\n  };\n}\n\nreturn {\n  success: true,\n  message: 'CV processed successfully',\n  extractedData: extractedData,\n  fileInfo: {\n    fileName: prevData.fileName,\n    savedFileName: prevData.savedFileName,\n    savedFilePath: prevData.savedFilePath\n  }\n};"
             },
             "id": "parse-ai-response",
             "name": "Parse AI Response",
             "type": "n8n-nodes-base.code",
             "typeVersion": 2,
-            "position": [
-                1120,
-                400
-            ]
+            "position": [1120, 400]
         },
         {
             "parameters": {
@@ -88,67 +73,44 @@
             "name": "Respond to Webhook",
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
-            "position": [
-                1340,
-                400
-            ]
+            "position": [1340, 400]
         }
     ],
     "connections": {
         "Webhook CV Upload": {
-            "main": [
-                [
-                    {
-                        "node": "Extract File Content",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[{
+                "node": "Extract File Content",
+                "type": "main",
+                "index": 0
+            }]]
         },
         "Extract File Content": {
-            "main": [
-                [
-                    {
-                        "node": "Prepare Ollama Payload",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[{
+                "node": "Prepare Ollama Payload",
+                "type": "main",
+                "index": 0
+            }]]
         },
         "Prepare Ollama Payload": {
-            "main": [
-                [
-                    {
-                        "node": "Call Ollama AI",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[{
+                "node": "Call Ollama AI",
+                "type": "main",
+                "index": 0
+            }]]
         },
         "Call Ollama AI": {
-            "main": [
-                [
-                    {
-                        "node": "Parse AI Response",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[{
+                "node": "Parse AI Response",
+                "type": "main",
+                "index": 0
+            }]]
         },
         "Parse AI Response": {
-            "main": [
-                [
-                    {
-                        "node": "Respond to Webhook",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            "main": [[{
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+            }]]
         }
     },
     "settings": {
