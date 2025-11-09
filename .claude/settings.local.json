@@ -79,7 +79,12 @@
       "Bash(sudo mkdir:*)",
       "Bash(sudo tee:*)",
       "Bash(timeout 30 bash:*)",
-      "Bash(timeout 10 bash:*)"
+      "Bash(timeout 10 bash:*)",
+      "Bash(./import-n8n-workflows-api.sh:*)",
+      "Bash(/tmp/test-cv.txt)",
+      "Bash(while read id)",
+      "Bash(do echo 'Cancello workflow $id...' curl -s -b /tmp/n8n-cookie.txt -X DELETE http://localhost:5678/rest/workflows/$id done)",
+      "Bash(do curl -s -b /tmp/n8n-cookie.txt -X DELETE http://localhost:5678/rest/workflows/$id)"
     ],
     "deny": [],
     "ask": []

@@ -3,25 +3,30 @@
     "active": false,
     "nodes": [
         {
-            "parameters": {},
-            "id": "manual-trigger-1",
-            "name": "Manual Trigger",
-            "type": "n8n-nodes-base.manualTrigger",
-            "typeVersion": 1,
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "upload-cv",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "id": "webhook-trigger-1",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
             "position": [
                 240,
                 300
-            ]
+            ],
+            "webhookId": "shQUU95fAWbphdDo"
         },
         {
             "parameters": {
-                "options": {},
-                "propertyName": "cvFile"
+                "jsCode": "// Extract file content from JSON payload\nconst body = $input.item.json.body;\n\nif (!body || !body.fileContent) {\n  throw new Error('Missing fileContent in request body');\n}\n\n// Decode base64 file content\nconst fileBuffer = Buffer.from(body.fileContent, 'base64');\nconst fileContent = fileBuffer.toString('utf8');\n\nreturn {\n  fileName: body.fileName,\n  fileSize: body.fileSize,\n  mimeType: body.mimeType,\n  fileContent: fileContent\n};"
             },
-            "id": "read-binary-file-1",
-            "name": "Read CV File",
-            "type": "n8n-nodes-base.readBinaryFile",
-            "typeVersion": 1,
+            "id": "extract-file-1",
+            "name": "Extract File Content",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
             "position": [
                 460,
                 300
@@ -34,7 +39,7 @@
                 "authentication": "none",
                 "sendBody": true,
                 "specifyBody": "json",
-                "jsonBody": "={\n  \"model\": \"qwen2.5:7b\",\n  \"prompt\": \"Estrai dal seguente CV tutti i dati utili per la creazione di un candidato (nome, cognome, email, telefono, posizione attuale, azienda, anni di esperienza, skills, location, expected_salary, ecc.). Restituisci i dati in formato JSON con le chiavi corrispondenti all’API CandyHire. CV: {{$binary.data.toString()}}\",\n  \"stream\": false\n}",
+                "jsonBody": "={\n  \"model\": \"qwen2.5:7b\",\n  \"prompt\": \"Estrai dal seguente CV tutti i dati utili per la creazione di un candidato (nome, cognome, email, telefono, posizione attuale, azienda, anni di esperienza, skills, location, expected_salary, ecc.). Restituisci SOLO un oggetto JSON valido senza altro testo. CV: \" + JSON.stringify($json.fileContent).slice(0, 5000),\n  \"stream\": false\n}",
                 "options": {}
             },
             "id": "ollama-api-1",
@@ -80,18 +85,18 @@
         }
     ],
     "connections": {
-        "Manual Trigger": {
+        "Webhook": {
             "main": [
                 [
                     {
-                        "node": "Read CV File",
+                        "node": "Extract File Content",
                         "type": "main",
                         "index": 0
                     }
                 ]
             ]
         },
-        "Read CV File": {
+        "Extract File Content": {
             "main": [
                 [
                     {

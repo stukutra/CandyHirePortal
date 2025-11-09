@@ -1,0 +1,44 @@
+{
+    "name": "Test Webhook Upload",
+    "active": false,
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "test-upload",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "id": "webhook-test-1",
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
+            "position": [240, 300],
+            "webhookId": "test-upload-debug"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Debug: Show all data received\nconst output = {\n  hasJson: !!$input.item.json,\n  hasBinary: !!$input.item.binary,\n  jsonKeys: Object.keys($input.item.json || {}),\n  binaryKeys: Object.keys($input.item.binary || {}),\n  json: $input.item.json,\n  binaryInfo: {}\n};\n\nif ($input.item.binary) {\n  Object.keys($input.item.binary).forEach(key => {\n    const bin = $input.item.binary[key];\n    output.binaryInfo[key] = {\n      mimeType: bin.mimeType,\n      fileExtension: bin.fileExtension,\n      fileName: bin.fileName,\n      dataSize: bin.data ? bin.data.length : 0\n    };\n  });\n}\n\nreturn output;"
+            },
+            "id": "debug-code-1",
+            "name": "Debug Info",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [460, 300]
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [[{
+                "node": "Debug Info",
+                "type": "main",
+                "index": 0
+            }]]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": []
+}
