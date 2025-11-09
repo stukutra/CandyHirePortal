@@ -93,7 +93,9 @@
       "Bash(git checkout:*)",
       "Bash(composer require:*)",
       "Bash(/tmp/test-cv-large.txt)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(do echo \"=== Tenant $i ===\")",
+      "Bash(npx tsc --noEmit)"
     ],
     "deny": [],
     "ask": []
