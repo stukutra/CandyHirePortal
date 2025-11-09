@@ -1,0 +1,109 @@
+{
+    "name": "CV Extract Data (Ollama AI)",
+    "active": false,
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "upload-cv",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "id": "webhook-ollama-1",
+            "name": "Webhook CV Upload",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1.1,
+            "position": [240, 400],
+            "webhookId": "upload-cv-ollama"
+        },
+        {
+            "parameters": {
+                "jsCode": "// Extract file content from JSON payload\nconst body = $input.item.json.body;\n\nif (!body || !body.fileContent) {\n  throw new Error('Missing fileContent in request body');\n}\n\n// Decode base64 file content\nconst fileBuffer = Buffer.from(body.fileContent, 'base64');\nlet fileContent = '';\n\ntry {\n  fileContent = fileBuffer.toString('utf8');\n  // Limit to first 8000 characters for AI processing\n  if (fileContent.length > 8000) {\n    fileContent = fileContent.slice(0, 8000);\n  }\n} catch (e) {\n  fileContent = '[Binary PDF content - text extraction needed]';\n}\n\nreturn {\n  fileName: body.fileName,\n  fileSize: body.fileSize,\n  mimeType: body.mimeType,\n  fileContent: fileContent,\n  savedFilePath: body.savedFilePath,\n  savedFileName: body.savedFileName\n};"
+            },
+            "id": "extract-file-ollama",
+            "name": "Extract File Content",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [460, 400]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://host.docker.internal:11434/api/generate",
+                "authentication": "none",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={\n  \"model\": \"qwen2.5:7b\",\n  \"prompt\": \"Analyze the following CV/Resume text and extract candidate information. Return ONLY a valid JSON object with the following fields: first_name, last_name, email, phone, linkedin, current_position, current_company, experience (years as number), skills (array of strings), location, expected_salary (number or null). If information is not found, use null. Be precise and extract only real data from the text.\\n\\nCV Text:\\n\" + $json.fileContent + \"\\n\\nJSON Response:\",\n  \"stream\": false,\n  \"options\": {\n    \"temperature\": 0.1,\n    \"top_p\": 0.9\n  }\n}",
+                "options": {
+                    "timeout": 120000
+                }
+            },
+            "id": "ollama-api-cv",
+            "name": "Call Ollama AI",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [680, 400]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Parse AI response and extract candidate data\nconst aiResponse = $input.item.json.response;\nlet extractedData = {};\n\ntry {\n  // Try to parse the JSON from AI response\n  // Sometimes AI wraps JSON in markdown code blocks\n  let jsonText = aiResponse.trim();\n  \n  // Remove markdown code blocks if present\n  jsonText = jsonText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  \n  extractedData = JSON.parse(jsonText);\n  \n  // Validate and set defaults\n  extractedData = {\n    first_name: extractedData.first_name || 'Unknown',\n    last_name: extractedData.last_name || 'Unknown',\n    email: extractedData.email || null,\n    phone: extractedData.phone || null,\n    linkedin: extractedData.linkedin || null,\n    current_position: extractedData.current_position || null,\n    current_company: extractedData.current_company || null,\n    experience: parseInt(extractedData.experience) || 0,\n    skills: Array.isArray(extractedData.skills) ? extractedData.skills : [],\n    location: extractedData.location || null,\n    expected_salary: extractedData.expected_salary || null,\n    status: 'New',\n    candidate_type: 'Employee'\n  };\n  \n} catch (e) {\n  // If parsing fails, return default data\n  console.error('Failed to parse AI response:', e.message);\n  extractedData = {\n    first_name: 'AI Extraction',\n    last_name: 'Failed',\n    email: null,\n    phone: null,\n    linkedin: null,\n    current_position: null,\n    current_company: null,\n    experience: 0,\n    skills: [],\n    location: null,\n    expected_salary: null,\n    status: 'New',\n    candidate_type: 'Employee',\n    _error: e.message,\n    _raw_response: aiResponse.substring(0, 500)\n  };\n}\n\nreturn {\n  success: true,\n  message: 'CV processed successfully',\n  extractedData: extractedData,\n  fileInfo: {\n    fileName: $('Extract File Content').item.json.fileName,\n    savedFileName: $('Extract File Content').item.json.savedFileName,\n    savedFilePath: $('Extract File Content').item.json.savedFilePath\n  }\n};"
+            },
+            "id": "parse-ai-response",
+            "name": "Parse AI Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [900, 400]
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ $json }}"
+            },
+            "id": "respond-webhook",
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [1120, 400]
+        }
+    ],
+    "connections": {
+        "Webhook CV Upload": {
+            "main": [[{
+                "node": "Extract File Content",
+                "type": "main",
+                "index": 0
+            }]]
+        },
+        "Extract File Content": {
+            "main": [[{
+                "node": "Call Ollama AI",
+                "type": "main",
+                "index": 0
+            }]]
+        },
+        "Call Ollama AI": {
+            "main": [[{
+                "node": "Parse AI Response",
+                "type": "main",
+                "index": 0
+            }]]
+        },
+        "Parse AI Response": {
+            "main": [[{
+                "node": "Respond to Webhook",
+                "type": "main",
+                "index": 0
+            }]]
+        }
+    },
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [{
+        "createdAt": "2025-11-09T00:00:00.000Z",
+        "updatedAt": "2025-11-09T00:00:00.000Z",
+        "id": "1",
+        "name": "AI"
+    }]
+}

@@ -1,96 +1,181 @@
-# n8n Workflows
+# n8n Workflows for CandyHire
 
-Questa cartella contiene i workflow n8n esportati in formato JSON.
+Questa cartella contiene i workflow n8n per l'automazione della piattaforma CandyHire.
 
-## Workflow Disponibili
+## 📋 Workflows Disponibili
 
-### test-ollama-integration.json
-Workflow di test per verificare l'integrazione tra n8n e Ollama.
+### 1. cv-extract-data-ollama.json ⭐ **PRODUCTION**
+**Scopo**: Estrazione dati da CV usando Ollama AI (REALE)
+**Trigger**: Webhook POST `/webhook/upload-cv`
+**Descrizione**:
+- Riceve CV caricato dal frontend (via upload-cv.php)
+- Estrae il contenuto del file (max 8000 caratteri)
+- Chiama Ollama AI (qwen2.5:7b) per estrarre i dati candidato
+- Restituisce JSON strutturato con: nome, cognome, email, telefono, skills, esperienza, etc.
+- Gestisce errori e fallback
 
-**Come testare:**
-1. Accedi a n8n: http://localhost:5678
-2. Apri il workflow "Test Ollama Integration"
-3. Clicca su "Test workflow" nel nodo iniziale
-4. Verifica che Ollama risponda correttamente
-
-**Cosa fa:**
-- Invia una richiesta POST a Ollama (http://host.docker.internal:11434)
-- Usa il modello `qwen2.5:7b`
-- Chiede all'AI di presentarsi
-- Formatta e restituisce la risposta
-
-## Come esportare workflow
-
-Per esportare i workflow dopo averli modificati:
-
-```bash
-./export-n8n-workflows.sh
+**Output Example**:
+```json
+{
+  "success": true,
+  "message": "CV processed successfully",
+  "extractedData": {
+    "first_name": "Mario",
+    "last_name": "Rossi",
+    "email": "mario.rossi@example.com",
+    "phone": "+39 123 456 7890",
+    "current_position": "Senior Developer",
+    "current_company": "Tech Company",
+    "experience": 5,
+    "skills": ["JavaScript", "React", "Node.js"],
+    "status": "New",
+    "candidate_type": "Employee"
+  },
+  "fileInfo": {
+    "fileName": "cv_mario_rossi.pdf",
+    "savedFileName": "cv_abc123_mario_rossi.pdf",
+    "savedFilePath": "/var/www/html/Attach/temp_cv_uploads/cv_abc123_mario_rossi.pdf"
+  }
+}
 ```
 
-## Come importare workflow
+---
 
-### Import automatico durante setup
+### 2. cv-extract-data-mock.json 🧪 **DEVELOPMENT/TEST**
+**Scopo**: Mock per testing senza AI (DATI FISSI)
+**Trigger**: Webhook POST `/webhook/upload-cv`
+**Descrizione**:
+- Riceve CV caricato
+- Restituisce dati mock predefiniti (Giuseppe Chiruzzi)
+- Utile per testing frontend senza dipendere da Ollama
 
-I workflow vengono importati automaticamente quando esegui:
-- `./setup.sh` (macOS)
-- `./setupUbuntu.sh` (Ubuntu/Linux)
+**Quando usarlo**:
+- Sviluppo locale senza Ollama installato
+- Test rapidi del flusso upload CV
+- CI/CD pipeline testing
 
-Lo script usa l'API REST di n8n per importare tutti i file JSON presenti in questa cartella.
+---
 
-### Import manuale
+### 3. test-ollama-integration.json 🔧 **TESTING**
+**Scopo**: Test connessione Ollama
+**Trigger**: Manuale
+**Descrizione**:
+- Verifica che Ollama sia raggiungibile
+- Testa il modello configurato (qwen2.5:7b)
+- Utile per troubleshooting
 
-Se vuoi importare i workflow manualmente dopo il setup:
+---
 
+## 🚀 Come Importare Workflows
+
+### Metodo 1: Via UI (Consigliato per Development)
+1. Accedi a n8n: `http://localhost:5678`
+   - User: `admin`
+   - Password: vedi `N8N_BASIC_AUTH_PASSWORD` in `.env`
+2. Click su **"Workflows"** → **"Import from File"**
+3. Seleziona il file JSON
+4. Click **"Import"**
+5. **Attiva il workflow** (toggle in alto a destra)
+
+### Metodo 2: Via Script (Automatico)
 ```bash
-# Importa tutti i workflow dalla cartella n8n_workflows
+cd /path/to/CandyHirePortal/Backend
 ./import-n8n-workflows-api.sh
 ```
 
-oppure dall'interfaccia web di n8n:
-1. Vai su http://localhost:5678
-2. Clicca sul menu (3 puntini) in alto a destra
-3. Seleziona "Import from file"
-4. Seleziona tutti i file JSON (Ctrl+Click per selezione multipla)
+---
 
-## Struttura
+## 🔧 Setup Ambiente
 
-Ogni file JSON rappresenta un workflow completo che può essere importato in n8n.
-
-## Note Tecniche
-
-- **host.docker.internal**: Permette ai container Docker di raggiungere servizi sull'host (come Ollama)
-- I workflow sono versionati in Git
-- Esportali regolarmente dopo modifiche importanti
-- I workflow sono salvati anche nel database MySQL per backup
-
-## Troubleshooting
-
-### Ollama non risponde dal workflow n8n?
-
-I container Docker devono poter raggiungere Ollama sull'host. Gli script di setup configurano automaticamente:
-
-1. **docker-compose.yml**: Aggiunge `extra_hosts` per mappare `host.docker.internal`
-2. **Ollama**: Configurato per ascoltare su `0.0.0.0:11434` invece di solo `127.0.0.1`
-
-#### Verifica manuale:
-
+### Development (Locale)
 ```bash
-# 1. Verifica che Ollama sia in esecuzione
-pgrep -x ollama
+# 1. Avvia Ollama
+ollama serve
 
-# 2. Verifica che ascolti su tutte le interfacce (Linux)
-ss -tuln | grep 11434
-# Dovresti vedere: 0.0.0.0:11434
+# 2. Download modello
+ollama pull qwen2.5:7b
 
-# 3. Su macOS usa:
-lsof -i :11434 -P -n
-# Dovresti vedere: *:11434 o 0.0.0.0:11434
+# 3. Avvia n8n
+docker-compose up -d candyhire-n8n
 
-# 4. Testa la connessione dal container n8n:
-docker exec candyhire-n8n wget -q -O - http://host.docker.internal:11434/api/tags
+# 4. Importa workflow di TEST
+# Via UI importa: cv-extract-data-mock.json
+# oppure: ./import-n8n-workflows-api.sh
+
+# 5. Attiva workflow in n8n UI
 ```
 
-#### Se Ollama è ancora su 127.0.0.1:
+### Production
+```bash
+# 1. Configura Ollama su server separato (preferibilmente con GPU)
+# Vedi: DEPLOY_PRODUCTION.md sezione "Configurazione Ollama"
+
+# 2. Configura .env.production
+OLLAMA_HOST=https://ollama.candyhire.internal:11434
+
+# 3. Avvia n8n production
+npm install -g n8n
+pm2 start n8n --name candyhire-n8n
+
+# 4. Importa workflow PRODUCTION
+# Via UI importa: cv-extract-data-ollama.json
+
+# 5. Attiva workflow in n8n UI
+```
+
+---
+
+## 📊 Workflow da Usare per Ambiente
+
+| Ambiente | Workflow | File | Motivo |
+|----------|----------|------|--------|
+| **Development** | Mock | `cv-extract-data-mock.json` | No Ollama richiesto, test rapidi |
+| **Staging** | Ollama | `cv-extract-data-ollama.json` | Test AI reale |
+| **Production** | Ollama | `cv-extract-data-ollama.json` | Estrazione CV reale con AI |
+
+---
+
+## 🐛 Troubleshooting
+
+### Workflow non si attiva
+```bash
+# Verifica webhook registrato in n8n
+docker logs candyhire-n8n | grep "Webhook registered"
+
+# Dovresti vedere: "Webhook registered: POST upload-cv"
+```
+
+### Ollama non risponde dal workflow
+```bash
+# 1. Verifica Ollama in esecuzione
+pgrep -x ollama
+
+# 2. Test connessione da host
+curl http://localhost:11434/api/tags
+
+# 3. Test connessione da container n8n
+docker exec candyhire-n8n wget -qO- http://host.docker.internal:11434/api/tags
+
+# 4. Verifica modello scaricato
+ollama list
+# Dovresti vedere: qwen2.5:7b
+
+# 5. Se manca, scaricalo
+ollama pull qwen2.5:7b
+```
+
+### Webhook ritorna 404
+```bash
+# Verifica che workflow sia ATTIVO in n8n UI
+# Il toggle deve essere verde (ON)
+
+# Webhook endpoint: POST http://localhost:5678/webhook/upload-cv
+curl -X POST http://localhost:5678/webhook/upload-cv \
+  -H "Content-Type: application/json" \
+  -d '{"test": "data"}'
+```
+
+### Ollama ascoltesu 127.0.0.1 invece di 0.0.0.0
 
 **Ubuntu/Linux:**
 ```bash
@@ -103,23 +188,39 @@ sudo systemctl restart ollama
 
 **macOS:**
 ```bash
-# Opzione 1: Modifica il launchd plist
-# (gestito automaticamente dallo script setup.sh)
-
-# Opzione 2: Avvia manualmente
 killall ollama
 OLLAMA_HOST=0.0.0.0:11434 ollama serve &
 ```
 
-### Altri problemi comuni
+---
 
-```bash
-# Verifica che il modello sia scaricato
-ollama list
+## 📝 Sviluppo Nuovi Workflows
 
-# Se manca, scaricalo
-ollama pull qwen2.5:7b
+1. **Crea in n8n UI**: http://localhost:5678
+2. **Testa accuratamente** con dati reali
+3. **Esporta come JSON**: Settings → Export
+4. **Salva in questa cartella** con nome descrittivo
+5. **Documenta in questo README**
+6. **Commit to git**
 
-# Riavvia n8n se hai modificato la configurazione
-docker compose restart n8n
-```
+---
+
+## 📚 Documentazione Correlata
+
+- **Setup Completo**: `../setupUbuntu.sh` o `../setup.sh`
+- **Deploy Production**: `../DEPLOY_PRODUCTION.md`
+- **Configurazione Env**: `../.env` e `../.env.production`
+
+---
+
+**⚠️ Note Importanti**:
+- **NON** committare credenziali nei workflow JSON
+- Usa n8n Credentials per API keys, passwords, secrets
+- Testa sempre in dev prima di deploy production
+- Backup workflows prima di aggiornare n8n
+- host.docker.internal funziona solo in Docker Desktop, in produzione usa IP/hostname reale
+
+---
+
+**Ultimo aggiornamento**: 2025-11-09
+**Versione**: 2.0.0

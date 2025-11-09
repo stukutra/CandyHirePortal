@@ -84,7 +84,8 @@
       "Bash(/tmp/test-cv.txt)",
       "Bash(while read id)",
       "Bash(do echo 'Cancello workflow $id...' curl -s -b /tmp/n8n-cookie.txt -X DELETE http://localhost:5678/rest/workflows/$id done)",
-      "Bash(do curl -s -b /tmp/n8n-cookie.txt -X DELETE http://localhost:5678/rest/workflows/$id)"
+      "Bash(do curl -s -b /tmp/n8n-cookie.txt -X DELETE http://localhost:5678/rest/workflows/$id)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []
