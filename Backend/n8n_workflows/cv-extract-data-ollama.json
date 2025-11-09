@@ -68,7 +68,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Parse AI response\nconst aiResponse = $input.item.json.response;\nconst prevData = $('Prepare Ollama Payload').item.json;\nconst fileName = prevData.fileName || '';\n\n// Extract name from filename (e.g. \"Giuseppe Chiruzzi_Reactjs.pdf\" -> \"Giuseppe\" + \"Chiruzzi\")\nlet fileNameParts = fileName.replace(/\\.[^.]+$/, '').split(/[_\\s-]+/).filter(p => p.length > 2);\n\nlet extractedData = {};\n\ntry {\n  let jsonText = aiResponse.trim();\n  jsonText = jsonText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  extractedData = JSON.parse(jsonText);\n\n  // Use filename as fallback for missing/invalid names\n  let firstName = extractedData.first_name || fileNameParts[0] || 'Candidato';\n  let lastName = extractedData.last_name || fileNameParts[1] || 'DaCV';\n\n  // Validate names - ensure they're valid strings\n  if (!firstName || firstName.length < 2) {\n    firstName = fileNameParts[0] || 'Candidato';\n  }\n  if (!lastName || lastName.length < 3) {\n    lastName = fileNameParts[1] || 'DaCV';\n  }\n\n  extractedData = {\n    first_name: firstName,\n    last_name: lastName,\n    email: extractedData.email || 'candidato@temp.local',\n    phone: extractedData.phone || null,\n    linkedin: extractedData.linkedin || null,\n    current_position: extractedData.current_position || null,\n    current_company: extractedData.current_company || null,\n    experience: parseInt(extractedData.experience) || 0,\n    skills: Array.isArray(extractedData.skills) ? extractedData.skills : [],\n    location: extractedData.location || null,\n    expected_salary: extractedData.expected_salary || null,\n    status: 'New',\n    candidate_type: 'Employee'\n  };\n} catch (e) {\n  // On error, use filename for names\n  extractedData = {\n    first_name: fileNameParts[0] || 'Candidato',\n    last_name: fileNameParts[1] || 'DaCV',\n    email: 'candidato@temp.local',\n    phone: null,\n    linkedin: null,\n    current_position: null,\n    current_company: null,\n    experience: 0,\n    skills: [],\n    location: null,\n    expected_salary: null,\n    status: 'New',\n    candidate_type: 'Employee',\n    _error: e.message\n  };\n}\n\nreturn {\n  success: true,\n  message: 'CV processed successfully',\n  extractedData: extractedData,\n  fileInfo: {\n    fileName: prevData.fileName,\n    savedFileName: prevData.savedFileName,\n    savedFilePath: prevData.savedFilePath\n  }\n};\n"
+                "jsCode": "// Parse AI response\nconst aiResponse = $input.item.json.response;\nconst prevData = $('Prepare Ollama Payload').item.json;\nconst fileName = prevData.fileName || '';\nconst extractedText = $('Extract File Content').item.json.extractedText;\n\n// Extract name from filename (e.g. \"Giuseppe Chiruzzi_Reactjs.pdf\" -> \"Giuseppe\" + \"Chiruzzi\")\nlet fileNameParts = fileName.replace(/\\.[^.]+$/, '').split(/[_\\s-]+/).filter(p => p.length > 2);\n\nlet extractedData = {};\n\ntry {\n  let jsonText = aiResponse.trim();\n  jsonText = jsonText.replace(/```json\\n?/g, '').replace(/```\\n?/g, '');\n  extractedData = JSON.parse(jsonText);\n\n  // Use filename as fallback for missing/invalid names\n  let firstName = extractedData.first_name || fileNameParts[0] || 'Candidato';\n  let lastName = extractedData.last_name || fileNameParts[1] || 'DaCV';\n\n  // Validate names - ensure they're valid strings\n  if (!firstName || firstName.length < 2) {\n    firstName = fileNameParts[0] || 'Candidato';\n  }\n  if (!lastName || lastName.length < 3) {\n    lastName = fileNameParts[1] || 'DaCV';\n  }\n\n  extractedData = {\n    first_name: firstName,\n    last_name: lastName,\n    email: extractedData.email || 'candidato@temp.local',\n    phone: extractedData.phone || null,\n    linkedin: extractedData.linkedin || null,\n    current_position: extractedData.current_position || null,\n    current_company: extractedData.current_company || null,\n    experience: parseInt(extractedData.experience) || 0,\n    skills: Array.isArray(extractedData.skills) ? extractedData.skills : [],\n    location: extractedData.location || null,\n    expected_salary: extractedData.expected_salary || null,\n    status: 'New',\n    candidate_type: 'Employee'\n  };\n} catch (e) {\n  // On error, use filename for names\n  extractedData = {\n    first_name: fileNameParts[0] || 'Candidato',\n    last_name: fileNameParts[1] || 'DaCV',\n    email: 'candidato@temp.local',\n    phone: null,\n    linkedin: null,\n    current_position: null,\n    current_company: null,\n    experience: 0,\n    skills: [],\n    location: null,\n    expected_salary: null,\n    status: 'New',\n    candidate_type: 'Employee',\n    _error: e.message\n  };\n}\n\nreturn {\n  extractedData: extractedData,\n  extractedText: extractedText,\n  fileInfo: {\n    fileName: prevData.fileName,\n    savedFileName: prevData.savedFileName,\n    savedFilePath: prevData.savedFilePath\n  }\n};\n"
             },
             "id": "parse-ai-response",
             "name": "Parse AI Response",
@@ -76,6 +76,53 @@
             "typeVersion": 2,
             "position": [
                 1120,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Prepare AI summary generation request\nconst extractedText = $input.item.json.extractedText;\nconst extractedData = $input.item.json.extractedData;\n\nconst candidateName = `${extractedData.first_name} ${extractedData.last_name}`;\nconst position = extractedData.current_position || 'Professional';\n\nreturn {\n  payload: {\n    model: 'qwen2.5:7b',\n    prompt: `You are a professional HR assistant. Create a concise, professional summary (2-3 sentences, max 150 words) of the following candidate CV. Focus on their key strengths, experience level, main skills, and career highlights. Write in third person.\\n\\nCandidate: ${candidateName}\\nCurrent Position: ${position}\\nYears of Experience: ${extractedData.experience}\\nKey Skills: ${extractedData.skills.join(', ')}\\n\\nCV Text:\\n${extractedText.substring(0, 3000)}\\n\\nWrite a professional summary in Italian:`,\n    stream: false,\n    options: {\n      temperature: 0.3,\n      top_p: 0.9\n    }\n  },\n  extractedData: extractedData,\n  fileInfo: $input.item.json.fileInfo\n};"
+            },
+            "id": "prepare-summary",
+            "name": "Prepare AI Summary Request",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1340,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://host.docker.internal:11434/api/generate",
+                "authentication": "none",
+                "sendBody": true,
+                "specifyBody": "json",
+                "jsonBody": "={{ $json.payload }}",
+                "options": {
+                    "timeout": 120000
+                }
+            },
+            "id": "ollama-summary",
+            "name": "Generate AI Summary",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                1560,
+                400
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "// Parse AI summary response\nconst summaryResponse = $input.item.json.response;\nconst prevData = $('Prepare AI Summary Request').item.json;\n\nlet aiSummary = '';\n\ntry {\n  // Clean and extract summary\n  aiSummary = summaryResponse.trim();\n  // Remove markdown formatting if present\n  aiSummary = aiSummary.replace(/```.*?\\n?/g, '').trim();\n  \n  // Limit to 500 characters\n  if (aiSummary.length > 500) {\n    aiSummary = aiSummary.substring(0, 497) + '...';\n  }\n} catch (e) {\n  aiSummary = 'Summary generation failed.';\n}\n\nreturn {\n  success: true,\n  message: 'CV processed successfully with AI summary',\n  extractedData: {\n    ...prevData.extractedData,\n    ai_summary: aiSummary\n  },\n  fileInfo: prevData.fileInfo\n};\n"
+            },
+            "id": "finalize-response",
+            "name": "Finalize Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                1780,
                 400
             ]
         },
@@ -89,7 +136,7 @@
             "type": "n8n-nodes-base.respondToWebhook",
             "typeVersion": 1,
             "position": [
-                1340,
+                2000,
                 400
             ]
         }
@@ -140,6 +187,39 @@
             ]
         },
         "Parse AI Response": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare AI Summary Request",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare AI Summary Request": {
+            "main": [
+                [
+                    {
+                        "node": "Generate AI Summary",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Generate AI Summary": {
+            "main": [
+                [
+                    {
+                        "node": "Finalize Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Finalize Response": {
             "main": [
                 [
                     {

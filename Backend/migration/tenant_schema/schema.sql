@@ -197,6 +197,7 @@ CREATE TABLE `candidates` (
   `expected_salary` DECIMAL(12,2) COMMENT 'Expected annual or daily rate',
   `supplier_company_id` BIGINT UNSIGNED,
   `supplier_company_name` VARCHAR(255),
+  `ai_summary` TEXT COMMENT 'AI-generated summary of candidate CV',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (`supplier_company_id`) REFERENCES `companies`(`id`) ON DELETE SET NULL ON UPDATE CASCADE,

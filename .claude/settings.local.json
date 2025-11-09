@@ -90,7 +90,8 @@
       "Bash(./import-n8n-workflow-auto.sh)",
       "Bash(./setup-n8n-complete.sh)",
       "Bash(wait)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(composer require:*)"
     ],
     "deny": [],
     "ask": []
