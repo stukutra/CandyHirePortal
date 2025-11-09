@@ -21,7 +21,7 @@
         },
         {
             "parameters": {
-                "jsCode": "// Get extracted text from PHP proxy\nconst body = $input.item.json.body;\n\nif (!body || !body.extractedText) {\n  throw new Error('Missing extractedText in request body. PDF extraction failed in PHP proxy.');\n}\n\nconst extractedText = body.extractedText;\n\n// Validate text length\nif (extractedText.length < 50) {\n  throw new Error('Extracted text too short (' + extractedText.length + ' chars). PDF may be image-based or extraction failed.');\n}\n\nreturn {\n  fileName: body.fileName,\n  fileSize: body.fileSize,\n  mimeType: body.mimeType,\n  extractedText: extractedText,\n  savedFilePath: body.savedFilePath,\n  savedFileName: body.savedFileName,\n  extractedLength: extractedText.length\n};"
+                "jsCode": "// Get extracted text from PHP proxy\nconst data = $input.item.json.body;\n\nif (!data || !data.extractedText) {\n  throw new Error('Missing extractedText in request. PDF extraction failed in PHP proxy.');\n}\n\nconst extractedText = data.extractedText;\n\n// Validate text length\nif (extractedText.length < 50) {\n  throw new Error('Extracted text too short (' + extractedText.length + ' chars). PDF may be image-based or extraction failed.');\n}\n\nreturn {\n  fileName: data.fileName,\n  fileSize: data.fileSize,\n  mimeType: data.mimeType,\n  extractedText: extractedText,\n  savedFilePath: data.savedFilePath,\n  savedFileName: data.savedFileName,\n  extractedLength: extractedText.length\n};"
             },
             "id": "extract-file-ollama",
             "name": "Extract File Content",

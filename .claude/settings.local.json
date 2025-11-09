@@ -91,7 +91,8 @@
       "Bash(./setup-n8n-complete.sh)",
       "Bash(wait)",
       "Bash(git checkout:*)",
-      "Bash(composer require:*)"
+      "Bash(composer require:*)",
+      "Bash(/tmp/test-cv-large.txt)"
     ],
     "deny": [],
     "ask": []

@@ -215,6 +215,7 @@ services:
     volumes:
       - n8n-data:/home/node/.n8n
       - n8n-files:/files
+      - /home/neo/candyhire-data/attachments:/var/www/html/Attach:ro
     networks:
       - candyhire-portal-network
     extra_hosts:
