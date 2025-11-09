@@ -92,7 +92,8 @@
       "Bash(wait)",
       "Bash(git checkout:*)",
       "Bash(composer require:*)",
-      "Bash(/tmp/test-cv-large.txt)"
+      "Bash(/tmp/test-cv-large.txt)",
+      "Bash(node:*)"
     ],
     "deny": [],
     "ask": []
