@@ -436,6 +436,30 @@ CREATE TABLE `documents` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
+-- Table: currencies
+-- Supported currencies for multi-currency support
+-- ============================================
+DROP TABLE IF EXISTS `currencies`;
+CREATE TABLE `currencies` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `tenant_id` VARCHAR(50) NOT NULL,
+  `code` VARCHAR(3) NOT NULL COMMENT 'ISO 4217 currency code',
+  `name` VARCHAR(100) NOT NULL,
+  `symbol` VARCHAR(10) NOT NULL,
+  `decimal_places` TINYINT NOT NULL DEFAULT 2 COMMENT 'Number of decimal places for this currency',
+  `is_active` BOOLEAN DEFAULT TRUE COMMENT 'Whether this currency is currently active for use',
+  `is_default` BOOLEAN DEFAULT FALSE COMMENT 'Whether this is the default currency for the tenant',
+  `exchange_rate_to_base` DECIMAL(15,6) NOT NULL DEFAULT 1.000000 COMMENT 'Exchange rate to base currency (USD)',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY unique_currency_code_per_tenant (`code`, `tenant_id`),
+  INDEX idx_currencies_tenant (`tenant_id`),
+  INDEX idx_currencies_code (`code`),
+  INDEX idx_currencies_is_active (`is_active`),
+  INDEX idx_currencies_is_default (`is_default`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ============================================
 -- Table: activity_logs
 -- Audit trail of all activities
 -- ============================================
