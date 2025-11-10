@@ -5,7 +5,14 @@
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"DESCRIBE jobs;\")",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec:*)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES LIKE ''currencies'';\")",
-      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES LIKE ''candyhire%'';\")"
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES LIKE ''candyhire%'';\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT id, email, username, first_name, last_name, is_active FROM system_users LIMIT 5;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"DESCRIBE jobs;\")",
+      "Bash(npx tsc:*)",
+      "Bash(/tmp/data-table.ts)",
+      "Bash(/tmp/data-table.html)",
+      "Bash(/home/neo/Documenti/Candy/CandyHire/src/app/shared/components/data-table/data-table.ts)",
+      "Bash(/home/neo/Documenti/Candy/CandyHire/src/app/shared/components/data-table/data-table.html)"
     ],
     "deny": [],
     "ask": []
