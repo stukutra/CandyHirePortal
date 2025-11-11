@@ -22,7 +22,10 @@
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW COLUMNS FROM job_applications WHERE Field=''status'';\")",
       "Bash(MYSQL_PWD=\"candyhire_portal_root_pass\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW COLUMNS FROM job_applications WHERE Field=''status'';\")",
       "Bash(MYSQL_PWD=\"candyhire_portal_root_pass\" docker exec candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES LIKE ''candyhire_tenant%'';\")",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(src/app/pages/jobs/jobs-list/jobs-list.scss)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT job_id, status, COUNT(*) as count FROM job_applications GROUP BY job_id, status LIMIT 10;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT job_id, status, COUNT(*) as count FROM job_applications WHERE job_id = 1 GROUP BY status;\")"
     ],
     "deny": [],
     "ask": []
