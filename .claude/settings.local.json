@@ -12,7 +12,13 @@
       "Bash(/tmp/data-table.ts)",
       "Bash(/tmp/data-table.html)",
       "Bash(/home/neo/Documenti/Candy/CandyHire/src/app/shared/components/data-table/data-table.ts)",
-      "Bash(/home/neo/Documenti/Candy/CandyHire/src/app/shared/components/data-table/data-table.html)"
+      "Bash(/home/neo/Documenti/Candy/CandyHire/src/app/shared/components/data-table/data-table.html)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"DESCRIBE job_applications;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES LIKE ''job_applications'';\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES LIKE ''candyhire_tenant%'';\")",
+      "Bash(do echo \"Updating tenant $i...\" docker exec candyhire-portal-mysql mysql -uroot -pCandyHire2024Root candyhire_tenant_$i -e \"\n    ALTER TABLE candidates \n    MODIFY COLUMN status ENUM(''''Applied'''', ''''Screening'''', ''''Interview'''', ''''Offer'''', ''''Hired'''', ''''Rejected'''') NOT NULL DEFAULT ''''Applied'''';\n    \n    ALTER TABLE job_applications \n    MODIFY COLUMN status ENUM(''''Applied'''', ''''Screening'''', ''''Interview'''', ''''Offer'''', ''''Hired'''', ''''Rejected'''') NOT NULL DEFAULT ''''Applied'''';\n    \n    UPDATE candidates SET status = ''''Applied'''' WHERE status = ''''New'''';\n    UPDATE job_applications SET status = ''''Applied'''' WHERE status = ''''New'''';\n  \")"
     ],
     "deny": [],
     "ask": []
