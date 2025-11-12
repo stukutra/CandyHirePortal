@@ -59,7 +59,13 @@
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT c.id, c.first_name, c.last_name FROM candidates c WHERE EXISTS (SELECT 1 FROM job_applications ja WHERE ja.candidate_id = c.id) LIMIT 3;\")",
       "Bash(curl:*)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES LIKE ''%note%'';\")",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES LIKE ''candidate_notes'';\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-saas-php mysql -uroot -e \"SHOW DATABASES LIKE ''candyhire%'';\")",
+      "Bash(MYSQL_PWD='CandyH1re_S3cur3P@ss!' docker exec candyhire-portal-mysql mysql -u candyhire_user -e \"SHOW DATABASES LIKE ''candyhire_tenant%'';\")",
+      "Bash(echo:*)",
+      "Bash(php -l:*)",
+      "Bash(/tmp/candidate-notes-backup.php)"
     ],
     "deny": [],
     "ask": []
