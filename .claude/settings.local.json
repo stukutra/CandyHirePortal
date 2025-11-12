@@ -52,7 +52,8 @@
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot -e \"SHOW DATABASES LIKE ''''candyhire_tenant%'''';\")",
       "Bash(cat:*)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1)",
-      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT id, title, status FROM jobs ORDER BY id;\")"
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT id, title, status FROM jobs ORDER BY id;\")",
+      "Bash(lsof:*)"
     ],
     "deny": [],
     "ask": []
