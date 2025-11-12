@@ -67,7 +67,11 @@
       "Bash(php -l:*)",
       "Bash(/tmp/candidate-notes-backup.php)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"DESCRIBE job_applications;\")",
-      "Bash(npm run build:*)"
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(pkill:*)",
+      "Bash(timeout 60 ng serve:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
