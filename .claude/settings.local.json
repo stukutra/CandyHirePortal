@@ -65,7 +65,9 @@
       "Bash(MYSQL_PWD='CandyH1re_S3cur3P@ss!' docker exec candyhire-portal-mysql mysql -u candyhire_user -e \"SHOW DATABASES LIKE ''candyhire_tenant%'';\")",
       "Bash(echo:*)",
       "Bash(php -l:*)",
-      "Bash(/tmp/candidate-notes-backup.php)"
+      "Bash(/tmp/candidate-notes-backup.php)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"DESCRIBE job_applications;\")",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
