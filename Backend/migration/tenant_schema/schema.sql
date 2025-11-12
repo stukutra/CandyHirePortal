@@ -124,6 +124,8 @@ CREATE TABLE `jobs` (
   `location_type` ENUM('Remote', 'On-site', 'Hybrid') NOT NULL DEFAULT 'Hybrid',
   `job_type` ENUM('Full-time', 'Part-time', 'Contract', 'Internship') NOT NULL DEFAULT 'Full-time',
   `status` ENUM('Open', 'Closed', 'Draft') NOT NULL DEFAULT 'Open',
+  `status_changed_at` DATETIME NULL COMMENT 'Timestamp when job status was last changed',
+  `status_changed_by` BIGINT UNSIGNED NULL COMMENT 'User ID who changed the job status',
   `description` TEXT NOT NULL,
   `requirements` TEXT,
   `responsibilities` TEXT,
