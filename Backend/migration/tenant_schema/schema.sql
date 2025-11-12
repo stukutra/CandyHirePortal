@@ -487,6 +487,28 @@ CREATE TABLE `activity_logs` (
   INDEX idx_activity_logs_created (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ============================================
+-- Table: candidate_notes
+-- Notes and comments left by recruiters on candidate profiles
+-- All recruiters in the same tenant can see and add notes
+-- ============================================
+DROP TABLE IF EXISTS `candidate_notes`;
+CREATE TABLE `candidate_notes` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `candidate_id` BIGINT UNSIGNED NOT NULL COMMENT 'References candidates table',
+  `recruiter_id` BIGINT UNSIGNED NOT NULL COMMENT 'References system_users table',
+  `content` TEXT NOT NULL COMMENT 'Note content',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `tenant_id` VARCHAR(50) NOT NULL COMMENT 'Isolates notes per tenant',
+  INDEX idx_candidate_notes_candidate (`candidate_id`),
+  INDEX idx_candidate_notes_recruiter (`recruiter_id`),
+  INDEX idx_candidate_notes_tenant (`tenant_id`),
+  INDEX idx_candidate_notes_created (`created_at`),
+  FOREIGN KEY (`candidate_id`) REFERENCES `candidates`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (`recruiter_id`) REFERENCES `system_users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Candidate notes shared among recruiters';
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================

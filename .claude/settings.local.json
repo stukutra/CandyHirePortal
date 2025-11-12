@@ -53,7 +53,13 @@
       "Bash(cat:*)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec -i candyhire-portal-mysql mysql -uroot candyhire_tenant_1)",
       "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT id, title, status FROM jobs ORDER BY id;\")",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(python3:*)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT c.id, c.first_name, c.last_name, ja.job_id, j.title as job_title, comp.name as company_name FROM candidates c LEFT JOIN job_applications ja ON c.id = ja.candidate_id LEFT JOIN jobs j ON ja.job_id = j.id LEFT JOIN companies comp ON j.company_id = comp.id WHERE c.id = 1 LIMIT 5;\")",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT c.id, c.first_name, c.last_name FROM candidates c WHERE EXISTS (SELECT 1 FROM job_applications ja WHERE ja.candidate_id = c.id) LIMIT 3;\")",
+      "Bash(curl:*)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SHOW TABLES LIKE ''%note%'';\")",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []
