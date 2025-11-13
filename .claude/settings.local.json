@@ -71,7 +71,8 @@
       "Bash(npm install:*)",
       "Bash(pkill:*)",
       "Bash(timeout 60 ng serve:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(MYSQL_PWD=\"CandyHire2024Root\" docker exec candyhire-portal-mysql mysql -uroot candyhire_tenant_1 -e \"SELECT * FROM documents WHERE id = 13;\")"
     ],
     "deny": [],
     "ask": []
