@@ -8,7 +8,8 @@
       "Bash(tail -n 1 echo \"\" echo \"Candidates:\" docker exec candyhire-portal-mysql mysql -uroot -pCandyHire2024Root candyhire_tenant_1 -e \"SELECT COUNT(*) FROM candidates WHERE tenant_id=''''1'''';\")",
       "Bash(__NEW_LINE__ echo \"\")",
       "Bash(echo \"✨ ===== RIEPILOGO COMPLETO FINALE =====\" echo \"\" docker exec candyhire-portal-mysql mysql -uroot -pCandyHire2024Root candyhire_tenant_1 -e \"\nSELECT ''''COMPANIES'''' as Category, COUNT(*) as Total FROM companies WHERE tenant_id=''''1''''\nUNION ALL\nSELECT ''''JOBS'''' as Category, COUNT(*) as Total FROM jobs WHERE tenant_id=''''1''''\nUNION ALL\nSELECT ''''CANDIDATES (Total)'''' as Category, COUNT(*) as Total FROM candidates WHERE tenant_id=''''1''''\nUNION ALL\nSELECT CONCAT(''''  - '''', candidate_type) as Category, COUNT(*) as Total FROM candidates WHERE tenant_id=''''1'''' GROUP BY candidate_type;\n\")",
-      "Bash(php -l:*)"
+      "Bash(php -l:*)",
+      "Bash(docker logs:*)"
     ],
     "deny": [],
     "ask": []
