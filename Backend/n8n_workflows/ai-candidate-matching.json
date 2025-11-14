@@ -1,0 +1,167 @@
+{
+  "name": "AI Candidate Matching",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-match-candidates",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1.1,
+      "position": [240, 300],
+      "webhookId": "ai-match-candidates"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract and prepare context from webhook payload\nconst data = $input.item.json.body;\n\nreturn {\n  job: data.job,\n  config: data.config,\n  candidates: data.candidates || [],\n  startTime: data.startTime || Date.now()\n};"
+      },
+      "id": "prepare-context",
+      "name": "Prepare AI Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "candidates",
+        "options": {}
+      },
+      "id": "split-candidates",
+      "name": "Split Candidates",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Prepare Ollama API request for candidate matching\nconst candidate = $input.item.json;\nconst jobContext = $('Prepare AI Context').item.json.job;\nconst config = $('Prepare AI Context').item.json.config;\n\nconst prompt = `# AI Candidate Matching Task\n\nYou are an expert HR consultant analyzing candidates for a job position.\n\n## Job Requirements:\n- Title: ${jobContext.title || 'N/A'}\n- Location: ${jobContext.location || 'N/A'}\n- Experience Level: ${jobContext.experience_level || 'N/A'}\n- Salary Range: €${jobContext.salary_min || 0} - €${jobContext.salary_max || 0}\n- Requirements: ${jobContext.requirements || 'N/A'}\n- Responsibilities: ${jobContext.responsibilities || 'N/A'}\n\n## Candidate Profile:\n- Name: ${candidate.first_name} ${candidate.last_name}\n- Location: ${candidate.location || 'N/A'}\n- Experience: ${candidate.years_of_experience || 0} years\n- Current Rate: €${candidate.current_rate || 0}/day\n- Desired Rate: €${candidate.desired_rate || 0}/day\n- Availability: ${candidate.availability || 'N/A'}\n- Skills: ${candidate.skills || 'N/A'}\n- AI Summary: ${candidate.ai_summary || 'No summary available'}\n\n## Matching Priorities (0-100%):\n- Technical Skills: ${config.priorities?.technicalSkills || 80}%\n- Experience: ${config.priorities?.experience || 60}%\n- Salary Fit: ${config.priorities?.salaryFit || 40}%\n- Availability: ${config.priorities?.availability || 50}%\n\n## Task:\nAnalyze this candidate against the job requirements considering the specified priority weights.\n\nProvide your response in JSON format:\n{\n  \"score\": <0-100 match percentage>,\n  \"matchReason\": \"<concise positive match explanation in 1-2 sentences>\",\n  \"concerns\": \"<potential issues or null if none>\",\n  \"technicalFit\": <0-100>,\n  \"experienceFit\": <0-100>,\n  \"salaryFit\": <0-100>,\n  \"availabilityFit\": <0-100>\n}\n\nIMPORTANT: Return ONLY valid JSON, no additional text or markdown.`;\n\nreturn {\n  payload: {\n    model: 'qwen2.5:7b',\n    prompt: prompt,\n    stream: false,\n    options: {\n      temperature: 0.3,\n      top_p: 0.9\n    }\n  },\n  candidate: candidate\n};"
+      },
+      "id": "prepare-ollama-request",
+      "name": "Prepare Ollama Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "authentication": "none",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.payload }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "call-ollama-ai",
+      "name": "Call Ollama AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nconst startTime = $('Prepare AI Context').item.json.startTime;\n\nfor (let i = 0; i < items.length; i++) {\n  const item = items[i];\n  \n  try {\n    // Get candidate data from Prepare Ollama Request node\n    const prepareNodes = $('Prepare Ollama Request').all();\n    const candidate = prepareNodes[i]?.json?.candidate;\n    \n    if (!candidate) {\n      console.log('Candidate not found at index ' + i + ', skipping');\n      continue;\n    }\n\n    // Parse Ollama response\n    let aiResponse;\n    const responseText = item.json.response || '';\n    \n    if (typeof responseText === 'string') {\n      // Try to extract JSON from response (remove markdown code blocks if present)\n      let jsonText = responseText.trim();\n      jsonText = jsonText.replace(/^```json\\s*/, '').replace(/\\s*```$/, '');\n      \n      const jsonMatch = jsonText.match(/\\{[\\s\\S]*\\}/);\n      if (jsonMatch) {\n        aiResponse = JSON.parse(jsonMatch[0]);\n      } else {\n        throw new Error('No JSON found in response');\n      }\n    } else {\n      aiResponse = responseText;\n    }\n\n    results.push({\n      id: candidate.id,\n      name: `${candidate.first_name} ${candidate.last_name}`,\n      email: candidate.email,\n      phone: candidate.phone,\n      currentRate: candidate.current_rate,\n      desiredRate: candidate.desired_rate,\n      location: candidate.location,\n      experience: candidate.years_of_experience,\n      availability: candidate.availability,\n      score: aiResponse.score || 0,\n      matchReason: aiResponse.matchReason || 'Match analysis completed',\n      concerns: aiResponse.concerns || null,\n      technicalFit: aiResponse.technicalFit || 0,\n      experienceFit: aiResponse.experienceFit || 0,\n      salaryFit: aiResponse.salaryFit || 0,\n      availabilityFit: aiResponse.availabilityFit || 0\n    });\n  } catch (error) {\n    console.error('Error processing candidate at index ' + i + ':', error.message);\n    // Try to get candidate from prepare node\n    const prepareNodes = $('Prepare Ollama Request').all();\n    const candidate = prepareNodes[i]?.json?.candidate;\n    \n    if (candidate) {\n      results.push({\n        id: candidate.id,\n        name: `${candidate.first_name} ${candidate.last_name}`,\n        email: candidate.email,\n        phone: candidate.phone || '',\n        currentRate: candidate.current_rate,\n        desiredRate: candidate.desired_rate,\n        location: candidate.location || '',\n        experience: candidate.years_of_experience || 0,\n        availability: candidate.availability || '',\n        score: 50,\n        matchReason: 'Basic match - AI analysis incomplete',\n        concerns: 'AI analysis failed: ' + error.message,\n        technicalFit: 50,\n        experienceFit: 50,\n        salaryFit: 50,\n        availabilityFit: 50\n      });\n    }\n  }\n}\n\n// Sort by score descending\nresults.sort((a, b) => b.score - a.score);\n\n// Calculate execution time\nconst executionTime = (Date.now() - startTime) / 1000;\n\n// Return aggregated result\nreturn {\n  ranked_candidates: results,\n  total_analyzed: results.length,\n  execution_time: executionTime\n};"
+      },
+      "id": "process-results",
+      "name": "Process & Rank Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {\n  \"success\": true,\n  \"data\": $json,\n  \"message\": \"AI matching completed successfully\"\n} }}"
+      },
+      "id": "respond-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1560, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context": {
+      "main": [
+        [
+          {
+            "node": "Split Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Candidates": {
+      "main": [
+        [
+          {
+            "node": "Prepare Ollama Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Ollama Request": {
+      "main": [
+        [
+          {
+            "node": "Call Ollama AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Ollama AI": {
+      "main": [
+        [
+          {
+            "node": "Process & Rank Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process & Rank Results": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "id": "ai-candidate-matching",
+  "meta": {
+    "instanceId": "candyhire-n8n"
+  },
+  "tags": []
+}

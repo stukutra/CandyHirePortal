@@ -13,10 +13,11 @@
 set -e
 
 N8N_URL="http://localhost:5678"
-WORKFLOW_FILE="n8n_workflows/cv-extract-data-ollama.json"
+WORKFLOW_CV="n8n_workflows/cv-extract-data-ollama.json"
+WORKFLOW_MATCHING="n8n_workflows/ai-candidate-matching.json"
 
 echo "=========================================="
-echo "Setup Completo n8n + Workflow Ollama"
+echo "Setup Completo n8n + Workflows"
 echo "=========================================="
 echo ""
 
@@ -84,28 +85,46 @@ if [ ! -f "$COOKIE_FILE" ] || ! grep -q "n8n-auth" "$COOKIE_FILE"; then
     exit 1
 fi
 
-# STEP 5: Import workflow (attivo)
-if [ ! -f "$WORKFLOW_FILE" ]; then
-    echo "✗ Workflow file not found: $WORKFLOW_FILE"
+# STEP 5: Import workflows (active)
+echo ""
+echo "Importing workflows..."
+
+# Import CV Extract workflow
+if [ ! -f "$WORKFLOW_CV" ]; then
+    echo "✗ CV workflow file not found: $WORKFLOW_CV"
     exit 1
 fi
 
-WORKFLOW_JSON=$(cat "$WORKFLOW_FILE" | sed 's/"active":\s*false/"active": true/g')
-
+WORKFLOW_JSON=$(cat "$WORKFLOW_CV" | sed 's/"active":\s*false/"active": true/g')
 IMPORT_RESPONSE=$(curl -s -b "$COOKIE_FILE" -X POST "$N8N_URL/rest/workflows" \
     -H "Content-Type: application/json" \
     -d "$WORKFLOW_JSON")
+WORKFLOW_ID_CV=$(echo "$IMPORT_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 
-WORKFLOW_ID=$(echo "$IMPORT_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
+if [ -n "$WORKFLOW_ID_CV" ]; then
+    echo "✓ CV Extract workflow imported (ID: $WORKFLOW_ID_CV)"
+else
+    echo "✗ Failed to import CV Extract workflow"
+fi
+
+# Import AI Candidate Matching workflow
+if [ ! -f "$WORKFLOW_MATCHING" ]; then
+    echo "✗ Matching workflow file not found: $WORKFLOW_MATCHING"
+    exit 1
+fi
+
+WORKFLOW_JSON=$(cat "$WORKFLOW_MATCHING" | sed 's/"active":\s*false/"active": true/g')
+IMPORT_RESPONSE=$(curl -s -b "$COOKIE_FILE" -X POST "$N8N_URL/rest/workflows" \
+    -H "Content-Type: application/json" \
+    -d "$WORKFLOW_JSON")
+WORKFLOW_ID_MATCHING=$(echo "$IMPORT_RESPONSE" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 
 rm -f "$COOKIE_FILE"
 
-if [ -n "$WORKFLOW_ID" ]; then
-    echo "✓ Workflow imported and ACTIVE"
-    echo "  ID: $WORKFLOW_ID"
-    echo "  Name: CV Extract Data (Ollama AI)"
+if [ -n "$WORKFLOW_ID_MATCHING" ]; then
+    echo "✓ AI Candidate Matching workflow imported (ID: $WORKFLOW_ID_MATCHING)"
 else
-    echo "✗ Failed to import workflow"
+    echo "✗ Failed to import AI Candidate Matching workflow"
     exit 1
 fi
 
@@ -114,16 +133,22 @@ echo "=========================================="
 echo "Setup Completato! 🎉"
 echo "=========================================="
 echo ""
-echo "Webhook attivo:"
-echo "  POST http://localhost:5678/webhook/upload-cv"
+echo "Webhooks attivi:"
+echo "  1. CV Extract: POST http://localhost:5678/webhook/upload-cv"
+echo "  2. AI Matching: POST http://localhost:5678/webhook/ai-match-candidates"
 echo ""
 echo "n8n UI:"
 echo "  URL: http://localhost:5678"
 echo "  Email: admin@candyhire.local"
 echo "  Password: Admin123456"
 echo ""
-echo "Test webhook:"
+echo "Test CV webhook:"
 echo "  curl -X POST http://localhost:5678/webhook/upload-cv \\"
 echo "    -H 'Content-Type: application/json' \\"
 echo "    -d '{\"fileName\":\"test.pdf\",\"fileContent\":\"dGVzdA==\"}'"
+echo ""
+echo "Test AI Matching webhook:"
+echo "  curl -X POST http://localhost:5678/webhook/ai-match-candidates \\"
+echo "    -H 'Content-Type: application/json' \\"
+echo "    -d '{\"tenant_id\":\"1\",\"job\":{\"id\":\"1\"},\"config\":{\"maxCandidates\":10}}'"
 echo ""
